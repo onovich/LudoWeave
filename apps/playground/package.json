@@ -1,0 +1,19 @@
+{
+  "name": "@ludoweave/playground",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "vite build",
+    "dev": "pnpm --filter @ludoweave/core build && pnpm --filter @ludoweave/components build && pnpm --filter @ludoweave/renderer-dom build && vite --host 127.0.0.1",
+    "typecheck": "tsc -p tsconfig.json --noEmit"
+  },
+  "dependencies": {
+    "@ludoweave/components": "workspace:*",
+    "@ludoweave/core": "workspace:*",
+    "@ludoweave/renderer-dom": "workspace:*"
+  },
+  "devDependencies": {
+    "vite": "^8.0.16"
+  }
+}

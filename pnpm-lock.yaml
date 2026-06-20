@@ -33,6 +33,22 @@ importers:
         specifier: ^4.1.9
         version: 4.1.9(vite@8.0.16)
 
+  apps/playground:
+    dependencies:
+      '@ludoweave/components':
+        specifier: workspace:*
+        version: link:../../packages/components
+      '@ludoweave/core':
+        specifier: workspace:*
+        version: link:../../packages/core
+      '@ludoweave/renderer-dom':
+        specifier: workspace:*
+        version: link:../../packages/renderer-dom
+    devDependencies:
+      vite:
+        specifier: ^8.0.16
+        version: 8.0.16
+
   packages/components:
     dependencies:
       '@ludoweave/core':

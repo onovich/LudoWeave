@@ -1,0 +1,106 @@
+:root {
+  color: #f8fafc;
+  background: #0b1020;
+  font-family:
+    Inter,
+    ui-sans-serif,
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-width: 320px;
+  min-height: 100vh;
+}
+
+#app {
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+}
+
+.scene {
+  position: relative;
+  width: min(100%, 1280px);
+  aspect-ratio: 16 / 9;
+  min-height: 360px;
+  overflow: hidden;
+  background: #111827;
+  border: 1px solid #334155;
+}
+
+.scene__world,
+#runtime-root {
+  position: absolute;
+  inset: 0;
+}
+
+.scene__world {
+  background:
+    linear-gradient(transparent 0 74%, #1f2937 74% 100%),
+    repeating-linear-gradient(90deg, #172033 0 1px, transparent 1px 80px), #0f172a;
+}
+
+.scene__gate {
+  position: absolute;
+  left: 50%;
+  bottom: 28%;
+  width: 160px;
+  height: 220px;
+  transform: translateX(-50%);
+  border: 2px solid #38bdf8;
+  background: #020617;
+  box-shadow: 0 0 48px rgba(56, 189, 248, 0.28);
+}
+
+.scene__floor {
+  position: absolute;
+  left: 10%;
+  right: 10%;
+  bottom: 18%;
+  height: 1px;
+  background: #64748b;
+}
+
+#runtime-root {
+  pointer-events: none;
+}
+
+[data-ludoweave-node-type="button"] {
+  border: 1px solid #94a3b8;
+  background: #111827;
+  color: #f8fafc;
+  font: inherit;
+  font-weight: 700;
+  letter-spacing: 0;
+  cursor: default;
+  pointer-events: auto;
+}
+
+[data-ludoweave-node-type="text"] {
+  display: grid;
+  place-items: center;
+  color: #f8fafc;
+  font-size: 18px;
+  line-height: 24px;
+  text-shadow: 0 2px 8px #020617;
+}
+
+@media (max-width: 720px) {
+  #app {
+    padding: 12px;
+  }
+
+  .scene {
+    min-height: 300px;
+  }
+}
