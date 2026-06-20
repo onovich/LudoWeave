@@ -9,6 +9,7 @@ export interface HeadlessRenderResult {
   readonly rendererId: string;
   readonly frameId: number;
   readonly frame: ResolvedUiFrame;
+  readonly snapshot: string;
 }
 
 /**
@@ -32,6 +33,15 @@ export interface HeadlessRendererOptions {
 }
 
 /**
+ * Serializes a frame using stable object key ordering for deterministic snapshots.
+ *
+ * @public
+ */
+export function serializeHeadlessFrame(frame: ResolvedUiFrame): string {
+  return `${JSON.stringify(toCanonicalJson(frame), null, 2)}\n`;
+}
+
+/**
  * Creates a renderer that records frame consumption without touching DOM or canvas APIs.
  *
  * @public
@@ -51,10 +61,48 @@ export function createHeadlessRenderer(options: HeadlessRendererOptions = {}): H
         rendererId: id,
         frameId: frame.frameId,
         frame,
+        snapshot: serializeHeadlessFrame(frame),
       };
     },
     dispose() {
       disposed = true;
     },
   };
+}
+
+type CanonicalJson =
+  | null
+  | boolean
+  | number
+  | string
+  | readonly CanonicalJson[]
+  | { readonly [key: string]: CanonicalJson };
+
+function toCanonicalJson(value: unknown): CanonicalJson {
+  if (
+    value === null ||
+    typeof value === "boolean" ||
+    typeof value === "number" ||
+    typeof value === "string"
+  ) {
+    return value;
+  }
+
+  if (Array.isArray(value)) {
+    return value.map((entry) => toCanonicalJson(entry));
+  }
+
+  if (typeof value === "object") {
+    const record = value as Record<string, unknown>;
+    const normalized: Record<string, CanonicalJson> = {};
+    for (const key of Object.keys(record).sort()) {
+      const child = record[key];
+      if (child !== undefined) {
+        normalized[key] = toCanonicalJson(child);
+      }
+    }
+    return normalized;
+  }
+
+  throw new TypeError("Headless snapshots only support JSON-serializable frames.");
 }
