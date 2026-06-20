@@ -5,6 +5,20 @@
 ```ts
 
 // @public
+export interface AbsoluteAnchor {
+    // (undocumented)
+    readonly horizontal?: LayoutAnchorAlignment;
+    // (undocumented)
+    readonly inset?: Partial<ResolvedSafeArea>;
+    // (undocumented)
+    readonly offsetX?: number;
+    // (undocumented)
+    readonly offsetY?: number;
+    // (undocumented)
+    readonly vertical?: LayoutAnchorAlignment;
+}
+
+// @public
 export interface ActionRef {
     readonly payload?: Readonly<Record<string, JsonValue>>;
     readonly type: string;
@@ -66,6 +80,9 @@ export type JsonObject = {
 
 // @public
 export type JsonValue = null | boolean | number | string | JsonArray | JsonObject;
+
+// @public
+export type LayoutAnchorAlignment = "start" | "center" | "end";
 
 // @public
 export interface LayoutEnvironment {
@@ -140,6 +157,21 @@ export interface RenderCommandBase {
     readonly id: string;
     // (undocumented)
     readonly nodeId: string;
+}
+
+// @public
+export function resolveAbsoluteAnchor(options: ResolveAbsoluteAnchorOptions): ResolvedRect;
+
+// @public
+export interface ResolveAbsoluteAnchorOptions {
+    // (undocumented)
+    readonly anchor: AbsoluteAnchor;
+    // (undocumented)
+    readonly container: ResolvedRect;
+    // (undocumented)
+    readonly diagnostics?: DiagnosticSink;
+    // (undocumented)
+    readonly size: Pick<ResolvedRect, "width" | "height">;
 }
 
 // @public

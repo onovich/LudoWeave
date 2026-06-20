@@ -28,7 +28,7 @@ describe("serializeHeadlessFrame", () => {
               "height": 48,
               "width": 240,
               "x": 520,
-              "y": 620
+              "y": 596
             },
             "id": "action.prompt",
             "label": "Press E",
@@ -47,7 +47,7 @@ describe("serializeHeadlessFrame", () => {
               "height": 48,
               "width": 240,
               "x": 520,
-              "y": 620
+              "y": 596
             },
             "id": "root/key:prompt",
             "index": 0,
@@ -68,7 +68,7 @@ describe("serializeHeadlessFrame", () => {
               "height": 48,
               "width": 240,
               "x": 520,
-              "y": 620
+              "y": 596
             },
             "fill": "#111827",
             "id": "paint.prompt.box",
@@ -87,6 +87,12 @@ describe("serializeHeadlessFrame", () => {
         "viewport": {
           "devicePixelRatio": 1,
           "height": 720,
+          "safeArea": {
+            "bottom": 24,
+            "left": 0,
+            "right": 0,
+            "top": 0
+          },
           "width": 1280
         }
       }

@@ -92,6 +92,38 @@ export interface StackLayoutBox {
 }
 
 /**
+ * Alignment used by absolute anchors on one axis.
+ *
+ * @public
+ */
+export type LayoutAnchorAlignment = "start" | "center" | "end";
+
+/**
+ * Absolute anchor placement within a resolved container.
+ *
+ * @public
+ */
+export interface AbsoluteAnchor {
+  readonly horizontal?: LayoutAnchorAlignment;
+  readonly vertical?: LayoutAnchorAlignment;
+  readonly inset?: Partial<ResolvedSafeArea>;
+  readonly offsetX?: number;
+  readonly offsetY?: number;
+}
+
+/**
+ * Options for {@link resolveAbsoluteAnchor}.
+ *
+ * @public
+ */
+export interface ResolveAbsoluteAnchorOptions {
+  readonly anchor: AbsoluteAnchor;
+  readonly container: ResolvedRect;
+  readonly size: Pick<ResolvedRect, "width" | "height">;
+  readonly diagnostics?: DiagnosticSink;
+}
+
+/**
  * v0.1 size value: fixed pixels or percentage of available space.
  *
  * @public
@@ -244,6 +276,47 @@ export function resolveSizeConstraints(
   return { width, height };
 }
 
+/**
+ * Resolves an absolute anchor into a renderer-ready layout box.
+ *
+ * @public
+ */
+export function resolveAbsoluteAnchor(options: ResolveAbsoluteAnchorOptions): ResolvedRect {
+  const diagnostics = options.diagnostics ?? createDiagnosticSink();
+  const container = normalizeRect(options.container, "anchor.container", diagnostics);
+  const size = {
+    width: normalizeNonNegativeNumber(options.size.width, "anchor.size.width", diagnostics),
+    height: normalizeNonNegativeNumber(options.size.height, "anchor.size.height", diagnostics),
+  };
+  const anchor = options.anchor;
+  const horizontal = normalizeAnchorAlignment(
+    anchor.horizontal ?? "start",
+    "anchor.horizontal",
+    diagnostics,
+  );
+  const vertical = normalizeAnchorAlignment(
+    anchor.vertical ?? "start",
+    "anchor.vertical",
+    diagnostics,
+  );
+  const inset = normalizeAnchorInset(anchor.inset ?? {}, diagnostics);
+  const offsetX = normalizeFiniteNumber(anchor.offsetX ?? 0, "anchor.offsetX", 0, diagnostics);
+  const offsetY = normalizeFiniteNumber(anchor.offsetY ?? 0, "anchor.offsetY", 0, diagnostics);
+  const inner = {
+    x: container.x + inset.left,
+    y: container.y + inset.top,
+    width: Math.max(0, container.width - inset.left - inset.right),
+    height: Math.max(0, container.height - inset.top - inset.bottom),
+  };
+
+  return {
+    x: getAnchoredPosition(horizontal, inner.x, inner.width, size.width) + offsetX,
+    y: getAnchoredPosition(vertical, inner.y, inner.height, size.height) + offsetY,
+    width: size.width,
+    height: size.height,
+  };
+}
+
 type NormalizedStackChild = {
   readonly id: string;
   readonly width: number;
@@ -301,6 +374,23 @@ function getAlignOffset(align: StackAlign, available: number, child: number): nu
   }
 
   return 0;
+}
+
+function getAnchoredPosition(
+  alignment: LayoutAnchorAlignment,
+  origin: number,
+  available: number,
+  size: number,
+): number {
+  if (alignment === "center") {
+    return origin + (available - size) / 2;
+  }
+
+  if (alignment === "end") {
+    return origin + available - size;
+  }
+
+  return origin;
 }
 
 type ResolveConstrainedAxisOptions = {
@@ -381,6 +471,52 @@ function capitalize(value: string): string {
   return `${value[0]?.toUpperCase() ?? ""}${value.slice(1)}`;
 }
 
+function normalizeRect(
+  rect: ResolvedRect,
+  path: string,
+  diagnostics: DiagnosticSink,
+): ResolvedRect {
+  return {
+    x: normalizeFiniteNumber(rect.x, `${path}.x`, 0, diagnostics),
+    y: normalizeFiniteNumber(rect.y, `${path}.y`, 0, diagnostics),
+    width: normalizeNonNegativeNumber(rect.width, `${path}.width`, diagnostics),
+    height: normalizeNonNegativeNumber(rect.height, `${path}.height`, diagnostics),
+  };
+}
+
+function normalizeAnchorInset(
+  inset: Partial<ResolvedSafeArea>,
+  diagnostics: DiagnosticSink,
+): ResolvedSafeArea {
+  return {
+    top: normalizeNonNegativeNumber(inset.top ?? 0, "anchor.inset.top", diagnostics),
+    right: normalizeNonNegativeNumber(inset.right ?? 0, "anchor.inset.right", diagnostics),
+    bottom: normalizeNonNegativeNumber(inset.bottom ?? 0, "anchor.inset.bottom", diagnostics),
+    left: normalizeNonNegativeNumber(inset.left ?? 0, "anchor.inset.left", diagnostics),
+  };
+}
+
+function normalizeAnchorAlignment(
+  alignment: LayoutAnchorAlignment,
+  path: string,
+  diagnostics: DiagnosticSink,
+): LayoutAnchorAlignment {
+  if (alignment === "start" || alignment === "center" || alignment === "end") {
+    return alignment;
+  }
+
+  diagnostics.report({
+    code: coreDiagnosticCodes.invalidLayout,
+    severity: "error",
+    message: `${path} must be start, center, or end.`,
+    path: [path],
+    details: {
+      fallback: "start",
+    },
+  });
+  return "start";
+}
+
 function normalizeSafeArea(
   safeArea: Partial<ResolvedSafeArea>,
   diagnostics: DiagnosticSink,
@@ -411,6 +547,28 @@ function normalizePositiveNumber(
     code: coreDiagnosticCodes.invalidLayout,
     severity: "error",
     message: `${path} must be a positive finite number.`,
+    path: [path],
+    details: {
+      fallback,
+    },
+  });
+  return fallback;
+}
+
+function normalizeFiniteNumber(
+  value: number,
+  path: string,
+  fallback: number,
+  diagnostics: DiagnosticSink,
+): number {
+  if (Number.isFinite(value)) {
+    return value;
+  }
+
+  diagnostics.report({
+    code: coreDiagnosticCodes.invalidLayout,
+    severity: "error",
+    message: `${path} must be a finite number.`,
     path: [path],
     details: {
       fallback,

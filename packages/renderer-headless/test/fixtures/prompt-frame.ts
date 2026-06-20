@@ -1,13 +1,38 @@
-import type { ResolvedUiFrame } from "@ludoweave/core";
+import {
+  createLayoutEnvironment,
+  resolveAbsoluteAnchor,
+  type ResolvedUiFrame,
+} from "@ludoweave/core";
 
 export function createPromptFrameFixture(): ResolvedUiFrame {
-  return {
-    frameId: 1,
+  const environment = createLayoutEnvironment({
     viewport: {
       width: 1280,
       height: 720,
       devicePixelRatio: 1,
+      safeArea: {
+        top: 0,
+        right: 0,
+        bottom: 24,
+        left: 0,
+      },
     },
+  });
+  const box = resolveAbsoluteAnchor({
+    container: environment.contentBox,
+    size: { width: 240, height: 48 },
+    anchor: {
+      horizontal: "center",
+      vertical: "end",
+      inset: {
+        bottom: 52,
+      },
+    },
+  });
+
+  return {
+    frameId: 1,
+    viewport: environment.viewport,
     nodes: [
       {
         id: "root/key:prompt",
@@ -15,7 +40,7 @@ export function createPromptFrameFixture(): ResolvedUiFrame {
         type: "button",
         key: "prompt",
         index: 0,
-        box: { x: 520, y: 620, width: 240, height: 48 },
+        box,
         props: { label: "Press E" },
       },
     ],
@@ -24,7 +49,7 @@ export function createPromptFrameFixture(): ResolvedUiFrame {
         id: "paint.prompt.box",
         kind: "box",
         nodeId: "root/key:prompt",
-        box: { x: 520, y: 620, width: 240, height: 48 },
+        box,
         fill: "#111827",
       },
     ],
@@ -42,7 +67,7 @@ export function createPromptFrameFixture(): ResolvedUiFrame {
         nodeId: "root/key:prompt",
         path: ["root", "key:prompt"],
         action: { type: "runtime.gameplay.interact" },
-        box: { x: 520, y: 620, width: 240, height: 48 },
+        box,
         label: "Press E",
       },
     ],

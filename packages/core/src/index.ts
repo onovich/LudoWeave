@@ -10,9 +10,12 @@ export type {
 export { coreDiagnosticCodes, createDiagnosticSink, normalizeUiDiagnostic } from "./diagnostics.js";
 export type { JsonArray, JsonObject, JsonValue } from "./json-value.js";
 export type {
+  AbsoluteAnchor,
   CreateLayoutEnvironmentOptions,
+  LayoutAnchorAlignment,
   LayoutEnvironment,
   LayoutSizeValue,
+  ResolveAbsoluteAnchorOptions,
   LayoutViewportInput,
   ResolveSizeConstraintsOptions,
   SizeConstraints,
@@ -23,7 +26,12 @@ export type {
   StackLayoutChildInput,
   StackLayoutOptions,
 } from "./layout.js";
-export { createLayoutEnvironment, resolveSizeConstraints, resolveStackLayout } from "./layout.js";
+export {
+  createLayoutEnvironment,
+  resolveAbsoluteAnchor,
+  resolveSizeConstraints,
+  resolveStackLayout,
+} from "./layout.js";
 export type {
   BoxRenderCommand,
   RenderCommand,
