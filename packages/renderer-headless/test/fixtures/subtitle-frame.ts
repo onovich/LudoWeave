@@ -1,17 +1,10 @@
-import type { ResolvedRect, ResolvedUiFrame } from "@ludoweave/core";
-
-export interface TextMeasureInput {
-  readonly text: string;
-  readonly fontSize: number;
-  readonly maxWidth: number;
-}
-
-export interface TextMeasureResult {
-  readonly width: number;
-  readonly height: number;
-}
-
-export type TextMeasure = (input: TextMeasureInput) => TextMeasureResult;
+import {
+  resolveAbsoluteAnchor,
+  resolveTextMeasure,
+  snapRectToPixelGrid,
+  type ResolvedUiFrame,
+  type TextMeasure,
+} from "@ludoweave/core";
 
 export interface DeterministicTextMeasureOptions {
   readonly characterWidth?: number;
@@ -46,17 +39,25 @@ export function createSubtitleFrameFixture(
     height: 720,
     devicePixelRatio: 1,
   };
-  const measured = measureText({
+  const measured = resolveTextMeasure({
     text,
     fontSize,
     maxWidth: 960,
+    measureText,
   });
-  const box = centerBottom({
-    width: measured.width,
-    height: measured.height,
-    viewportWidth: viewport.width,
-    viewportHeight: viewport.height,
-    bottomOffset: 72,
+  const box = snapRectToPixelGrid({
+    devicePixelRatio: viewport.devicePixelRatio,
+    rect: resolveAbsoluteAnchor({
+      container: { x: 0, y: 0, width: viewport.width, height: viewport.height },
+      size: measured,
+      anchor: {
+        horizontal: "center",
+        vertical: "end",
+        inset: {
+          bottom: 72,
+        },
+      },
+    }),
   });
 
   return {
@@ -94,20 +95,5 @@ export function createSubtitleFrameFixture(
     ],
     actions: [],
     diagnostics: [],
-  };
-}
-
-function centerBottom(input: {
-  readonly width: number;
-  readonly height: number;
-  readonly viewportWidth: number;
-  readonly viewportHeight: number;
-  readonly bottomOffset: number;
-}): ResolvedRect {
-  return {
-    x: Math.round((input.viewportWidth - input.width) / 2),
-    y: input.viewportHeight - input.bottomOffset - input.height,
-    width: input.width,
-    height: input.height,
   };
 }

@@ -147,6 +147,9 @@ export interface NormalizeUiTreeOptions {
 }
 
 // @public
+export type PixelSnapPolicy = "none" | "device-pixel";
+
+// @public
 export type RenderCommand = BoxRenderCommand | TextRenderCommand;
 
 // @public
@@ -280,6 +283,25 @@ export interface ResolveSizeConstraintsOptions {
 export function resolveStackLayout(options: StackLayoutOptions): readonly StackLayoutBox[];
 
 // @public
+export function resolveTextMeasure(options: ResolveTextMeasureOptions): TextMeasureResult;
+
+// @public
+export interface ResolveTextMeasureOptions {
+    // (undocumented)
+    readonly diagnostics?: DiagnosticSink;
+    // (undocumented)
+    readonly fontFamily?: string;
+    // (undocumented)
+    readonly fontSize?: number;
+    // (undocumented)
+    readonly maxWidth: number;
+    // (undocumented)
+    readonly measureText: TextMeasure;
+    // (undocumented)
+    readonly text: string;
+}
+
+// @public
 export interface SemanticNode {
     // (undocumented)
     readonly children?: readonly string[];
@@ -314,6 +336,21 @@ export interface SizeConstraints {
     readonly minWidth?: LayoutSizeValue;
     // (undocumented)
     readonly width?: LayoutSizeValue;
+}
+
+// @public
+export function snapRectToPixelGrid(options: SnapRectToPixelGridOptions): ResolvedRect;
+
+// @public
+export interface SnapRectToPixelGridOptions {
+    // (undocumented)
+    readonly devicePixelRatio: number;
+    // (undocumented)
+    readonly diagnostics?: DiagnosticSink;
+    // (undocumented)
+    readonly policy?: PixelSnapPolicy;
+    // (undocumented)
+    readonly rect: ResolvedRect;
 }
 
 // @public
@@ -361,6 +398,29 @@ export interface StackLayoutOptions {
     readonly justify?: StackJustify;
     // (undocumented)
     readonly origin?: Pick<ResolvedRect, "x" | "y">;
+}
+
+// @public
+export type TextMeasure = (input: TextMeasureInput) => TextMeasureResult;
+
+// @public
+export interface TextMeasureInput {
+    // (undocumented)
+    readonly fontFamily?: string;
+    // (undocumented)
+    readonly fontSize: number;
+    // (undocumented)
+    readonly maxWidth: number;
+    // (undocumented)
+    readonly text: string;
+}
+
+// @public
+export interface TextMeasureResult {
+    // (undocumented)
+    readonly height: number;
+    // (undocumented)
+    readonly width: number;
 }
 
 // @public

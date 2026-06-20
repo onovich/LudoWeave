@@ -32,6 +32,8 @@ export {
   resolveSizeConstraints,
   resolveStackLayout,
 } from "./layout.js";
+export type { PixelSnapPolicy, SnapRectToPixelGridOptions } from "./pixel-snapping.js";
+export { snapRectToPixelGrid } from "./pixel-snapping.js";
 export type {
   BoxRenderCommand,
   RenderCommand,
@@ -53,5 +55,12 @@ export type {
   UiNodePath,
 } from "./tree-normalize.js";
 export { normalizeUiTree } from "./tree-normalize.js";
+export type {
+  ResolveTextMeasureOptions,
+  TextMeasure,
+  TextMeasureInput,
+  TextMeasureResult,
+} from "./text-measure.js";
+export { resolveTextMeasure } from "./text-measure.js";
 export type { UiNode, UiNodeChildrenInput, UiNodeInput, UiStyle } from "./ui-node.js";
 export { normalizeUiNode } from "./ui-node.js";
