@@ -49,6 +49,15 @@ export const coreDiagnosticCodes: {
 };
 
 // @public
+export function createActionLog(options?: CreateActionLogOptions): UiActionLog;
+
+// @public
+export interface CreateActionLogOptions {
+    // (undocumented)
+    readonly startSequence?: number;
+}
+
+// @public
 export function createDiagnosticSink(initialDiagnostics?: readonly UiDiagnosticInput[]): DiagnosticSink;
 
 // @public
@@ -148,6 +157,14 @@ export interface NormalizeUiTreeOptions {
 
 // @public
 export type PixelSnapPolicy = "none" | "device-pixel";
+
+// @public
+export interface RecordUiActionOptions {
+    // (undocumented)
+    readonly action: ActionRefInput;
+    // (undocumented)
+    readonly source?: UiActionLogSource;
+}
 
 // @public
 export type RenderCommand = BoxRenderCommand | TextRenderCommand;
@@ -435,6 +452,34 @@ export interface TextRenderCommand extends RenderCommandBase {
     readonly kind: "text";
     // (undocumented)
     readonly text: string;
+}
+
+// @public
+export interface UiActionLog {
+    // (undocumented)
+    clear(): void;
+    // (undocumented)
+    record(options: RecordUiActionOptions): UiActionLogEntry;
+    // (undocumented)
+    snapshot(): readonly UiActionLogEntry[];
+}
+
+// @public
+export interface UiActionLogEntry extends UiActionLogSource {
+    // (undocumented)
+    readonly action: ActionRef;
+    // (undocumented)
+    readonly sequence: number;
+}
+
+// @public
+export interface UiActionLogSource {
+    // (undocumented)
+    readonly actionTargetId?: string;
+    // (undocumented)
+    readonly label?: string;
+    // (undocumented)
+    readonly nodeId?: string;
 }
 
 // @public

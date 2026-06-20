@@ -1,6 +1,14 @@
 export type { ActionRef, ActionRefInput } from "./action-ref.js";
 export { normalizeActionRef } from "./action-ref.js";
 export type {
+  CreateActionLogOptions,
+  RecordUiActionOptions,
+  UiActionLog,
+  UiActionLogEntry,
+  UiActionLogSource,
+} from "./action-log.js";
+export { createActionLog } from "./action-log.js";
+export type {
   DiagnosticSink,
   UiDiagnostic,
   UiDiagnosticCode,
