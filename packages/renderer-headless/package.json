@@ -21,5 +21,8 @@
   },
   "dependencies": {
     "@ludoweave/core": "workspace:*"
+  },
+  "devDependencies": {
+    "@ludoweave/components": "workspace:*"
   }
 }

@@ -63,9 +63,12 @@ export function renderButton(props: Readonly<ButtonProps>): UiNodeInput {
   const input: InteractiveNodeInput = {
     type: "button",
     label: props.label,
-    intent,
     action,
   };
+
+  if (intent !== "default") {
+    input.intent = intent;
+  }
 
   if (props.key !== undefined) {
     input.key = props.key;

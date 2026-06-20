@@ -1,10 +1,13 @@
 import {
+  normalizeUiNode,
   resolveAbsoluteAnchor,
   resolveTextMeasure,
   snapRectToPixelGrid,
   type ResolvedUiFrame,
   type TextMeasure,
+  type UiNode,
 } from "@ludoweave/core";
+import { Subtitle } from "@ludoweave/components";
 
 export interface DeterministicTextMeasureOptions {
   readonly characterWidth?: number;
@@ -32,6 +35,10 @@ export function createSubtitleFrameFixture(
   options: SubtitleFrameFixtureOptions = {},
 ): ResolvedUiFrame {
   const text = options.text ?? "The gate hums softly.";
+  const subtitleNode = normalizeUiNode(Subtitle.render({ text }));
+  const key = requireKey(subtitleNode);
+  const props = requireProps(subtitleNode);
+  const subtitleText = getStringProp(subtitleNode, "text");
   const measureText = options.measureText ?? createDeterministicTextMeasure();
   const fontSize = 18;
   const viewport = {
@@ -40,7 +47,7 @@ export function createSubtitleFrameFixture(
     devicePixelRatio: 1,
   };
   const measured = resolveTextMeasure({
-    text,
+    text: subtitleText,
     fontSize,
     maxWidth: 960,
     measureText,
@@ -67,11 +74,11 @@ export function createSubtitleFrameFixture(
       {
         id: "root/key:subtitle",
         path: ["root", "key:subtitle"],
-        type: "text",
-        key: "subtitle",
+        type: subtitleNode.type,
+        key,
         index: 0,
         box,
-        props: { text },
+        props,
       },
     ],
     paint: [
@@ -80,7 +87,7 @@ export function createSubtitleFrameFixture(
         kind: "text",
         nodeId: "root/key:subtitle",
         box,
-        text,
+        text: subtitleText,
         color: "#f8fafc",
         fontSize,
       },
@@ -90,10 +97,32 @@ export function createSubtitleFrameFixture(
         id: "semantics.subtitle",
         nodeId: "root/key:subtitle",
         role: "text",
-        label: text,
+        label: subtitleText,
       },
     ],
     actions: [],
     diagnostics: [],
   };
+}
+
+function getStringProp(node: UiNode, propName: string): string {
+  const value = node.props?.[propName];
+  if (typeof value !== "string") {
+    throw new TypeError(`Subtitle fixture expected string prop ${propName}.`);
+  }
+  return value;
+}
+
+function requireKey(node: UiNode): string {
+  if (node.key === undefined) {
+    throw new TypeError("Subtitle fixture expected a key.");
+  }
+  return node.key;
+}
+
+function requireProps(node: UiNode): NonNullable<UiNode["props"]> {
+  if (node.props === undefined) {
+    throw new TypeError("Subtitle fixture expected props.");
+  }
+  return node.props;
 }
