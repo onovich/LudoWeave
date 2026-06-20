@@ -14,6 +14,25 @@ export interface ActionRef {
 export type ActionRefInput = string | ActionRef;
 
 // @public
+export const coreDiagnosticCodes: {
+    readonly invalidAction: "LW_CORE_INVALID_ACTION";
+    readonly invalidJson: "LW_CORE_INVALID_JSON";
+    readonly invalidUiNode: "LW_CORE_INVALID_UI_NODE";
+    readonly unsupportedLayout: "LW_CORE_UNSUPPORTED_LAYOUT";
+};
+
+// @public
+export function createDiagnosticSink(initialDiagnostics?: readonly UiDiagnosticInput[]): DiagnosticSink;
+
+// @public
+export interface DiagnosticSink {
+    clear(): void;
+    hasErrors(): boolean;
+    report(diagnostic: UiDiagnosticInput): UiDiagnostic;
+    snapshot(): readonly UiDiagnostic[];
+}
+
+// @public
 export type JsonArray = readonly JsonValue[];
 
 // @public
@@ -28,7 +47,39 @@ export type JsonValue = null | boolean | number | string | JsonArray | JsonObjec
 export function normalizeActionRef(input: ActionRefInput): ActionRef;
 
 // @public
+export function normalizeUiDiagnostic(input: UiDiagnosticInput): UiDiagnostic;
+
+// @public
 export function normalizeUiNode(input: UiNodeInput): UiNode;
+
+// @public
+export interface UiDiagnostic {
+    readonly code: UiDiagnosticCode;
+    readonly details?: Readonly<Record<string, JsonValue>>;
+    readonly message: string;
+    readonly path?: readonly string[];
+    readonly severity: UiDiagnosticSeverity;
+}
+
+// @public
+export type UiDiagnosticCode = string;
+
+// @public
+export interface UiDiagnosticInput {
+    // (undocumented)
+    readonly code: UiDiagnosticCode;
+    // (undocumented)
+    readonly details?: Readonly<Record<string, JsonValue>>;
+    // (undocumented)
+    readonly message: string;
+    // (undocumented)
+    readonly path?: readonly string[];
+    // (undocumented)
+    readonly severity: UiDiagnosticSeverity;
+}
+
+// @public
+export type UiDiagnosticSeverity = "info" | "warning" | "error";
 
 // @public
 export interface UiNode {
