@@ -13,12 +13,14 @@
     "lint": "eslint .",
     "structure-check": "node tooling/boundary-check/check-import-boundaries.mjs",
     "test": "vitest run --passWithNoTests",
+    "test:e2e": "playwright test",
     "typecheck": "pnpm -r --if-present typecheck",
     "validate": "pnpm lint && pnpm typecheck && pnpm build && pnpm test && pnpm structure-check && pnpm api-check"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
     "@microsoft/api-extractor": "^7.58.9",
+    "@playwright/test": "^1.61.0",
     "eslint": "^10.5.0",
     "globals": "^17.6.0",
     "prettier": "^3.8.4",

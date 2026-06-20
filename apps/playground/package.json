@@ -6,6 +6,7 @@
   "scripts": {
     "build": "vite build",
     "dev": "pnpm --filter @ludoweave/core build && pnpm --filter @ludoweave/components build && pnpm --filter @ludoweave/renderer-dom build && vite --host 127.0.0.1",
+    "dev:e2e": "pnpm --filter @ludoweave/core build && pnpm --filter @ludoweave/components build && pnpm --filter @ludoweave/renderer-dom build && vite --host 127.0.0.1 --port 5187 --strictPort",
     "typecheck": "tsc -p tsconfig.json --noEmit"
   },
   "dependencies": {
