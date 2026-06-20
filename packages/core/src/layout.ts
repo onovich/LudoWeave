@@ -41,6 +41,20 @@ export interface CreateLayoutEnvironmentOptions {
 export type StackDirection = "row" | "column";
 
 /**
+ * Cross-axis alignment for stack children.
+ *
+ * @public
+ */
+export type StackAlign = "start" | "center" | "end";
+
+/**
+ * Main-axis distribution for stack children.
+ *
+ * @public
+ */
+export type StackJustify = "start" | "center" | "end";
+
+/**
  * Fixed child size consumed by stack layout.
  *
  * @public
@@ -60,6 +74,9 @@ export interface StackLayoutOptions {
   readonly direction: StackDirection;
   readonly children: readonly StackLayoutChildInput[];
   readonly gap?: number;
+  readonly align?: StackAlign;
+  readonly justify?: StackJustify;
+  readonly container?: ResolvedRect;
   readonly origin?: Pick<ResolvedRect, "x" | "y">;
   readonly diagnostics?: DiagnosticSink;
 }
@@ -118,39 +135,107 @@ export function createLayoutEnvironment(
 export function resolveStackLayout(options: StackLayoutOptions): readonly StackLayoutBox[] {
   const diagnostics = options.diagnostics ?? createDiagnosticSink();
   const gap = normalizeNonNegativeNumber(options.gap ?? 0, "stack.gap", diagnostics);
-  const origin = options.origin ?? { x: 0, y: 0 };
-  let cursorX = origin.x;
-  let cursorY = origin.y;
+  const align = options.align ?? "start";
+  const justify = options.justify ?? "start";
+  const children = options.children.map((child, index) => ({
+    id: child.id,
+    width: normalizeNonNegativeNumber(child.width, `stack.children.${index}.width`, diagnostics),
+    height: normalizeNonNegativeNumber(child.height, `stack.children.${index}.height`, diagnostics),
+  }));
+  const origin = options.container ?? {
+    x: options.origin?.x ?? 0,
+    y: options.origin?.y ?? 0,
+    width: getStackMainSize(options.direction, children, gap),
+    height: getStackCrossSize(options.direction, children),
+  };
+  const mainSize = getStackMainSize(options.direction, children, gap);
+  const mainAvailable = options.direction === "row" ? origin.width : origin.height;
+  const crossAvailable = options.direction === "row" ? origin.height : origin.width;
+  let cursor =
+    getMainStart(options.direction, origin) + getJustifyOffset(justify, mainAvailable, mainSize);
 
-  return options.children.map((child, index) => {
-    const width = normalizeNonNegativeNumber(
-      child.width,
-      `stack.children.${index}.width`,
-      diagnostics,
-    );
-    const height = normalizeNonNegativeNumber(
-      child.height,
-      `stack.children.${index}.height`,
-      diagnostics,
-    );
-    const box = {
-      x: cursorX,
-      y: cursorY,
-      width,
-      height,
-    };
+  return children.map((child) => {
+    const box =
+      options.direction === "row"
+        ? {
+            x: cursor,
+            y: origin.y + getAlignOffset(align, crossAvailable, child.height),
+            width: child.width,
+            height: child.height,
+          }
+        : {
+            x: origin.x + getAlignOffset(align, crossAvailable, child.width),
+            y: cursor,
+            width: child.width,
+            height: child.height,
+          };
 
-    if (options.direction === "row") {
-      cursorX += width + gap;
-    } else {
-      cursorY += height + gap;
-    }
+    cursor += getMainChildSize(options.direction, child) + gap;
 
     return {
       id: child.id,
       box,
     };
   });
+}
+
+type NormalizedStackChild = {
+  readonly id: string;
+  readonly width: number;
+  readonly height: number;
+};
+
+function getStackMainSize(
+  direction: StackDirection,
+  children: readonly NormalizedStackChild[],
+  gap: number,
+): number {
+  const childSize = children.reduce((sum, child) => sum + getMainChildSize(direction, child), 0);
+  const gapSize = Math.max(0, children.length - 1) * gap;
+  return childSize + gapSize;
+}
+
+function getStackCrossSize(
+  direction: StackDirection,
+  children: readonly NormalizedStackChild[],
+): number {
+  return children.reduce((max, child) => Math.max(max, getCrossChildSize(direction, child)), 0);
+}
+
+function getMainChildSize(direction: StackDirection, child: NormalizedStackChild): number {
+  return direction === "row" ? child.width : child.height;
+}
+
+function getCrossChildSize(direction: StackDirection, child: NormalizedStackChild): number {
+  return direction === "row" ? child.height : child.width;
+}
+
+function getMainStart(direction: StackDirection, container: ResolvedRect): number {
+  return direction === "row" ? container.x : container.y;
+}
+
+function getJustifyOffset(justify: StackJustify, available: number, content: number): number {
+  if (justify === "center") {
+    return (available - content) / 2;
+  }
+
+  if (justify === "end") {
+    return available - content;
+  }
+
+  return 0;
+}
+
+function getAlignOffset(align: StackAlign, available: number, child: number): number {
+  if (align === "center") {
+    return (available - child) / 2;
+  }
+
+  if (align === "end") {
+    return available - child;
+  }
+
+  return 0;
 }
 
 function normalizeSafeArea(

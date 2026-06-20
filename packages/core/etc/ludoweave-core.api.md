@@ -251,7 +251,13 @@ export interface SemanticNode {
 export type SemanticRole = "generic" | "surface" | "text" | "button" | "dialog";
 
 // @public
+export type StackAlign = "start" | "center" | "end";
+
+// @public
 export type StackDirection = "row" | "column";
+
+// @public
+export type StackJustify = "start" | "center" | "end";
 
 // @public
 export interface StackLayoutBox {
@@ -274,13 +280,19 @@ export interface StackLayoutChildInput {
 // @public
 export interface StackLayoutOptions {
     // (undocumented)
+    readonly align?: StackAlign;
+    // (undocumented)
     readonly children: readonly StackLayoutChildInput[];
+    // (undocumented)
+    readonly container?: ResolvedRect;
     // (undocumented)
     readonly diagnostics?: DiagnosticSink;
     // (undocumented)
     readonly direction: StackDirection;
     // (undocumented)
     readonly gap?: number;
+    // (undocumented)
+    readonly justify?: StackJustify;
     // (undocumented)
     readonly origin?: Pick<ResolvedRect, "x" | "y">;
 }
