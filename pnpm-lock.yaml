@@ -41,6 +41,12 @@ importers:
 
   packages/core: {}
 
+  packages/renderer-dom:
+    dependencies:
+      '@ludoweave/core':
+        specifier: workspace:*
+        version: link:../core
+
   packages/renderer-headless:
     dependencies:
       '@ludoweave/core':
