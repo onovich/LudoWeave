@@ -1,5 +1,5 @@
 import { Prompt, Subtitle, type PromptProps, type SubtitleProps } from "@ludoweave/components";
-import type { ActionRefInput, UiNodeInput } from "@ludoweave/core";
+import type { UiNodeInput } from "@ludoweave/core";
 
 import type {
   RuntimeUIElement,
@@ -7,6 +7,7 @@ import type {
   RuntimeUISubtitleElement,
   RuntimeUIViewModel,
 } from "./view-model.js";
+import { mapRuntimeUIPromptAction } from "./action-mapping.js";
 
 export interface RuntimeUIComponentPropsMapping {
   readonly prompts: readonly PromptProps[];
@@ -48,7 +49,7 @@ function mapPromptElementToProps(element: RuntimeUIPromptElement): PromptProps {
   return {
     key: element.id,
     label: element.text,
-    action: mapPromptAction(element),
+    action: mapRuntimeUIPromptAction(element),
   };
 }
 
@@ -56,24 +57,6 @@ function mapSubtitleElementToProps(element: RuntimeUISubtitleElement): SubtitleP
   return {
     key: element.id,
     text: element.text,
-  };
-}
-
-function mapPromptAction(element: RuntimeUIPromptElement): ActionRefInput {
-  if (element.payload === undefined) {
-    return element.action;
-  }
-
-  if (typeof element.action === "string") {
-    return {
-      type: element.action,
-      payload: element.payload,
-    };
-  }
-
-  return {
-    ...element.action,
-    payload: element.payload,
   };
 }
 
