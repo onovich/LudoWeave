@@ -47,10 +47,40 @@ export type JsonValue = null | boolean | number | string | JsonArray | JsonObjec
 export function normalizeActionRef(input: ActionRefInput): ActionRef;
 
 // @public
+export interface NormalizedUiNode extends Omit<UiNode, "children"> {
+    readonly children?: readonly NormalizedUiNode[];
+    readonly id: string;
+    readonly index: number;
+    readonly parentId?: string;
+    readonly path: UiNodePath;
+}
+
+// @public
+export interface NormalizedUiTree {
+    // (undocumented)
+    readonly diagnostics: readonly UiDiagnostic[];
+    // (undocumented)
+    readonly nodes: readonly NormalizedUiNode[];
+    // (undocumented)
+    readonly root: NormalizedUiNode;
+}
+
+// @public
 export function normalizeUiDiagnostic(input: UiDiagnosticInput): UiDiagnostic;
 
 // @public
 export function normalizeUiNode(input: UiNodeInput): UiNode;
+
+// @public
+export function normalizeUiTree(input: UiNodeInput, options?: NormalizeUiTreeOptions): NormalizedUiTree;
+
+// @public
+export interface NormalizeUiTreeOptions {
+    // (undocumented)
+    readonly diagnostics?: DiagnosticSink;
+    // (undocumented)
+    readonly rootPath?: string;
+}
 
 // @public
 export interface UiDiagnostic {
@@ -109,6 +139,9 @@ export interface UiNodeInput {
     // (undocumented)
     readonly type: string;
 }
+
+// @public
+export type UiNodePath = readonly string[];
 
 // @public
 export type UiStyle = Readonly<Record<string, JsonValue>>;

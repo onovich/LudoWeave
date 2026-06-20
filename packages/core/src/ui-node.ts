@@ -154,5 +154,10 @@ function normalizeNodeKey(value: unknown): string {
     throw new TypeError("UiNode key must be a string.");
   }
 
-  return value;
+  const key = value.trim();
+  if (key.length === 0) {
+    throw new TypeError("UiNode key must not be empty.");
+  }
+
+  return key;
 }
