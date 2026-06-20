@@ -1,12 +1,11 @@
 import { describe, expect, it } from "vitest";
 
-import type { ResolvedUiFrame } from "@ludoweave/core";
-
 import { createHeadlessRenderer, serializeHeadlessFrame } from "../src/index.js";
+import { createPromptFrameFixture } from "./fixtures/prompt-frame.js";
 
 describe("serializeHeadlessFrame", () => {
   it("serializes frames with deterministic object key ordering", () => {
-    const frame = createFrame();
+    const frame = createPromptFrameFixture();
     const sameFrameDifferentKeyOrder = {
       diagnostics: frame.diagnostics,
       actions: frame.actions,
@@ -97,62 +96,12 @@ describe("serializeHeadlessFrame", () => {
 
   it("returns the deterministic snapshot from render", () => {
     const renderer = createHeadlessRenderer({ id: "test.headless" });
-    const result = renderer.render(createFrame());
+    const result = renderer.render(createPromptFrameFixture());
 
     expect(result.rendererId).toBe("test.headless");
     expect(result.snapshot).toBe(serializeHeadlessFrame(result.frame));
 
     renderer.dispose();
-    expect(() => renderer.render(createFrame())).toThrow(/disposed/);
+    expect(() => renderer.render(createPromptFrameFixture())).toThrow(/disposed/);
   });
 });
-
-function createFrame(): ResolvedUiFrame {
-  return {
-    frameId: 1,
-    viewport: {
-      width: 1280,
-      height: 720,
-      devicePixelRatio: 1,
-    },
-    nodes: [
-      {
-        id: "root/key:prompt",
-        path: ["root", "key:prompt"],
-        type: "button",
-        key: "prompt",
-        index: 0,
-        box: { x: 520, y: 620, width: 240, height: 48 },
-        props: { label: "Press E" },
-      },
-    ],
-    paint: [
-      {
-        id: "paint.prompt.box",
-        kind: "box",
-        nodeId: "root/key:prompt",
-        box: { x: 520, y: 620, width: 240, height: 48 },
-        fill: "#111827",
-      },
-    ],
-    semantics: [
-      {
-        id: "semantics.prompt",
-        nodeId: "root/key:prompt",
-        role: "button",
-        label: "Press E",
-      },
-    ],
-    actions: [
-      {
-        id: "action.prompt",
-        nodeId: "root/key:prompt",
-        path: ["root", "key:prompt"],
-        action: { type: "runtime.gameplay.interact" },
-        box: { x: 520, y: 620, width: 240, height: 48 },
-        label: "Press E",
-      },
-    ],
-    diagnostics: [],
-  };
-}
