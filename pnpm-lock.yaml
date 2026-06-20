@@ -35,6 +35,12 @@ importers:
 
   packages/core: {}
 
+  packages/renderer-headless:
+    dependencies:
+      '@ludoweave/core':
+        specifier: workspace:*
+        version: link:../core
+
 packages:
 
   '@emnapi/core@1.10.0':
