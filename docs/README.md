@@ -5,8 +5,9 @@
 ## Current Baseline
 
 - [v0.1 技术设计与架构设计](architecture/ludoweave-v0.1-technical-architecture.md)
-- [v0.1 开发计划](roadmap/ludoweave-v0.1-development-plan.md)
+- [v0.1 开发计划与当前状态](roadmap/ludoweave-v0.1-development-plan.md)
 - [v0.1 Goal 模式执行指南](goal-mode/ludoweave-v0.1-goal-mode-execution-guide.md) - 40 轮会话预算
+- [v0.1 Release Notes Draft](release/ludoweave-v0.1-release-notes-draft.md)
 - [对 Sinan RFC 的判断与研发计划重排](sinan-cooperation/ludoweave-response-and-rd-plan-2026-06-20.md)
 
 ## Decision Records
