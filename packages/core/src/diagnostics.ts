@@ -9,6 +9,7 @@ import { isPlainRecord, normalizeJsonObject } from "./json-normalize.js";
 export const coreDiagnosticCodes = {
   invalidAction: "LW_CORE_INVALID_ACTION",
   invalidJson: "LW_CORE_INVALID_JSON",
+  invalidLayout: "LW_CORE_INVALID_LAYOUT",
   invalidUiNode: "LW_CORE_INVALID_UI_NODE",
   unsupportedLayout: "LW_CORE_UNSUPPORTED_LAYOUT",
 } as const;

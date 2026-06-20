@@ -29,12 +29,24 @@ export interface BoxRenderCommand extends RenderCommandBase {
 export const coreDiagnosticCodes: {
     readonly invalidAction: "LW_CORE_INVALID_ACTION";
     readonly invalidJson: "LW_CORE_INVALID_JSON";
+    readonly invalidLayout: "LW_CORE_INVALID_LAYOUT";
     readonly invalidUiNode: "LW_CORE_INVALID_UI_NODE";
     readonly unsupportedLayout: "LW_CORE_UNSUPPORTED_LAYOUT";
 };
 
 // @public
 export function createDiagnosticSink(initialDiagnostics?: readonly UiDiagnosticInput[]): DiagnosticSink;
+
+// @public
+export function createLayoutEnvironment(options: CreateLayoutEnvironmentOptions): LayoutEnvironment;
+
+// @public
+export interface CreateLayoutEnvironmentOptions {
+    // (undocumented)
+    readonly diagnostics?: DiagnosticSink;
+    // (undocumented)
+    readonly viewport: LayoutViewportInput;
+}
 
 // @public
 export interface DiagnosticSink {
@@ -54,6 +66,26 @@ export type JsonObject = {
 
 // @public
 export type JsonValue = null | boolean | number | string | JsonArray | JsonObject;
+
+// @public
+export interface LayoutEnvironment {
+    // (undocumented)
+    readonly contentBox: ResolvedRect;
+    // (undocumented)
+    readonly viewport: ResolvedViewport;
+}
+
+// @public
+export interface LayoutViewportInput {
+    // (undocumented)
+    readonly devicePixelRatio?: number;
+    // (undocumented)
+    readonly height: number;
+    // (undocumented)
+    readonly safeArea?: Partial<ResolvedSafeArea>;
+    // (undocumented)
+    readonly width: number;
+}
 
 // @public
 export function normalizeActionRef(input: ActionRefInput): ActionRef;

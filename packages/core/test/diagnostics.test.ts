@@ -11,6 +11,7 @@ describe("diagnostics", () => {
     expect(Object.values(coreDiagnosticCodes)).toEqual([
       "LW_CORE_INVALID_ACTION",
       "LW_CORE_INVALID_JSON",
+      "LW_CORE_INVALID_LAYOUT",
       "LW_CORE_INVALID_UI_NODE",
       "LW_CORE_UNSUPPORTED_LAYOUT",
     ]);
