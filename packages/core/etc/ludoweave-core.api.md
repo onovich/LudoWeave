@@ -5,6 +5,15 @@
 ```ts
 
 // @public
+export interface ActionRef {
+    readonly payload?: Readonly<Record<string, JsonValue>>;
+    readonly type: string;
+}
+
+// @public
+export type ActionRefInput = string | ActionRef;
+
+// @public
 export type JsonArray = readonly JsonValue[];
 
 // @public
@@ -14,6 +23,9 @@ export type JsonObject = {
 
 // @public
 export type JsonValue = null | boolean | number | string | JsonArray | JsonObject;
+
+// @public
+export function normalizeActionRef(input: ActionRefInput): ActionRef;
 
 // (No @packageDocumentation comment for this package)
 
