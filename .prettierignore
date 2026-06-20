@@ -2,7 +2,9 @@ node_modules/
 .codex/
 AGENTS.md
 docs/
+**/etc/*.api.md
 dist/
+temp/
 coverage/
 playwright-report/
 test-results/
