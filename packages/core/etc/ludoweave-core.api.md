@@ -227,6 +227,9 @@ export interface ResolvedViewport {
 }
 
 // @public
+export function resolveStackLayout(options: StackLayoutOptions): readonly StackLayoutBox[];
+
+// @public
 export interface SemanticNode {
     // (undocumented)
     readonly children?: readonly string[];
@@ -246,6 +249,41 @@ export interface SemanticNode {
 
 // @public
 export type SemanticRole = "generic" | "surface" | "text" | "button" | "dialog";
+
+// @public
+export type StackDirection = "row" | "column";
+
+// @public
+export interface StackLayoutBox {
+    // (undocumented)
+    readonly box: ResolvedRect;
+    // (undocumented)
+    readonly id: string;
+}
+
+// @public
+export interface StackLayoutChildInput {
+    // (undocumented)
+    readonly height: number;
+    // (undocumented)
+    readonly id: string;
+    // (undocumented)
+    readonly width: number;
+}
+
+// @public
+export interface StackLayoutOptions {
+    // (undocumented)
+    readonly children: readonly StackLayoutChildInput[];
+    // (undocumented)
+    readonly diagnostics?: DiagnosticSink;
+    // (undocumented)
+    readonly direction: StackDirection;
+    // (undocumented)
+    readonly gap?: number;
+    // (undocumented)
+    readonly origin?: Pick<ResolvedRect, "x" | "y">;
+}
 
 // @public
 export interface TextRenderCommand extends RenderCommandBase {

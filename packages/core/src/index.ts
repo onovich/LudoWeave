@@ -13,8 +13,12 @@ export type {
   CreateLayoutEnvironmentOptions,
   LayoutEnvironment,
   LayoutViewportInput,
+  StackDirection,
+  StackLayoutBox,
+  StackLayoutChildInput,
+  StackLayoutOptions,
 } from "./layout.js";
-export { createLayoutEnvironment } from "./layout.js";
+export { createLayoutEnvironment, resolveStackLayout } from "./layout.js";
 export type {
   BoxRenderCommand,
   RenderCommand,

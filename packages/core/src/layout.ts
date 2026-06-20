@@ -34,6 +34,47 @@ export interface CreateLayoutEnvironmentOptions {
 }
 
 /**
+ * v0.1 stack direction.
+ *
+ * @public
+ */
+export type StackDirection = "row" | "column";
+
+/**
+ * Fixed child size consumed by stack layout.
+ *
+ * @public
+ */
+export interface StackLayoutChildInput {
+  readonly id: string;
+  readonly width: number;
+  readonly height: number;
+}
+
+/**
+ * Options for {@link resolveStackLayout}.
+ *
+ * @public
+ */
+export interface StackLayoutOptions {
+  readonly direction: StackDirection;
+  readonly children: readonly StackLayoutChildInput[];
+  readonly gap?: number;
+  readonly origin?: Pick<ResolvedRect, "x" | "y">;
+  readonly diagnostics?: DiagnosticSink;
+}
+
+/**
+ * Resolved child box emitted by stack layout.
+ *
+ * @public
+ */
+export interface StackLayoutBox {
+  readonly id: string;
+  readonly box: ResolvedRect;
+}
+
+/**
  * Normalizes host viewport, DPR, and safe-area inputs into a deterministic layout environment.
  *
  * @public
@@ -67,6 +108,49 @@ export function createLayoutEnvironment(
       height: Math.max(0, height - safeArea.top - safeArea.bottom),
     },
   };
+}
+
+/**
+ * Resolves a row or column stack from fixed child sizes and gap.
+ *
+ * @public
+ */
+export function resolveStackLayout(options: StackLayoutOptions): readonly StackLayoutBox[] {
+  const diagnostics = options.diagnostics ?? createDiagnosticSink();
+  const gap = normalizeNonNegativeNumber(options.gap ?? 0, "stack.gap", diagnostics);
+  const origin = options.origin ?? { x: 0, y: 0 };
+  let cursorX = origin.x;
+  let cursorY = origin.y;
+
+  return options.children.map((child, index) => {
+    const width = normalizeNonNegativeNumber(
+      child.width,
+      `stack.children.${index}.width`,
+      diagnostics,
+    );
+    const height = normalizeNonNegativeNumber(
+      child.height,
+      `stack.children.${index}.height`,
+      diagnostics,
+    );
+    const box = {
+      x: cursorX,
+      y: cursorY,
+      width,
+      height,
+    };
+
+    if (options.direction === "row") {
+      cursorX += width + gap;
+    } else {
+      cursorY += height + gap;
+    }
+
+    return {
+      id: child.id,
+      box,
+    };
+  });
 }
 
 function normalizeSafeArea(
