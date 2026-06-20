@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@ludoweave/components": "workspace:*",
-    "@ludoweave/core": "workspace:*"
+    "@ludoweave/core": "workspace:*",
+    "@ludoweave/renderer-headless": "workspace:*"
   }
 }

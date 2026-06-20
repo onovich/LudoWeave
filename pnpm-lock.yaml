@@ -63,6 +63,9 @@ importers:
       '@ludoweave/core':
         specifier: workspace:*
         version: link:../../packages/core
+      '@ludoweave/renderer-headless':
+        specifier: workspace:*
+        version: link:../../packages/renderer-headless
 
   packages/components:
     dependencies:
