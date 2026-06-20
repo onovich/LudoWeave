@@ -1,0 +1,17 @@
+import AxeBuilder from "@axe-core/playwright";
+import { expect, test } from "@playwright/test";
+
+test("has no blocking accessibility violations in the playground", async ({ page }) => {
+  await page.goto("/");
+
+  await expect(page.locator('[data-ludoweave-node-id="root/key:prompt"]')).toBeVisible();
+
+  const results = await new AxeBuilder({ page })
+    .withTags(["wcag2a", "wcag2aa", "best-practice"])
+    .analyze();
+  const blockingViolations = results.violations.filter(
+    (violation) => violation.impact === "critical" || violation.impact === "serious",
+  );
+
+  expect(blockingViolations).toEqual([]);
+});
