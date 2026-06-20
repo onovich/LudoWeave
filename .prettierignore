@@ -1,0 +1,9 @@
+node_modules/
+.codex/
+AGENTS.md
+docs/
+dist/
+coverage/
+playwright-report/
+test-results/
+pnpm-lock.yaml
