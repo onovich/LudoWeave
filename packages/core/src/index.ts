@@ -10,6 +10,13 @@ export type {
 export { coreDiagnosticCodes, createDiagnosticSink, normalizeUiDiagnostic } from "./diagnostics.js";
 export type { JsonArray, JsonObject, JsonValue } from "./json-value.js";
 export type {
+  ResolvedNode,
+  ResolvedRect,
+  ResolvedSafeArea,
+  ResolvedUiFrame,
+  ResolvedViewport,
+} from "./resolved-frame.js";
+export type {
   NormalizedUiNode,
   NormalizedUiTree,
   NormalizeUiTreeOptions,

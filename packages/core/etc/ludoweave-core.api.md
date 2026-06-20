@@ -83,6 +83,69 @@ export interface NormalizeUiTreeOptions {
 }
 
 // @public
+export interface ResolvedNode {
+    readonly action?: ActionRef;
+    readonly box: ResolvedRect;
+    readonly children?: readonly string[];
+    readonly id: string;
+    readonly index: number;
+    readonly key?: string;
+    readonly parentId?: string;
+    readonly path: UiNodePath;
+    readonly props?: Readonly<Record<string, JsonValue>>;
+    readonly style?: UiStyle;
+    readonly type: string;
+}
+
+// @public
+export interface ResolvedRect {
+    // (undocumented)
+    readonly height: number;
+    // (undocumented)
+    readonly width: number;
+    // (undocumented)
+    readonly x: number;
+    // (undocumented)
+    readonly y: number;
+}
+
+// @public
+export interface ResolvedSafeArea {
+    // (undocumented)
+    readonly bottom: number;
+    // (undocumented)
+    readonly left: number;
+    // (undocumented)
+    readonly right: number;
+    // (undocumented)
+    readonly top: number;
+}
+
+// @public
+export interface ResolvedUiFrame {
+    // (undocumented)
+    readonly diagnostics: readonly UiDiagnostic[];
+    // (undocumented)
+    readonly frameId: number;
+    // (undocumented)
+    readonly nodes: readonly ResolvedNode[];
+    // (undocumented)
+    readonly viewport: ResolvedViewport;
+}
+
+// @public
+export interface ResolvedViewport {
+    // (undocumented)
+    readonly devicePixelRatio: number;
+    // (undocumented)
+    readonly height: number;
+    // (undocumented)
+    readonly safeArea?: ResolvedSafeArea;
+    // (undocumented)
+    readonly width: number;
+}
+
+// @public
 export interface UiDiagnostic {
     readonly code: UiDiagnosticCode;
     readonly details?: Readonly<Record<string, JsonValue>>;
