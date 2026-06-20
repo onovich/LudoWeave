@@ -33,6 +33,12 @@ importers:
         specifier: ^4.1.9
         version: 4.1.9(vite@8.0.16)
 
+  packages/components:
+    dependencies:
+      '@ludoweave/core':
+        specifier: workspace:*
+        version: link:../core
+
   packages/core: {}
 
   packages/renderer-headless:
