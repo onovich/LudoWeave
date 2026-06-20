@@ -33,7 +33,7 @@ Sinan-like ViewModel / local fixture
 
 ## Validation Baseline
 
-Round 38 之前的实现轮已保持 `pnpm validate` 通过。本 draft 更新后需要在 Round 39 执行完整验证矩阵：
+Round 39 final validation 已通过，记录见 [v0.1 Final Validation Log](ludoweave-v0.1-final-validation-log.md)：
 
 - `pnpm lint`
 - `pnpm typecheck`
