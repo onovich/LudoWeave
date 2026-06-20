@@ -23,6 +23,7 @@
     "@ludoweave/core": "workspace:*"
   },
   "devDependencies": {
-    "@ludoweave/components": "workspace:*"
+    "@ludoweave/components": "workspace:*",
+    "@ludoweave/testing": "workspace:*"
   }
 }

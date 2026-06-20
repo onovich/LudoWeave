@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import type { ResolvedUiFrame } from "@ludoweave/core";
+import { createRendererConformanceFixture } from "@ludoweave/testing";
 
 import { mountDomRenderer, type DomRendererRoot } from "../src/index.js";
 
@@ -172,6 +173,39 @@ describe("mountDomRenderer", () => {
     const element = root.requireChild(0);
     expect(element.textContent).toBe(text);
     expect(element.innerHtmlWriteCount).toBe(0);
+  });
+
+  it("preserves the shared renderer conformance fixture boxes", () => {
+    const document = new FakeDocument();
+    const root = document.createElement("div");
+    const renderer = mountDomRenderer({
+      root: asDomRoot(root),
+      document: asDocument(document),
+    });
+    const fixture = createRendererConformanceFixture();
+
+    renderer.render(fixture.frame);
+
+    for (const [index, expected] of fixture.expectedDomNodes.entries()) {
+      const element = root.requireChild(index);
+      expect(element.tagName).toBe(expected.tagName);
+      expect(element.dataset.ludoweaveNodeId).toBe(expected.nodeId);
+      expect(element.style).toMatchObject({
+        position: "absolute",
+        left: `${expected.box.x}px`,
+        top: `${expected.box.y}px`,
+        width: `${expected.box.width}px`,
+        height: `${expected.box.height}px`,
+      });
+
+      if (expected.textContent !== undefined) {
+        expect(element.textContent).toBe(expected.textContent);
+      }
+
+      if (expected.attributes !== undefined) {
+        expect(element.attributesAsObject()).toEqual(expected.attributes);
+      }
+    }
   });
 });
 

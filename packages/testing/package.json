@@ -1,7 +1,7 @@
 {
-  "name": "@ludoweave/renderer-dom",
+  "name": "@ludoweave/testing",
   "version": "0.0.0",
-  "description": "DOM renderer adapter for LudoWeave resolved frames.",
+  "description": "Shared test fixtures and renderer conformance helpers for LudoWeave.",
   "type": "module",
   "sideEffects": false,
   "exports": {
@@ -21,8 +21,5 @@
   },
   "dependencies": {
     "@ludoweave/core": "workspace:*"
-  },
-  "devDependencies": {
-    "@ludoweave/testing": "workspace:*"
   }
 }
