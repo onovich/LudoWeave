@@ -57,6 +57,9 @@ importers:
 
   examples/sinan-runtime-ui:
     dependencies:
+      '@ludoweave/components':
+        specifier: workspace:*
+        version: link:../../packages/components
       '@ludoweave/core':
         specifier: workspace:*
         version: link:../../packages/core
