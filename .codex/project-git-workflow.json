@@ -1,0 +1,17 @@
+﻿{
+    "schemaVersion":  1,
+    "initializedMarker":  "codex-project-git-workflow: initialized",
+    "initializedAt":  "2026-06-20 19:24:38 +08:00",
+    "projectName":  "LudoWeave",
+    "repoRoot":  "D:/LabProjects/Engine/LudoWeave",
+    "safeDirectory":  "D:/LabProjects/Engine/LudoWeave",
+    "statusCommand":  "git -c safe.directory=D:/LabProjects/Engine/LudoWeave status --short --branch",
+    "validationCommands":  [
+
+                           ],
+    "stagingPolicy":  "ask each time",
+    "commitCommand":  "",
+    "pushCommand":  "git -c safe.directory=D:/LabProjects/Engine/LudoWeave push -u origin HEAD",
+    "docsRequirement":  "",
+    "forbiddenCommands":  ""
+}
