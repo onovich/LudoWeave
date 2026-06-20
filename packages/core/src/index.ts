@@ -10,11 +10,18 @@ export type {
 export { coreDiagnosticCodes, createDiagnosticSink, normalizeUiDiagnostic } from "./diagnostics.js";
 export type { JsonArray, JsonObject, JsonValue } from "./json-value.js";
 export type {
+  BoxRenderCommand,
+  RenderCommand,
+  RenderCommandBase,
+  ResolvedActionTarget,
   ResolvedNode,
   ResolvedRect,
   ResolvedSafeArea,
   ResolvedUiFrame,
   ResolvedViewport,
+  SemanticNode,
+  SemanticRole,
+  TextRenderCommand,
 } from "./resolved-frame.js";
 export type {
   NormalizedUiNode,

@@ -93,6 +93,86 @@ export interface ResolvedNode {
 }
 
 /**
+ * Base fields shared by renderer paint commands.
+ *
+ * @public
+ */
+export interface RenderCommandBase {
+  readonly id: string;
+  readonly nodeId: string;
+  readonly box: ResolvedRect;
+}
+
+/**
+ * Draws a filled or stroked rectangular box.
+ *
+ * @public
+ */
+export interface BoxRenderCommand extends RenderCommandBase {
+  readonly kind: "box";
+  readonly fill?: string;
+  readonly stroke?: string;
+  readonly radius?: number;
+}
+
+/**
+ * Draws a text run resolved by the core layout/text pipeline.
+ *
+ * @public
+ */
+export interface TextRenderCommand extends RenderCommandBase {
+  readonly kind: "text";
+  readonly text: string;
+  readonly color?: string;
+  readonly fontFamily?: string;
+  readonly fontSize?: number;
+}
+
+/**
+ * Renderer command emitted by core resolution and consumed by renderers.
+ *
+ * @public
+ */
+export type RenderCommand = BoxRenderCommand | TextRenderCommand;
+
+/**
+ * v0.1 semantic role set derived from the same tree as paint commands.
+ *
+ * @public
+ */
+export type SemanticRole = "generic" | "surface" | "text" | "button" | "dialog";
+
+/**
+ * Semantic tree node used for a11y snapshots and renderer conformance.
+ *
+ * @public
+ */
+export interface SemanticNode {
+  readonly id: string;
+  readonly nodeId: string;
+  readonly role: SemanticRole;
+  readonly parentId?: string;
+  readonly children?: readonly string[];
+  readonly label?: string;
+  readonly disabled?: boolean;
+}
+
+/**
+ * Resolved interactive target that can emit a host-owned {@link ActionRef}.
+ *
+ * @public
+ */
+export interface ResolvedActionTarget {
+  readonly id: string;
+  readonly nodeId: string;
+  readonly path: UiNodePath;
+  readonly action: ActionRef;
+  readonly box: ResolvedRect;
+  readonly disabled?: boolean;
+  readonly label?: string;
+}
+
+/**
  * Full-frame snapshot boundary consumed by renderer adapters.
  *
  * @public
@@ -101,5 +181,8 @@ export interface ResolvedUiFrame {
   readonly frameId: number;
   readonly viewport: ResolvedViewport;
   readonly nodes: readonly ResolvedNode[];
+  readonly paint: readonly RenderCommand[];
+  readonly semantics: readonly SemanticNode[];
+  readonly actions: readonly ResolvedActionTarget[];
   readonly diagnostics: readonly UiDiagnostic[];
 }

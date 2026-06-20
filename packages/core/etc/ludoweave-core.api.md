@@ -14,6 +14,18 @@ export interface ActionRef {
 export type ActionRefInput = string | ActionRef;
 
 // @public
+export interface BoxRenderCommand extends RenderCommandBase {
+    // (undocumented)
+    readonly fill?: string;
+    // (undocumented)
+    readonly kind: "box";
+    // (undocumented)
+    readonly radius?: number;
+    // (undocumented)
+    readonly stroke?: string;
+}
+
+// @public
 export const coreDiagnosticCodes: {
     readonly invalidAction: "LW_CORE_INVALID_ACTION";
     readonly invalidJson: "LW_CORE_INVALID_JSON";
@@ -83,6 +95,37 @@ export interface NormalizeUiTreeOptions {
 }
 
 // @public
+export type RenderCommand = BoxRenderCommand | TextRenderCommand;
+
+// @public
+export interface RenderCommandBase {
+    // (undocumented)
+    readonly box: ResolvedRect;
+    // (undocumented)
+    readonly id: string;
+    // (undocumented)
+    readonly nodeId: string;
+}
+
+// @public
+export interface ResolvedActionTarget {
+    // (undocumented)
+    readonly action: ActionRef;
+    // (undocumented)
+    readonly box: ResolvedRect;
+    // (undocumented)
+    readonly disabled?: boolean;
+    // (undocumented)
+    readonly id: string;
+    // (undocumented)
+    readonly label?: string;
+    // (undocumented)
+    readonly nodeId: string;
+    // (undocumented)
+    readonly path: UiNodePath;
+}
+
+// @public
 export interface ResolvedNode {
     readonly action?: ActionRef;
     readonly box: ResolvedRect;
@@ -124,11 +167,17 @@ export interface ResolvedSafeArea {
 // @public
 export interface ResolvedUiFrame {
     // (undocumented)
+    readonly actions: readonly ResolvedActionTarget[];
+    // (undocumented)
     readonly diagnostics: readonly UiDiagnostic[];
     // (undocumented)
     readonly frameId: number;
     // (undocumented)
     readonly nodes: readonly ResolvedNode[];
+    // (undocumented)
+    readonly paint: readonly RenderCommand[];
+    // (undocumented)
+    readonly semantics: readonly SemanticNode[];
     // (undocumented)
     readonly viewport: ResolvedViewport;
 }
@@ -143,6 +192,41 @@ export interface ResolvedViewport {
     readonly safeArea?: ResolvedSafeArea;
     // (undocumented)
     readonly width: number;
+}
+
+// @public
+export interface SemanticNode {
+    // (undocumented)
+    readonly children?: readonly string[];
+    // (undocumented)
+    readonly disabled?: boolean;
+    // (undocumented)
+    readonly id: string;
+    // (undocumented)
+    readonly label?: string;
+    // (undocumented)
+    readonly nodeId: string;
+    // (undocumented)
+    readonly parentId?: string;
+    // (undocumented)
+    readonly role: SemanticRole;
+}
+
+// @public
+export type SemanticRole = "generic" | "surface" | "text" | "button" | "dialog";
+
+// @public
+export interface TextRenderCommand extends RenderCommandBase {
+    // (undocumented)
+    readonly color?: string;
+    // (undocumented)
+    readonly fontFamily?: string;
+    // (undocumented)
+    readonly fontSize?: number;
+    // (undocumented)
+    readonly kind: "text";
+    // (undocumented)
+    readonly text: string;
 }
 
 // @public
