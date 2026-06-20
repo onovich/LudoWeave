@@ -7,6 +7,7 @@ import {
   mapRuntimeUIViewModelToUiNodes,
   renderRuntimeUIViewModelFallback,
 } from "../src/index.js";
+import type { RuntimeUIViewModel } from "../src/index.js";
 
 describe("Sinan-like ActionRef bridge", () => {
   it("records ActionRef-only commands for host dispatch", () => {
@@ -50,6 +51,49 @@ describe("Sinan-like ActionRef bridge", () => {
         label: "Press E",
       },
     ]);
+  });
+
+  it("supports source-less string actions and clears bridge snapshots", () => {
+    const bridge = createSinanActionRefBridge();
+
+    expect(bridge.dispatch("runtime.ui.pause")).toEqual({
+      sequence: 1,
+      channel: "runtime-ui",
+      type: "runtime-ui.dispatch-action",
+      action: {
+        type: "runtime.ui.pause",
+      },
+    });
+    expect(bridge.snapshot()).toEqual([
+      {
+        sequence: 1,
+        channel: "runtime-ui",
+        type: "runtime-ui.dispatch-action",
+        action: {
+          type: "runtime.ui.pause",
+        },
+      },
+    ]);
+
+    bridge.clear();
+
+    expect(bridge.snapshot()).toEqual([]);
+    expect(bridge.actionLogSnapshot()).toEqual([]);
+  });
+
+  it("rejects non-serializable action payloads before host dispatch", () => {
+    const bridge = createSinanActionRefBridge();
+    const actionWithCallback = {
+      type: "runtime.invalid",
+      payload: {
+        callback: () => undefined,
+      },
+    } as unknown as Parameters<typeof bridge.dispatch>[0];
+
+    expect(() => bridge.dispatch(actionWithCallback)).toThrow(
+      "payload.callback must be a JsonValue.",
+    );
+    expect(bridge.snapshot()).toEqual([]);
   });
 });
 
@@ -99,4 +143,64 @@ describe("Sinan-like fallback renderer", () => {
       fallbackPrompt?.type === "prompt" ? fallbackPrompt.action : undefined,
     );
   });
+
+  it("normalizes string actions and host-side payload overrides", () => {
+    const fallback = renderRuntimeUIViewModelFallback(hardenedRuntimeUIViewModel);
+    const [overridePrompt, stringPrompt] = fallback.layers[0]?.elements ?? [];
+
+    expect(overridePrompt).toEqual({
+      type: "prompt",
+      id: "prompt.override",
+      text: "Open",
+      action: {
+        type: "runtime.gameplay.open",
+        payload: {
+          targetId: "door_a",
+          promptId: "prompt.override",
+        },
+      },
+    });
+    expect(stringPrompt).toEqual({
+      type: "prompt",
+      id: "prompt.string",
+      text: "Pause",
+      action: {
+        type: "runtime.ui.pause",
+      },
+    });
+  });
 });
+
+const hardenedRuntimeUIViewModel = {
+  frame: 2048,
+  source: "sinan-like",
+  layers: [
+    {
+      id: "runtime.edge",
+      zIndex: 20,
+      elements: [
+        {
+          type: "prompt",
+          id: "prompt.override",
+          text: "Open",
+          action: {
+            type: "runtime.gameplay.open",
+            payload: {
+              targetId: "stale",
+            },
+          },
+          payload: {
+            targetId: "door_a",
+            promptId: "prompt.override",
+          },
+        },
+        {
+          type: "prompt",
+          id: "prompt.string",
+          text: "Pause",
+          action: "runtime.ui.pause",
+        },
+      ],
+    },
+  ],
+} satisfies RuntimeUIViewModel;
