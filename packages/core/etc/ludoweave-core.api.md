@@ -27,6 +27,41 @@ export type JsonValue = null | boolean | number | string | JsonArray | JsonObjec
 // @public
 export function normalizeActionRef(input: ActionRefInput): ActionRef;
 
+// @public
+export function normalizeUiNode(input: UiNodeInput): UiNode;
+
+// @public
+export interface UiNode {
+    readonly action?: ActionRef;
+    readonly children?: readonly UiNode[];
+    readonly key?: string;
+    readonly props?: Readonly<Record<string, JsonValue>>;
+    readonly style?: UiStyle;
+    readonly type: string;
+}
+
+// @public
+export type UiNodeChildrenInput = UiNodeInput | readonly (UiNodeInput | null | false | undefined)[] | null | false | undefined;
+
+// @public
+export interface UiNodeInput {
+    // (undocumented)
+    readonly action?: ActionRefInput;
+    // (undocumented)
+    readonly children?: UiNodeChildrenInput;
+    // (undocumented)
+    readonly key?: string;
+    // (undocumented)
+    readonly props?: Readonly<Record<string, JsonValue>>;
+    // (undocumented)
+    readonly style?: UiStyle;
+    // (undocumented)
+    readonly type: string;
+}
+
+// @public
+export type UiStyle = Readonly<Record<string, JsonValue>>;
+
 // (No @packageDocumentation comment for this package)
 
 ```

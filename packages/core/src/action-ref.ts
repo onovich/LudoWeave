@@ -1,4 +1,5 @@
 import type { JsonValue } from "./json-value.js";
+import { isPlainRecord, normalizeJsonObject } from "./json-normalize.js";
 
 /**
  * Serializable action emitted by LudoWeave UI and interpreted by the host.
@@ -49,7 +50,7 @@ export function normalizeActionRef(input: ActionRefInput): ActionRef {
 
   return {
     type,
-    payload: normalizeJsonObject(payload, "payload", new WeakSet<object>()),
+    payload: normalizeJsonObject(payload, "payload"),
   };
 }
 
@@ -64,59 +65,4 @@ function normalizeActionType(value: unknown): string {
   }
 
   return type;
-}
-
-function normalizeJsonValue(value: unknown, path: string, seen: WeakSet<object>): JsonValue {
-  if (value === null || typeof value === "boolean" || typeof value === "string") {
-    return value;
-  }
-
-  if (typeof value === "number") {
-    if (!Number.isFinite(value)) {
-      throw new TypeError(`${path} must be a finite JSON number.`);
-    }
-    return value;
-  }
-
-  if (Array.isArray(value)) {
-    guardCircular(value, path, seen);
-    return value.map((entry, index) => normalizeJsonValue(entry, `${path}[${index}]`, seen));
-  }
-
-  if (isPlainRecord(value)) {
-    return normalizeJsonObject(value, path, seen);
-  }
-
-  throw new TypeError(`${path} must be a JsonValue.`);
-}
-
-function normalizeJsonObject(
-  value: Record<string, unknown>,
-  path: string,
-  seen: WeakSet<object>,
-): Readonly<Record<string, JsonValue>> {
-  guardCircular(value, path, seen);
-
-  const normalized: Record<string, JsonValue> = {};
-  for (const [key, child] of Object.entries(value)) {
-    normalized[key] = normalizeJsonValue(child, `${path}.${key}`, seen);
-  }
-
-  return normalized;
-}
-
-function guardCircular(value: object, path: string, seen: WeakSet<object>): void {
-  if (seen.has(value)) {
-    throw new TypeError(`${path} must not contain circular references.`);
-  }
-  seen.add(value);
-}
-
-function isPlainRecord(value: unknown): value is Record<string, unknown> {
-  if (typeof value !== "object" || value === null || Array.isArray(value)) {
-    return false;
-  }
-
-  const prototype = Object.getPrototypeOf(value);
-  return prototype === Object.prototype || prototype === null;
 }
