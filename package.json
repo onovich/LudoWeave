@@ -10,8 +10,10 @@
     "format": "prettier --check .",
     "format:write": "prettier --write .",
     "lint": "eslint .",
+    "structure-check": "node tooling/boundary-check/check-import-boundaries.mjs",
     "test": "vitest run --passWithNoTests",
-    "typecheck": "tsc -p tsconfig.json --noEmit"
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "validate": "pnpm lint && pnpm typecheck && pnpm build && pnpm test && pnpm structure-check && pnpm api-check"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
