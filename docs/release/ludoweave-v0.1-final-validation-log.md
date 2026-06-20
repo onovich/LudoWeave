@@ -30,4 +30,4 @@ Remote branch: `origin/main`
 ## Notes
 
 - The validation matrix was run against commit `e5979ea`, which includes the Round 38 release notes draft.
-- Round 40 will add the final v0.1 handoff report and update documentation status from draft to final.
+- Round 40 final handoff report: [v0.1 Final Report](ludoweave-v0.1-final-report.md).

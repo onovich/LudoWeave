@@ -1,7 +1,7 @@
 # LudoWeave v0.1 Release Notes Draft
 
 日期：2026-06-20
-状态：Draft after Round 38；Round 39 全量验证与 Round 40 最终报告后定稿
+状态：Draft validated by Round 39；最终交付记录见 [v0.1 Final Report](ludoweave-v0.1-final-report.md)
 
 ## Summary
 
