@@ -76,6 +76,9 @@ export interface LayoutEnvironment {
 }
 
 // @public
+export type LayoutSizeValue = number | `${number}%`;
+
+// @public
 export interface LayoutViewportInput {
     // (undocumented)
     readonly devicePixelRatio?: number;
@@ -227,6 +230,21 @@ export interface ResolvedViewport {
 }
 
 // @public
+export function resolveSizeConstraints(options: ResolveSizeConstraintsOptions): Pick<ResolvedRect, "width" | "height">;
+
+// @public
+export interface ResolveSizeConstraintsOptions {
+    // (undocumented)
+    readonly available: Pick<ResolvedRect, "width" | "height">;
+    // (undocumented)
+    readonly constraints: SizeConstraints;
+    // (undocumented)
+    readonly diagnostics?: DiagnosticSink;
+    // (undocumented)
+    readonly intrinsic?: Pick<ResolvedRect, "width" | "height">;
+}
+
+// @public
 export function resolveStackLayout(options: StackLayoutOptions): readonly StackLayoutBox[];
 
 // @public
@@ -249,6 +267,22 @@ export interface SemanticNode {
 
 // @public
 export type SemanticRole = "generic" | "surface" | "text" | "button" | "dialog";
+
+// @public
+export interface SizeConstraints {
+    // (undocumented)
+    readonly height?: LayoutSizeValue;
+    // (undocumented)
+    readonly maxHeight?: LayoutSizeValue;
+    // (undocumented)
+    readonly maxWidth?: LayoutSizeValue;
+    // (undocumented)
+    readonly minHeight?: LayoutSizeValue;
+    // (undocumented)
+    readonly minWidth?: LayoutSizeValue;
+    // (undocumented)
+    readonly width?: LayoutSizeValue;
+}
 
 // @public
 export type StackAlign = "start" | "center" | "end";

@@ -92,6 +92,39 @@ export interface StackLayoutBox {
 }
 
 /**
+ * v0.1 size value: fixed pixels or percentage of available space.
+ *
+ * @public
+ */
+export type LayoutSizeValue = number | `${number}%`;
+
+/**
+ * Size constraints resolved before layout placement.
+ *
+ * @public
+ */
+export interface SizeConstraints {
+  readonly width?: LayoutSizeValue;
+  readonly height?: LayoutSizeValue;
+  readonly minWidth?: LayoutSizeValue;
+  readonly maxWidth?: LayoutSizeValue;
+  readonly minHeight?: LayoutSizeValue;
+  readonly maxHeight?: LayoutSizeValue;
+}
+
+/**
+ * Options for {@link resolveSizeConstraints}.
+ *
+ * @public
+ */
+export interface ResolveSizeConstraintsOptions {
+  readonly constraints: SizeConstraints;
+  readonly available: Pick<ResolvedRect, "width" | "height">;
+  readonly intrinsic?: Pick<ResolvedRect, "width" | "height">;
+  readonly diagnostics?: DiagnosticSink;
+}
+
+/**
  * Normalizes host viewport, DPR, and safe-area inputs into a deterministic layout environment.
  *
  * @public
@@ -179,6 +212,38 @@ export function resolveStackLayout(options: StackLayoutOptions): readonly StackL
   });
 }
 
+/**
+ * Resolves fixed, percentage, min, and max size constraints.
+ *
+ * @public
+ */
+export function resolveSizeConstraints(
+  options: ResolveSizeConstraintsOptions,
+): Pick<ResolvedRect, "width" | "height"> {
+  const diagnostics = options.diagnostics ?? createDiagnosticSink();
+  const intrinsic = options.intrinsic ?? { width: 0, height: 0 };
+  const width = resolveConstrainedAxis({
+    axis: "width",
+    available: options.available.width,
+    base: options.constraints.width,
+    intrinsic: intrinsic.width,
+    min: options.constraints.minWidth,
+    max: options.constraints.maxWidth,
+    diagnostics,
+  });
+  const height = resolveConstrainedAxis({
+    axis: "height",
+    available: options.available.height,
+    base: options.constraints.height,
+    intrinsic: intrinsic.height,
+    min: options.constraints.minHeight,
+    max: options.constraints.maxHeight,
+    diagnostics,
+  });
+
+  return { width, height };
+}
+
 type NormalizedStackChild = {
   readonly id: string;
   readonly width: number;
@@ -236,6 +301,84 @@ function getAlignOffset(align: StackAlign, available: number, child: number): nu
   }
 
   return 0;
+}
+
+type ResolveConstrainedAxisOptions = {
+  readonly axis: "width" | "height";
+  readonly available: number;
+  readonly base: LayoutSizeValue | undefined;
+  readonly intrinsic: number;
+  readonly min: LayoutSizeValue | undefined;
+  readonly max: LayoutSizeValue | undefined;
+  readonly diagnostics: DiagnosticSink;
+};
+
+function resolveConstrainedAxis(options: ResolveConstrainedAxisOptions): number {
+  const base =
+    options.base === undefined
+      ? normalizeNonNegativeNumber(
+          options.intrinsic,
+          `size.intrinsic.${options.axis}`,
+          options.diagnostics,
+        )
+      : resolveSizeValue(
+          options.base,
+          options.available,
+          `size.${options.axis}`,
+          options.diagnostics,
+        );
+  const min =
+    options.min === undefined
+      ? undefined
+      : resolveSizeValue(
+          options.min,
+          options.available,
+          `size.min${capitalize(options.axis)}`,
+          options.diagnostics,
+        );
+  const max =
+    options.max === undefined
+      ? undefined
+      : resolveSizeValue(
+          options.max,
+          options.available,
+          `size.max${capitalize(options.axis)}`,
+          options.diagnostics,
+        );
+
+  return Math.max(min ?? 0, Math.min(max ?? Number.POSITIVE_INFINITY, base));
+}
+
+function resolveSizeValue(
+  value: LayoutSizeValue,
+  available: number,
+  path: string,
+  diagnostics: DiagnosticSink,
+): number {
+  if (typeof value === "number") {
+    return normalizeNonNegativeNumber(value, path, diagnostics);
+  }
+
+  const match = /^([0-9]+(?:\.[0-9]+)?)%$/.exec(value);
+  if (match) {
+    const percentage = Number(match[1]);
+    return (normalizeNonNegativeNumber(percentage, path, diagnostics) / 100) * available;
+  }
+
+  diagnostics.report({
+    code: coreDiagnosticCodes.invalidLayout,
+    severity: "error",
+    message: `${path} must be a non-negative number or percentage string.`,
+    path: [path],
+    details: {
+      fallback: 0,
+    },
+  });
+  return 0;
+}
+
+function capitalize(value: string): string {
+  return `${value[0]?.toUpperCase() ?? ""}${value.slice(1)}`;
 }
 
 function normalizeSafeArea(

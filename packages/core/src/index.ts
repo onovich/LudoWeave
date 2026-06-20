@@ -12,7 +12,10 @@ export type { JsonArray, JsonObject, JsonValue } from "./json-value.js";
 export type {
   CreateLayoutEnvironmentOptions,
   LayoutEnvironment,
+  LayoutSizeValue,
   LayoutViewportInput,
+  ResolveSizeConstraintsOptions,
+  SizeConstraints,
   StackAlign,
   StackDirection,
   StackJustify,
@@ -20,7 +23,7 @@ export type {
   StackLayoutChildInput,
   StackLayoutOptions,
 } from "./layout.js";
-export { createLayoutEnvironment, resolveStackLayout } from "./layout.js";
+export { createLayoutEnvironment, resolveSizeConstraints, resolveStackLayout } from "./layout.js";
 export type {
   BoxRenderCommand,
   RenderCommand,
