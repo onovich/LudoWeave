@@ -77,6 +77,102 @@ describe("mountDomRenderer", () => {
     });
     expect(element.textContent).toBe("Press E");
   });
+
+  it("uses native button semantics and dialog roles", () => {
+    const document = new FakeDocument();
+    const root = document.createElement("div");
+    const renderer = mountDomRenderer({
+      root: asDomRoot(root),
+      document: asDocument(document),
+    });
+
+    renderer.render({
+      ...createFrame(),
+      nodes: [
+        {
+          id: "root/key:button",
+          path: ["root", "key:button"],
+          type: "button",
+          key: "button",
+          index: 0,
+          box: { x: 0, y: 0, width: 120, height: 40 },
+          props: {
+            label: "Confirm",
+            disabled: true,
+          },
+        },
+        {
+          id: "root/key:dialog",
+          path: ["root", "key:dialog"],
+          type: "dialog",
+          key: "dialog",
+          index: 1,
+          box: { x: 10, y: 10, width: 300, height: 200 },
+          props: {
+            title: "Pause",
+            modal: true,
+          },
+        },
+      ],
+      semantics: [
+        {
+          id: "semantics.button",
+          nodeId: "root/key:button",
+          role: "button",
+          label: "Confirm",
+          disabled: true,
+        },
+        {
+          id: "semantics.dialog",
+          nodeId: "root/key:dialog",
+          role: "dialog",
+          label: "Pause",
+        },
+      ],
+    });
+
+    expect(root.requireChild(0).attributesAsObject()).toEqual({
+      type: "button",
+      "aria-label": "Confirm",
+      disabled: "",
+    });
+    expect(root.requireChild(1).attributesAsObject()).toEqual({
+      role: "dialog",
+      "aria-modal": "true",
+      "aria-label": "Pause",
+    });
+  });
+
+  it("renders text with textContent and never innerHTML", () => {
+    const document = new FakeDocument();
+    const root = document.createElement("div");
+    const renderer = mountDomRenderer({
+      root: asDomRoot(root),
+      document: asDocument(document),
+    });
+    const text = "<img src=x onerror=alert(1)>";
+
+    renderer.render({
+      ...createFrame(),
+      nodes: [
+        {
+          id: "root/key:subtitle",
+          path: ["root", "key:subtitle"],
+          type: "text",
+          key: "subtitle",
+          index: 0,
+          box: { x: 0, y: 0, width: 240, height: 24 },
+          props: {
+            text,
+          },
+        },
+      ],
+    });
+
+    const element = root.requireChild(0);
+    expect(element.textContent).toBe(text);
+    expect(element.innerHtmlWriteCount).toBe(0);
+  });
 });
 
 class FakeDocument {
@@ -91,6 +187,7 @@ class FakeElement {
   readonly attributes = new Map<string, string>();
   readonly children: FakeElement[] = [];
   textContent: string | null = null;
+  innerHtmlWriteCount = 0;
   replaceCount = 0;
 
   constructor(
@@ -105,6 +202,19 @@ class FakeElement {
 
   setAttribute(name: string, value: string): void {
     this.attributes.set(name, value);
+  }
+
+  set innerHTML(_value: string) {
+    this.innerHtmlWriteCount += 1;
+    throw new Error("innerHTML must not be used.");
+  }
+
+  get innerHTML(): string {
+    return "";
+  }
+
+  attributesAsObject(): Record<string, string> {
+    return Object.fromEntries(this.attributes.entries());
   }
 
   requireChild(index: number): FakeElement {

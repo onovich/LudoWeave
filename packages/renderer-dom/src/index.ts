@@ -1,4 +1,4 @@
-import type { ResolvedNode, ResolvedRect, ResolvedUiFrame } from "@ludoweave/core";
+import type { ResolvedNode, ResolvedRect, ResolvedUiFrame, SemanticNode } from "@ludoweave/core";
 
 /**
  * Minimal DOM root contract used by the renderer.
@@ -59,7 +59,10 @@ export function mountDomRenderer(options: DomRendererOptions): DomRenderer {
       if (disposed) {
         throw new Error("DomRenderer has been disposed.");
       }
-      const elements = frame.nodes.map((node) => renderResolvedNode(documentRef, node));
+      const semanticsByNodeId = createSemanticMap(frame.semantics);
+      const elements = frame.nodes.map((node) =>
+        renderResolvedNode(documentRef, node, semanticsByNodeId.get(node.id)),
+      );
       options.root.replaceChildren(...elements);
 
       return {
@@ -78,11 +81,16 @@ export function mountDomRenderer(options: DomRendererOptions): DomRenderer {
   };
 }
 
-function renderResolvedNode(documentRef: Document, node: ResolvedNode): HTMLElement {
+function renderResolvedNode(
+  documentRef: Document,
+  node: ResolvedNode,
+  semantics: SemanticNode | undefined,
+): HTMLElement {
   const element = documentRef.createElement(getTagName(node));
   element.dataset.ludoweaveNodeId = node.id;
   element.dataset.ludoweaveNodeType = node.type;
   applyBox(element, node.box);
+  applySemantics(element, node, semantics);
 
   const text = getNodeText(node);
   if (text !== undefined) {
@@ -90,6 +98,14 @@ function renderResolvedNode(documentRef: Document, node: ResolvedNode): HTMLElem
   }
 
   return element;
+}
+
+function createSemanticMap(semantics: readonly SemanticNode[]): Map<string, SemanticNode> {
+  const map = new Map<string, SemanticNode>();
+  for (const semantic of semantics) {
+    map.set(semantic.nodeId, semantic);
+  }
+  return map;
 }
 
 function getTagName(node: ResolvedNode): keyof HTMLElementTagNameMap {
@@ -114,6 +130,58 @@ function applyBox(element: HTMLElement, box: ResolvedRect): void {
   element.style.top = `${box.y}px`;
   element.style.width = `${box.width}px`;
   element.style.height = `${box.height}px`;
+}
+
+function applySemantics(
+  element: HTMLElement,
+  node: ResolvedNode,
+  semantics: SemanticNode | undefined,
+): void {
+  if (node.type === "button" || node.type === "pressable") {
+    element.setAttribute("type", "button");
+  }
+
+  if (semantics?.role === "dialog") {
+    element.setAttribute("role", "dialog");
+  }
+
+  if (node.props?.modal === true) {
+    element.setAttribute("aria-modal", "true");
+  }
+
+  const label = getSemanticLabel(node, semantics);
+  if (label !== undefined && node.type !== "text") {
+    element.setAttribute("aria-label", label);
+  }
+
+  if (node.props?.disabled === true || semantics?.disabled === true) {
+    if (node.type === "button" || node.type === "pressable") {
+      element.setAttribute("disabled", "");
+    } else {
+      element.setAttribute("aria-disabled", "true");
+    }
+  }
+}
+
+function getSemanticLabel(
+  node: ResolvedNode,
+  semantics: SemanticNode | undefined,
+): string | undefined {
+  if (semantics?.label !== undefined) {
+    return semantics.label;
+  }
+
+  const label = node.props?.label;
+  if (typeof label === "string") {
+    return label;
+  }
+
+  const title = node.props?.title;
+  if (typeof title === "string") {
+    return title;
+  }
+
+  return undefined;
 }
 
 function getNodeText(node: ResolvedNode): string | undefined {
