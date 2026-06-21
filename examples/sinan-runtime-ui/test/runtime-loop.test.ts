@@ -37,6 +37,7 @@ describe("Sinan-like runtime UI loop", () => {
     expect(result.rendererId).toBe("sinan-runtime-loop");
     expect(result.frameId).toBe(1024);
     expect(result.snapshot).toContain('"runtime.gameplay.interact"');
+    expect(result.snapshot).toContain('"Deliver the cell"');
     expect(command).toEqual({
       sequence: 1,
       channel: "runtime-ui",
@@ -122,6 +123,21 @@ function resolveFixtureBoxes(contentBox: ResolvedRect): ReadonlyMap<string, Reso
         },
       }),
     ],
+    [
+      "runtime.main/key:objective.delivery.cell",
+      resolveAbsoluteAnchor({
+        container: contentBox,
+        size: { width: 360, height: 112 },
+        anchor: {
+          horizontal: "start",
+          vertical: "start",
+          inset: {
+            top: 48,
+            left: 48,
+          },
+        },
+      }),
+    ],
   ]);
 }
 
@@ -188,6 +204,18 @@ function resolvePaint(node: ResolvedNode): readonly RenderCommand[] {
     ];
   }
 
+  if (node.type === "objective") {
+    return [
+      {
+        id: "paint.objective.delivery.cell",
+        kind: "box",
+        nodeId: node.id,
+        box: node.box,
+        fill: "#0f172a",
+      },
+    ];
+  }
+
   return [];
 }
 
@@ -217,6 +245,19 @@ function resolveSemantics(node: ResolvedNode): SemanticNode {
 function resolveAction(node: ResolvedNode): readonly ResolvedActionTarget[] {
   if (node.action === undefined) {
     return [];
+  }
+
+  if (node.type === "objective") {
+    return [
+      {
+        id: "action.objective.delivery.cell",
+        nodeId: node.id,
+        path: node.path,
+        action: node.action,
+        box: node.box,
+        label: getLabel(node),
+      },
+    ];
   }
 
   return [
@@ -268,6 +309,11 @@ function getLabel(node: ResolvedNode): string {
   const text = node.props?.text;
   if (typeof text === "string") {
     return text;
+  }
+
+  const title = node.props?.title;
+  if (typeof title === "string") {
+    return title;
   }
 
   return "";

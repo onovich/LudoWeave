@@ -122,6 +122,19 @@ describe("Sinan-like fallback renderer", () => {
                 "text": "The gate hums softly.",
                 "type": "subtitle",
               },
+              {
+                "action": {
+                  "payload": {
+                    "objectiveId": "delivery",
+                  },
+                  "type": "runtime.objective.inspect",
+                },
+                "body": "Bring the energy cell to the gate.",
+                "id": "objective.delivery.cell",
+                "status": "active",
+                "title": "Deliver the cell",
+                "type": "objective",
+              },
             ],
             "id": "runtime.main",
             "zIndex": 10,

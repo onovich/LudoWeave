@@ -27,10 +27,24 @@ describe("Sinan-like RuntimeUIViewModel mapping", () => {
           text: "The gate hums softly.",
         },
       ],
+      objectives: [
+        {
+          key: "objective.delivery.cell",
+          title: "Deliver the cell",
+          body: "Bring the energy cell to the gate.",
+          status: "active",
+          action: {
+            type: "runtime.objective.inspect",
+            payload: {
+              objectiveId: "delivery",
+            },
+          },
+        },
+      ],
     });
   });
 
-  it("renders the same Prompt and Subtitle components used by the standalone path", () => {
+  it("renders the same Prompt, Subtitle, and Objective components used by the standalone path", () => {
     expect(mapRuntimeUIViewModelToUiNodes(gateDemoRuntimeUIViewModel)).toMatchInlineSnapshot(`
       [
         {
@@ -52,6 +66,21 @@ describe("Sinan-like RuntimeUIViewModel mapping", () => {
             "text": "The gate hums softly.",
           },
           "type": "text",
+        },
+        {
+          "action": {
+            "payload": {
+              "objectiveId": "delivery",
+            },
+            "type": "runtime.objective.inspect",
+          },
+          "key": "objective.delivery.cell",
+          "props": {
+            "body": "Bring the energy cell to the gate.",
+            "status": "active",
+            "title": "Deliver the cell",
+          },
+          "type": "objective",
         },
       ]
     `);

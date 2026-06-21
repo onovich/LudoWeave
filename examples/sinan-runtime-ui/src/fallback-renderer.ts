@@ -1,9 +1,10 @@
 import { normalizeActionRef, type ActionRef } from "@ludoweave/core";
 
-import { mapRuntimeUIPromptAction } from "./action-mapping.js";
+import { mapRuntimeUIObjectiveAction, mapRuntimeUIPromptAction } from "./action-mapping.js";
 import type {
   RuntimeUIElement,
   RuntimeUILayer,
+  RuntimeUIObjectiveElement,
   RuntimeUIPromptElement,
   RuntimeUISubtitleElement,
   RuntimeUIViewModel,
@@ -23,7 +24,8 @@ export interface FallbackRuntimeUILayer {
 
 export type FallbackRuntimeUIElement =
   | FallbackRuntimeUIPromptElement
-  | FallbackRuntimeUISubtitleElement;
+  | FallbackRuntimeUISubtitleElement
+  | FallbackRuntimeUIObjectiveElement;
 
 export interface FallbackRuntimeUIPromptElement {
   readonly type: "prompt";
@@ -37,6 +39,15 @@ export interface FallbackRuntimeUISubtitleElement {
   readonly id: string;
   readonly text: string;
   readonly speaker?: string;
+}
+
+export interface FallbackRuntimeUIObjectiveElement {
+  readonly type: "objective";
+  readonly id: string;
+  readonly title: string;
+  readonly body?: string;
+  readonly status: "active" | "completed" | "failed";
+  readonly action?: ActionRef;
 }
 
 export function renderRuntimeUIViewModelFallback(
@@ -60,6 +71,10 @@ function renderLayer(layer: RuntimeUILayer): FallbackRuntimeUILayer {
 function renderElement(element: RuntimeUIElement): FallbackRuntimeUIElement {
   if (element.type === "prompt") {
     return renderPrompt(element);
+  }
+
+  if (element.type === "objective") {
+    return renderObjective(element);
   }
 
   return renderSubtitle(element);
@@ -88,9 +103,37 @@ function renderSubtitle(element: RuntimeUISubtitleElement): FallbackRuntimeUISub
   return subtitle;
 }
 
+function renderObjective(element: RuntimeUIObjectiveElement): FallbackRuntimeUIObjectiveElement {
+  const objective: MutableFallbackRuntimeUIObjectiveElement = {
+    type: "objective",
+    id: element.id,
+    title: element.title,
+    status: element.status ?? "active",
+  };
+
+  if (element.body !== undefined) {
+    objective.body = element.body;
+  }
+
+  if (element.action !== undefined) {
+    objective.action = normalizeActionRef(mapRuntimeUIObjectiveAction(element));
+  }
+
+  return objective;
+}
+
 type MutableFallbackRuntimeUISubtitleElement = {
   type: "subtitle";
   id: string;
   text: string;
   speaker?: string;
+};
+
+type MutableFallbackRuntimeUIObjectiveElement = {
+  type: "objective";
+  id: string;
+  title: string;
+  body?: string;
+  status: "active" | "completed" | "failed";
+  action?: ActionRef;
 };

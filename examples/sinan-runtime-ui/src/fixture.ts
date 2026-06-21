@@ -25,6 +25,19 @@ export const gateDemoRuntimeUIViewModel = {
           speaker: "Gate",
           text: "The gate hums softly.",
         },
+        {
+          type: "objective",
+          id: "objective.delivery.cell",
+          title: "Deliver the cell",
+          body: "Bring the energy cell to the gate.",
+          status: "active",
+          action: {
+            type: "runtime.objective.inspect",
+            payload: {
+              objectiveId: "delivery",
+            },
+          },
+        },
       ],
     },
   ],

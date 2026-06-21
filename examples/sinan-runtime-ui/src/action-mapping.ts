@@ -1,21 +1,33 @@
 import type { ActionRefInput } from "@ludoweave/core";
 
-import type { RuntimeUIPromptElement } from "./view-model.js";
+import type { RuntimeUIObjectiveElement, RuntimeUIPromptElement } from "./view-model.js";
 
 export function mapRuntimeUIPromptAction(element: RuntimeUIPromptElement): ActionRefInput {
-  if (element.payload === undefined) {
-    return element.action;
+  return mapRuntimeUIAction(element.action, element.payload);
+}
+
+export function mapRuntimeUIObjectiveAction(element: RuntimeUIObjectiveElement): ActionRefInput {
+  if (element.action === undefined) {
+    throw new TypeError("Runtime UI objective action is not defined.");
   }
 
-  if (typeof element.action === "string") {
+  return mapRuntimeUIAction(element.action, element.payload);
+}
+
+function mapRuntimeUIAction(action: ActionRefInput, payload: RuntimeUIPromptElement["payload"]) {
+  if (payload === undefined) {
+    return action;
+  }
+
+  if (typeof action === "string") {
     return {
-      type: element.action,
-      payload: element.payload,
+      type: action,
+      payload,
     };
   }
 
   return {
-    ...element.action,
-    payload: element.payload,
+    ...action,
+    payload,
   };
 }

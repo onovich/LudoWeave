@@ -10,6 +10,7 @@ export { renderRuntimeUIViewModelFallback } from "./fallback-renderer.js";
 export type {
   FallbackRuntimeUIElement,
   FallbackRuntimeUILayer,
+  FallbackRuntimeUIObjectiveElement,
   FallbackRuntimeUIPromptElement,
   FallbackRuntimeUISnapshot,
   FallbackRuntimeUISubtitleElement,
@@ -18,6 +19,7 @@ export { gateDemoRuntimeUIViewModel } from "./fixture.js";
 export type {
   RuntimeUIElement,
   RuntimeUILayer,
+  RuntimeUIObjectiveElement,
   RuntimeUIPromptElement,
   RuntimeUISubtitleElement,
   RuntimeUIViewModel,

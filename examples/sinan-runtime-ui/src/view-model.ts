@@ -12,7 +12,10 @@ export interface RuntimeUILayer {
   readonly elements: readonly RuntimeUIElement[];
 }
 
-export type RuntimeUIElement = RuntimeUIPromptElement | RuntimeUISubtitleElement;
+export type RuntimeUIElement =
+  | RuntimeUIPromptElement
+  | RuntimeUISubtitleElement
+  | RuntimeUIObjectiveElement;
 
 export interface RuntimeUIPromptElement {
   readonly type: "prompt";
@@ -27,4 +30,14 @@ export interface RuntimeUISubtitleElement {
   readonly id: string;
   readonly text: string;
   readonly speaker?: string;
+}
+
+export interface RuntimeUIObjectiveElement {
+  readonly type: "objective";
+  readonly id: string;
+  readonly title: string;
+  readonly body?: string;
+  readonly status?: "active" | "completed" | "failed";
+  readonly action?: ActionRefInput;
+  readonly payload?: Readonly<Record<string, JsonValue>>;
 }
