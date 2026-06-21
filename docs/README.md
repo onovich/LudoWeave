@@ -13,6 +13,11 @@
 - [v0.2 Goal 模式执行指南](goal-mode/ludoweave-v0.2-goal-mode-execution-guide.md) - 16 轮会话预算
 - [对 Sinan RFC 的判断与研发计划重排](sinan-cooperation/ludoweave-response-and-rd-plan-2026-06-20.md)
 
+## v0.2 Drafts
+
+- [v0.2 Integration Status](roadmap/ludoweave-v0.2-integration-status.md)
+- [v0.2 Release Notes Draft](release/ludoweave-v0.2-release-notes-draft.md)
+
 ## Decision Records
 
 - [ADR-0001: v0.1 只进入 Runtime UI，不替换 Sinan Editor](adr/0001-runtime-ui-only.md)
@@ -23,6 +28,8 @@
 ## Runtime UI Contracts
 
 - [Pause Modal Behavior Contract](runtime-ui/pause-modal-behavior-contract.md)
+- [Canvas2D Renderer Spike](runtime-ui/canvas2d-renderer-spike.md)
+- [DOM Input Overlay Design](runtime-ui/dom-input-overlay-design.md)
 
 ## Source Material
 
