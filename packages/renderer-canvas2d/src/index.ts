@@ -85,6 +85,34 @@ export interface Canvas2DRenderer {
 }
 
 /**
+ * Explicit conformance subset and fallback policy for the v0.2 Canvas2D spike.
+ *
+ * @public
+ */
+export const canvas2DRendererConformancePolicy = Object.freeze({
+  supported: [
+    "frame.clear",
+    "paint.box.fill",
+    "paint.box.stroke",
+    "paint.text.fill",
+    "resolved-frame.consume",
+  ],
+  unsupported: [
+    "dom.semantics",
+    "native.focus",
+    "input.hit-testing",
+    "action.dispatch",
+    "rounded-rect.path-fidelity",
+    "text.measurement",
+  ],
+  fallbackPolicy: [
+    "Hosts pair Canvas2D paint with a DOM or platform input overlay for focus and actions.",
+    "Core-owned layout and text measurement remain upstream of Canvas2D rendering.",
+    "Box radius is preserved in the trace and may render as rectangular fill or stroke in the spike.",
+  ],
+});
+
+/**
  * Creates a minimal Canvas2D renderer spike that consumes resolved frames.
  *
  * @public

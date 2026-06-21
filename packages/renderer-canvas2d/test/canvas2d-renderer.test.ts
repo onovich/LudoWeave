@@ -2,6 +2,7 @@ import { createRendererConformanceFixture } from "@ludoweave/testing";
 import { describe, expect, it } from "vitest";
 
 import {
+  canvas2DRendererConformancePolicy,
   createCanvas2DRenderer,
   type Canvas2DContextLike,
   type Canvas2DRenderTrace,
@@ -96,6 +97,21 @@ describe("Canvas2D renderer spike", () => {
     renderer.dispose();
 
     expect(() => renderer.render(createRendererConformanceFixture().frame)).toThrow(/disposed/);
+  });
+
+  it("records the supported conformance subset and fallback policy", () => {
+    expect(canvas2DRendererConformancePolicy.supported).toEqual([
+      "frame.clear",
+      "paint.box.fill",
+      "paint.box.stroke",
+      "paint.text.fill",
+      "resolved-frame.consume",
+    ]);
+    expect(canvas2DRendererConformancePolicy.unsupported).toContain("input.hit-testing");
+    expect(canvas2DRendererConformancePolicy.unsupported).toContain("native.focus");
+    expect(canvas2DRendererConformancePolicy.fallbackPolicy).toContain(
+      "Hosts pair Canvas2D paint with a DOM or platform input overlay for focus and actions.",
+    );
   });
 });
 
