@@ -1,6 +1,7 @@
+import { createActionLog, type ResolvedActionTarget } from "@ludoweave/core";
 import { mountDomRenderer } from "@ludoweave/renderer-dom";
-import { createActionLog, type ResolvedActionTarget, type UiActionLogEntry } from "@ludoweave/core";
 
+import { renderActionLogInspector } from "./action-log-inspector.js";
 import { createPlaygroundFrame } from "./frame.js";
 import "./styles.css";
 
@@ -67,31 +68,7 @@ function recordAction(action: ResolvedActionTarget): void {
 }
 
 function renderActionLog(): void {
-  const entries = actionLog.snapshot();
-  if (entries.length === 0) {
-    const empty = document.createElement("li");
-    empty.className = "action-log__empty";
-    empty.textContent = "Waiting for ActionRef";
-    actionLogRoot.replaceChildren(empty);
-    return;
-  }
-
-  actionLogRoot.replaceChildren(...entries.map(createActionLogItem));
-}
-
-function createActionLogItem(entry: UiActionLogEntry): HTMLLIElement {
-  const item = document.createElement("li");
-  item.dataset.actionSequence = String(entry.sequence);
-  item.dataset.actionType = entry.action.type;
-  item.textContent = formatActionLogEntry(entry);
-  return item;
-}
-
-function formatActionLogEntry(entry: UiActionLogEntry): string {
-  const label = entry.label === undefined ? "" : ` · ${entry.label}`;
-  const payload =
-    entry.action.payload === undefined ? "" : ` · ${JSON.stringify(entry.action.payload)}`;
-  return `${entry.action.type}${label}${payload}`;
+  renderActionLogInspector(actionLogRoot, actionLog.snapshot());
 }
 
 function requireElement(selector: string): HTMLElement {
