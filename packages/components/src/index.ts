@@ -15,6 +15,8 @@ export type { FocusScopeDraft, FocusScopeDraftInput } from "./focus.js";
 export { createFocusScopeDraft } from "./focus.js";
 export type { ModalInputShieldDraft, ModalInputShieldDraftInput } from "./modal-behavior.js";
 export { createModalInputShieldDraft } from "./modal-behavior.js";
+export type { ObjectiveProps, ObjectiveStatus } from "./objective.js";
+export { Objective, renderObjective } from "./objective.js";
 export type { PromptProps } from "./prompt.js";
 export { Prompt, renderPrompt } from "./prompt.js";
 export type {
