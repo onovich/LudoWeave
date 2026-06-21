@@ -7,6 +7,12 @@ import type {
 } from "@ludoweave/core";
 
 import { Button } from "./button.js";
+import {
+  createFocusNavigationDraft,
+  type FocusNavigationBinding,
+  type FocusNavigationDraft,
+  type FocusNavigationDraftInput,
+} from "./focus-navigation.js";
 import { createFocusScopeDraft, type FocusScopeDraftInput } from "./focus.js";
 import {
   createModalInputShieldDraft,
@@ -27,6 +33,9 @@ export interface DialogProps extends ComponentProps {
   readonly confirmAction?: ActionRefInput;
   readonly cancelAction?: ActionRefInput;
   readonly focus?: Partial<Omit<FocusScopeDraftInput, "scopeId">> & { readonly scopeId?: string };
+  readonly focusNavigation?: Partial<Omit<FocusNavigationDraftInput, "scopeId">> & {
+    readonly scopeId?: string;
+  };
   readonly inputShield?: ModalInputShieldDraftInput;
   readonly style?: UiStyle;
 }
@@ -68,11 +77,17 @@ export function renderDialog(props: Readonly<DialogProps>): UiNodeInput {
   }
 
   const focus = createFocusScopeDraft(focusInput);
+  const focusNavigation = createFocusNavigationDraft({
+    scopeId: props.focusNavigation?.scopeId ?? focus.scopeId,
+    ...(props.focusNavigation?.bindings === undefined
+      ? {}
+      : { bindings: props.focusNavigation.bindings }),
+  });
   const inputShield = createModalInputShieldDraft(props.inputShield);
   const node: MutableUiNodeInput = {
     type: "dialog",
     key,
-    props: createDialogProps(props.title, focus, inputShield),
+    props: createDialogProps(props.title, focus, focusNavigation, inputShield),
     children: createDialogChildren(props),
   };
 
@@ -86,6 +101,7 @@ export function renderDialog(props: Readonly<DialogProps>): UiNodeInput {
 function createDialogProps(
   title: string,
   focus: ReturnType<typeof createFocusScopeDraft>,
+  focusNavigation: FocusNavigationDraft,
   inputShield: ModalInputShieldDraft,
 ) {
   const props: Record<string, JsonValue> = {
@@ -94,6 +110,9 @@ function createDialogProps(
     focusScopeId: focus.scopeId,
     containFocus: focus.containFocus,
     restoreFocus: focus.restoreFocus,
+    focusNavigationScopeId: focusNavigation.scopeId,
+    focusNavigationHandoff: focusNavigation.handoff,
+    focusNavigationBindings: serializeFocusNavigationBindings(focusNavigation.bindings),
     inputShieldEnabled: inputShield.enabled,
     inputShieldBlockedScopes: inputShield.blockedScopes,
     inputShieldHandoff: inputShield.handoff,
@@ -108,6 +127,27 @@ function createDialogProps(
   }
 
   return props;
+}
+
+function serializeFocusNavigationBindings(
+  bindings: readonly FocusNavigationBinding[],
+): readonly JsonValue[] {
+  return bindings.map((binding) => {
+    const action: Record<string, JsonValue> = {
+      type: binding.action.type,
+    };
+
+    if (binding.action.payload !== undefined) {
+      action.payload = binding.action.payload;
+    }
+
+    return {
+      device: binding.device,
+      input: binding.input,
+      intent: binding.intent,
+      action,
+    };
+  });
 }
 
 function createDialogChildren(props: Readonly<DialogProps>): readonly UiNodeInput[] {

@@ -2,6 +2,15 @@ export type { ButtonIntent, ButtonProps } from "./button.js";
 export { Button, buttonActionTypes, renderButton } from "./button.js";
 export type { DialogProps } from "./dialog.js";
 export { Dialog, renderDialog } from "./dialog.js";
+export type {
+  FocusNavigationBinding,
+  FocusNavigationBindingInput,
+  FocusNavigationDevice,
+  FocusNavigationDraft,
+  FocusNavigationDraftInput,
+  FocusNavigationIntent,
+} from "./focus-navigation.js";
+export { createFocusNavigationDraft } from "./focus-navigation.js";
 export type { FocusScopeDraft, FocusScopeDraftInput } from "./focus.js";
 export { createFocusScopeDraft } from "./focus.js";
 export type { ModalInputShieldDraft, ModalInputShieldDraftInput } from "./modal-behavior.js";

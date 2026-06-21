@@ -4,6 +4,7 @@ import { createActionLog, normalizeUiNode, type UiNode } from "@ludoweave/core";
 import {
   Button,
   Dialog,
+  createFocusNavigationDraft,
   createFocusScopeDraft,
   createModalInputShieldDraft,
 } from "../src/index.js";
@@ -49,6 +50,42 @@ describe("Dialog focus draft", () => {
         "key": "dialog",
         "props": {
           "containFocus": true,
+          "focusNavigationBindings": [
+            {
+              "action": {
+                "type": "runtime.ui.confirm",
+              },
+              "device": "keyboard",
+              "input": "Enter",
+              "intent": "confirm",
+            },
+            {
+              "action": {
+                "type": "runtime.ui.cancel",
+              },
+              "device": "keyboard",
+              "input": "Escape",
+              "intent": "cancel",
+            },
+            {
+              "action": {
+                "type": "runtime.ui.confirm",
+              },
+              "device": "gamepad",
+              "input": "South",
+              "intent": "confirm",
+            },
+            {
+              "action": {
+                "type": "runtime.ui.cancel",
+              },
+              "device": "gamepad",
+              "input": "East",
+              "intent": "cancel",
+            },
+          ],
+          "focusNavigationHandoff": "host",
+          "focusNavigationScopeId": "pause.dialog",
           "focusScopeId": "pause.dialog",
           "initialFocusKey": "cancel",
           "inputShieldBlockedScopes": [
@@ -99,16 +136,121 @@ describe("Dialog focus draft", () => {
         inputShield: {
           blockedScopes: [" gameplay ", "camera", "gameplay"],
         },
+        focusNavigation: {
+          bindings: [
+            {
+              device: "keyboard",
+              input: " Space ",
+              intent: "confirm",
+              action: {
+                type: "runtime.pause.resume",
+              },
+            },
+          ],
+        },
       }),
     );
 
     expect(dialog.props).toMatchObject({
       focusScopeId: "pause.dialog",
       restoreFocusKey: "hud.pause-button",
+      focusNavigationScopeId: "pause.dialog",
+      focusNavigationHandoff: "host",
+      focusNavigationBindings: [
+        {
+          device: "keyboard",
+          input: "Space",
+          intent: "confirm",
+          action: {
+            type: "runtime.pause.resume",
+          },
+        },
+      ],
       inputShieldEnabled: true,
       inputShieldBlockedScopes: ["gameplay", "camera"],
       inputShieldHandoff: "host",
     });
+  });
+
+  it("normalizes keyboard and gamepad focus navigation into ActionRefs", () => {
+    expect(
+      createFocusNavigationDraft({
+        scopeId: " pause.dialog ",
+      }),
+    ).toEqual({
+      scopeId: "pause.dialog",
+      handoff: "host",
+      bindings: [
+        {
+          device: "keyboard",
+          input: "Enter",
+          intent: "confirm",
+          action: {
+            type: "runtime.ui.confirm",
+          },
+        },
+        {
+          device: "keyboard",
+          input: "Escape",
+          intent: "cancel",
+          action: {
+            type: "runtime.ui.cancel",
+          },
+        },
+        {
+          device: "gamepad",
+          input: "South",
+          intent: "confirm",
+          action: {
+            type: "runtime.ui.confirm",
+          },
+        },
+        {
+          device: "gamepad",
+          input: "East",
+          intent: "cancel",
+          action: {
+            type: "runtime.ui.cancel",
+          },
+        },
+      ],
+    });
+    expect(
+      createFocusNavigationDraft({
+        scopeId: "pause.dialog",
+        bindings: [
+          {
+            device: "gamepad",
+            input: " Start ",
+            intent: "confirm",
+            action: {
+              type: "runtime.pause.resume",
+              payload: {
+                source: "gamepad",
+              },
+            },
+          },
+        ],
+      }).bindings,
+    ).toEqual([
+      {
+        device: "gamepad",
+        input: "Start",
+        intent: "confirm",
+        action: {
+          type: "runtime.pause.resume",
+          payload: {
+            source: "gamepad",
+          },
+        },
+      },
+    ]);
+    expect(() =>
+      createFocusNavigationDraft({
+        scopeId: "pause.dialog",
+        bindings: [],
+      }),
+    ).toThrow(/at least one binding/);
   });
 
   it("normalizes modal input shielding without owning host input state", () => {

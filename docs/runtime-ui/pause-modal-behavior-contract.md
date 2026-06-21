@@ -10,6 +10,7 @@ Pause modal behavior is Runtime UI metadata. LudoWeave components describe focus
 ## Contract
 
 - `Dialog` emits serializable focus metadata: `focusScopeId`, `containFocus`, `restoreFocus`, `initialFocusKey`, and optional `restoreFocusKey`.
+- `Dialog` emits host-handled focus navigation metadata for keyboard and gamepad confirm/cancel intents. Default bindings are keyboard `Enter` / `Escape` and gamepad `South` / `East`.
 - Confirm and cancel controls emit `ActionRef` values. Default actions remain `runtime.ui.confirm` and `runtime.ui.cancel`; callers may override them with host-owned action namespaces.
 - Modal input shielding is metadata, not host input ownership. `inputShieldEnabled`, `inputShieldBlockedScopes`, and `inputShieldHandoff: "host"` tell the host which input scopes should be shielded while the modal is active.
 - The default shield blocks the `gameplay` scope.
