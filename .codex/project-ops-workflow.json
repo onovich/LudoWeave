@@ -20,42 +20,42 @@
                                     },
                        "restoreDeps":  {
                                            "commands":  [
-
+                                                            "pnpm install"
                                                         ]
                                        },
                        "installDeps":  {
                                            "commands":  [
-
+                                                            "pnpm install"
                                                         ]
                                        },
                        "build":  {
                                      "commands":  [
-
+                                                     "pnpm build"
                                                   ]
                                  },
                        "test":  {
                                     "commands":  [
-
+                                                    "pnpm test"
                                                  ]
                                 },
                        "lint":  {
                                     "commands":  [
-
+                                                    "pnpm lint"
                                                  ]
                                 },
                        "format":  {
                                       "commands":  [
-
+                                                       "pnpm format"
                                                    ]
                                   },
                        "typecheck":  {
                                          "commands":  [
-
+                                                         "pnpm typecheck"
                                                       ]
                                      },
                        "structureCheck":  {
                                               "commands":  [
-
+                                                              "pnpm structure-check"
                                                            ]
                                           },
                        "codegen":  {
@@ -65,7 +65,7 @@
                                    },
                        "docsCheck":  {
                                          "commands":  [
-
+                                                         "pnpm api-check"
                                                       ]
                                      },
                        "smoke":  {
@@ -73,7 +73,8 @@
 
                                               ],
                                      "commands":  [
-
+                                                     "pnpm test:e2e",
+                                                     "pnpm test:a11y"
                                                   ]
                                  },
                        "package":  {
