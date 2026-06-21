@@ -38,6 +38,24 @@ C:\Users\Administrator\.codex\skills\project-ops-workflow\scripts\ops\ReleaseDry
 
 lint, typecheck, build, test, structureCheck, docsCheck
 
+## Known Workflow Gap
+
+The machine config is initialized, but the operation command arrays in `.codex/project-ops-workflow.json` are still empty. As of v0.1 acceptance on 2026-06-21, `Validate.cmd` reports no configured validation commands and does not run the real project checks.
+
+For v0.1, final acceptance used the real `package.json` scripts directly:
+
+- `pnpm lint`
+- `pnpm typecheck`
+- `pnpm test`
+- `pnpm build`
+- `pnpm api-check`
+- `pnpm structure-check`
+- `pnpm test:e2e`
+- `pnpm test:a11y`
+- `pnpm validate`
+
+Next workflow cleanup should wire these commands into `.codex/project-ops-workflow.json` so future Codex agents can rely on the ops wrappers without accidentally treating a no-op as validation.
+
 ## Dev Server
 
 Start command: ``

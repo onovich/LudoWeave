@@ -6,6 +6,7 @@ Round: 40/40
 ## Summary
 
 - Result: PASS
+- Acceptance: PASS, accepted on 2026-06-21
 - Final validation commit: `e5979ea`
 - Final validation log commit: `2d397a6`
 - Final report commit: the commit containing this document
@@ -69,6 +70,7 @@ Full command log: [v0.1 Final Validation Log](ludoweave-v0.1-final-validation-lo
 - Roadmap status and v0.2 backlog: `docs/roadmap/ludoweave-v0.1-development-plan.md`.
 - Release notes draft: `docs/release/ludoweave-v0.1-release-notes-draft.md`.
 - Validation record: `docs/release/ludoweave-v0.1-final-validation-log.md`.
+- Process follow-up: `.codex/project-ops-workflow.json` is initialized but still has no real operation commands, so `Validate.cmd` is a no-op. v0.1 acceptance used the real `package.json` scripts such as `pnpm validate`; next workflow cleanup should wire the ops wrapper to those pnpm commands.
 - Recommended next phase: v0.2 should start with complete Pause modal behavior, gamepad/keyboard focus hardening, Objective/delivery hint components, and a Canvas2D renderer spike.
 
 ## Recommended v0.2 Entry
@@ -80,3 +82,4 @@ Full command log: [v0.1 Final Validation Log](ludoweave-v0.1-final-validation-lo
 - Add theme token package.
 - Add ActionRef log inspector / lightweight DevTools.
 - Expand layout with scroll, virtual list, and rich text only after renderer contracts stay stable.
+- Wire `project-ops-workflow` wrappers to real `pnpm` validation commands so future Codex runs cannot mistake no-op wrapper output for completed validation.
