@@ -17,6 +17,8 @@
 
 - [v0.2 Integration Status](roadmap/ludoweave-v0.2-integration-status.md)
 - [v0.2 Release Notes Draft](release/ludoweave-v0.2-release-notes-draft.md)
+- [v0.2 Final Report](release/ludoweave-v0.2-final-report.md)
+- [v0.2 Final Validation Log](release/ludoweave-v0.2-final-validation-log.md)
 
 ## Decision Records
 
