@@ -144,6 +144,57 @@ describe("mountDomRenderer", () => {
     });
   });
 
+  it("exposes theme tokens and non-native button semantics", () => {
+    const document = new FakeDocument();
+    const root = document.createElement("div");
+    const renderer = mountDomRenderer({
+      root: asDomRoot(root),
+      document: asDocument(document),
+    });
+
+    renderer.render({
+      ...createFrame(),
+      nodes: [
+        {
+          id: "root/key:objective.delivery",
+          path: ["root", "key:objective.delivery"],
+          type: "objective",
+          key: "objective.delivery",
+          index: 0,
+          box: { x: 0, y: 0, width: 320, height: 96 },
+          props: {
+            title: "Deliver the cell",
+            body: "Bring the energy cell to the gate.",
+          },
+          style: {
+            themeToken: "runtime-ui.objective.root",
+          },
+        },
+      ],
+      semantics: [
+        {
+          id: "semantics.objective.delivery",
+          nodeId: "root/key:objective.delivery",
+          role: "button",
+          label: "Deliver the cell",
+        },
+      ],
+    });
+
+    const element = root.requireChild(0);
+    expect(element.dataset).toEqual({
+      ludoweaveNodeId: "root/key:objective.delivery",
+      ludoweaveNodeType: "objective",
+      ludoweaveThemeToken: "runtime-ui.objective.root",
+    });
+    expect(element.attributesAsObject()).toEqual({
+      role: "button",
+      tabindex: "0",
+      "aria-label": "Deliver the cell",
+    });
+    expect(element.textContent).toBe("Deliver the cell\nBring the energy cell to the gate.");
+  });
+
   it("renders text with textContent and never innerHTML", () => {
     const document = new FakeDocument();
     const root = document.createElement("div");

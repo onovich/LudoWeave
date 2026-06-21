@@ -5,6 +5,13 @@ test("has no blocking accessibility violations in the playground", async ({ page
   await page.goto("/");
 
   await expect(page.locator('[data-ludoweave-node-id="root/key:prompt"]')).toBeVisible();
+  await expect(
+    page.locator('[data-ludoweave-node-id="root/key:objective.delivery"]'),
+  ).toBeVisible();
+  await expect(page.locator('[data-ludoweave-node-id="root/key:pause"]')).toHaveAttribute(
+    "role",
+    "dialog",
+  );
 
   const results = await new AxeBuilder({ page })
     .withTags(["wcag2a", "wcag2aa", "best-practice"])

@@ -89,6 +89,7 @@ function renderResolvedNode(
   const element = documentRef.createElement(getTagName(node));
   element.dataset.ludoweaveNodeId = node.id;
   element.dataset.ludoweaveNodeType = node.type;
+  applyThemeToken(element, node);
   applyBox(element, node.box);
   applySemantics(element, node, semantics);
 
@@ -132,6 +133,13 @@ function applyBox(element: HTMLElement, box: ResolvedRect): void {
   element.style.height = `${box.height}px`;
 }
 
+function applyThemeToken(element: HTMLElement, node: ResolvedNode): void {
+  const themeToken = node.style?.themeToken;
+  if (typeof themeToken === "string") {
+    element.dataset.ludoweaveThemeToken = themeToken;
+  }
+}
+
 function applySemantics(
   element: HTMLElement,
   node: ResolvedNode,
@@ -143,6 +151,11 @@ function applySemantics(
 
   if (semantics?.role === "dialog") {
     element.setAttribute("role", "dialog");
+  }
+
+  if (semantics?.role === "button" && node.type !== "button" && node.type !== "pressable") {
+    element.setAttribute("role", "button");
+    element.setAttribute("tabindex", "0");
   }
 
   if (node.props?.modal === true) {
@@ -193,6 +206,12 @@ function getNodeText(node: ResolvedNode): string | undefined {
   const label = node.props?.label;
   if (typeof label === "string") {
     return label;
+  }
+
+  const title = node.props?.title;
+  if (typeof title === "string") {
+    const body = node.props?.body;
+    return typeof body === "string" ? `${title}\n${body}` : title;
   }
 
   return undefined;

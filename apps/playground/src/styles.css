@@ -24,13 +24,15 @@ body {
 #app {
   min-height: 100vh;
   display: grid;
-  place-items: center;
+  align-content: center;
+  justify-items: center;
+  gap: 16px;
   padding: 24px;
 }
 
 .scene {
   position: relative;
-  width: min(100%, 1280px);
+  width: min(100%, 1040px);
   aspect-ratio: 16 / 9;
   min-height: 360px;
   overflow: hidden;
@@ -86,13 +88,88 @@ body {
   pointer-events: auto;
 }
 
+[data-ludoweave-theme-token="runtime-ui.prompt.root"] {
+  border-color: #2dd4bf;
+  background: #12312f;
+}
+
 [data-ludoweave-node-type="text"] {
   display: grid;
   place-items: center;
   color: #f8fafc;
   font-size: 18px;
   line-height: 24px;
+  white-space: nowrap;
   text-shadow: 0 2px 8px #020617;
+}
+
+[data-ludoweave-node-type="objective"],
+[data-ludoweave-node-type="dialog"] {
+  display: grid;
+  align-content: center;
+  padding: 16px 18px;
+  color: #f8fafc;
+  white-space: pre-line;
+  pointer-events: auto;
+}
+
+[data-ludoweave-node-type="objective"] {
+  border: 1px solid #f59e0b;
+  border-left-width: 4px;
+  background: rgba(39, 38, 25, 0.92);
+  font-weight: 700;
+  line-height: 1.35;
+  cursor: pointer;
+}
+
+[data-ludoweave-node-type="dialog"] {
+  align-content: start;
+  gap: 8px;
+  border: 1px solid #a78bfa;
+  background: rgba(20, 18, 34, 0.94);
+  font-size: 20px;
+  font-weight: 800;
+}
+
+[data-ludoweave-node-id="root/key:pause/key:confirm"] {
+  border-color: #34d399;
+  background: #14532d;
+}
+
+[data-ludoweave-node-id="root/key:pause/key:cancel"] {
+  border-color: #f87171;
+  background: #3f1d1d;
+}
+
+.action-log {
+  width: min(100%, 1040px);
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 12px;
+  align-items: start;
+  padding: 12px 14px;
+  border: 1px solid #3f3f46;
+  background: #18181b;
+}
+
+.action-log h2 {
+  margin: 0;
+  color: #fde68a;
+  font-size: 14px;
+  line-height: 22px;
+}
+
+.action-log ol {
+  min-height: 22px;
+  margin: 0;
+  padding-left: 22px;
+  color: #e5e7eb;
+  font-size: 13px;
+  line-height: 22px;
+}
+
+.action-log__empty {
+  color: #a1a1aa;
 }
 
 @media (max-width: 720px) {
@@ -102,5 +179,19 @@ body {
 
   .scene {
     min-height: 300px;
+  }
+
+  [data-ludoweave-node-type="objective"],
+  [data-ludoweave-node-type="dialog"] {
+    padding: 10px 12px;
+    font-size: 13px;
+  }
+
+  [data-ludoweave-node-type="dialog"] {
+    font-size: 16px;
+  }
+
+  .action-log {
+    grid-template-columns: 1fr;
   }
 }

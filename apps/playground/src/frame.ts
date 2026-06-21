@@ -1,4 +1,4 @@
-import { Prompt, Subtitle } from "@ludoweave/components";
+import { Dialog, Objective, Prompt, Subtitle } from "@ludoweave/components";
 import {
   createLayoutEnvironment,
   normalizeUiNode,
@@ -12,6 +12,7 @@ import {
   type ResolvedRect,
   type ResolvedUiFrame,
   type SemanticNode,
+  type SemanticRole,
   type TextRenderCommand,
   type UiNode,
 } from "@ludoweave/core";
@@ -42,14 +43,43 @@ export function createPlaygroundFrame(options: PlaygroundFrameOptions): Resolved
       text: "The gate hums softly.",
     }),
   );
+  const objectiveNode = normalizeUiNode(
+    Objective.render({
+      key: "objective.delivery",
+      title: "Deliver the cell",
+      body: "Bring the energy cell to the gate.",
+      action: {
+        type: "runtime.objective.inspect",
+        payload: {
+          objectiveId: "delivery",
+        },
+      },
+    }),
+  );
+  const dialogNode = normalizeUiNode(
+    Dialog.render({
+      key: "pause",
+      title: "Pause",
+      confirmAction: "runtime.pause.resume",
+      cancelAction: "runtime.pause.close",
+      focus: {
+        scopeId: "pause.dialog",
+        restoreFocusKey: "prompt",
+      },
+    }),
+  );
+  const confirmNode = requireChild(dialogNode, "confirm");
+  const cancelNode = requireChild(dialogNode, "cancel");
+  const isCompact = environment.contentBox.width < 720;
+  const hudInset = isCompact ? 16 : 32;
   const promptBox = resolveAbsoluteAnchor({
     container: environment.contentBox,
-    size: { width: 240, height: 48 },
+    size: { width: isCompact ? 220 : 240, height: isCompact ? 44 : 48 },
     anchor: {
       horizontal: "center",
       vertical: "end",
       inset: {
-        bottom: 52,
+        bottom: isCompact ? 24 : 52,
       },
     },
   });
@@ -58,8 +88,8 @@ export function createPlaygroundFrame(options: PlaygroundFrameOptions): Resolved
     fontSize: 18,
     maxWidth: Math.max(240, environment.contentBox.width * 0.8),
     measureText: ({ text, maxWidth }) => ({
-      width: Math.min(text.length * 8, maxWidth),
-      height: 24,
+      width: Math.min(text.length * 10, maxWidth),
+      height: 28,
     }),
   });
   const subtitleBox = snapRectToPixelGrid({
@@ -71,37 +101,163 @@ export function createPlaygroundFrame(options: PlaygroundFrameOptions): Resolved
         horizontal: "center",
         vertical: "end",
         inset: {
-          bottom: 112,
+          bottom: isCompact ? 76 : 112,
         },
       },
     }),
   });
+  const objectiveBox = snapRectToPixelGrid({
+    devicePixelRatio: environment.viewport.devicePixelRatio,
+    rect: resolveAbsoluteAnchor({
+      container: environment.contentBox,
+      size: {
+        width: isCompact
+          ? Math.max(220, environment.contentBox.width - hudInset * 2)
+          : Math.min(360, environment.contentBox.width * 0.36),
+        height: isCompact ? 64 : 96,
+      },
+      anchor: {
+        horizontal: isCompact ? "center" : "start",
+        vertical: "start",
+        inset: {
+          top: hudInset,
+          left: hudInset,
+        },
+      },
+    }),
+  });
+  const dialogBox = snapRectToPixelGrid({
+    devicePixelRatio: environment.viewport.devicePixelRatio,
+    rect: resolveAbsoluteAnchor({
+      container: environment.contentBox,
+      size: {
+        width: isCompact
+          ? Math.max(220, environment.contentBox.width - hudInset * 2)
+          : Math.min(340, environment.contentBox.width * 0.32),
+        height: isCompact ? 104 : 156,
+      },
+      anchor: {
+        horizontal: isCompact ? "center" : "end",
+        vertical: "start",
+        inset: {
+          top: isCompact ? hudInset + 76 : hudInset,
+          right: hudInset,
+        },
+      },
+    }),
+  });
+  const confirmBox = snapRectToPixelGrid({
+    devicePixelRatio: environment.viewport.devicePixelRatio,
+    rect: {
+      x: dialogBox.x + 20,
+      y: dialogBox.y + dialogBox.height - 56,
+      width: Math.max(112, (dialogBox.width - 52) / 2),
+      height: 36,
+    },
+  });
+  const cancelBox = snapRectToPixelGrid({
+    devicePixelRatio: environment.viewport.devicePixelRatio,
+    rect: {
+      x: confirmBox.x + confirmBox.width + 12,
+      y: confirmBox.y,
+      width: confirmBox.width,
+      height: confirmBox.height,
+    },
+  });
   const prompt = createResolvedSurfaces({
     id: "root/key:prompt",
     node: promptNode,
+    index: 0,
     box: promptBox,
     role: "button",
     paintId: "paint.prompt.box",
-    actionId: "action.prompt",
+    actionId: "action.prompt.interact",
     fill: "#111827",
   });
   const subtitle = createResolvedSurfaces({
     id: "root/key:subtitle",
     node: subtitleNode,
+    index: 1,
     box: subtitleBox,
     role: "text",
     paintId: "paint.subtitle.text",
     color: "#f8fafc",
     fontSize: 18,
   });
+  const objective = createResolvedSurfaces({
+    id: "root/key:objective.delivery",
+    node: objectiveNode,
+    index: 2,
+    box: objectiveBox,
+    role: "button",
+    paintId: "paint.objective.delivery",
+    actionId: "action.objective.delivery",
+    fill: "#1f2937",
+  });
+  const dialog = createResolvedSurfaces({
+    id: "root/key:pause",
+    node: dialogNode,
+    index: 3,
+    box: dialogBox,
+    role: "dialog",
+    paintId: "paint.pause.dialog",
+    fill: "#0f172a",
+  });
+  const confirm = createResolvedSurfaces({
+    id: "root/key:pause/key:confirm",
+    node: confirmNode,
+    index: 4,
+    parentId: dialog.node.id,
+    parentPath: dialog.node.path,
+    box: confirmBox,
+    role: "button",
+    paintId: "paint.pause.confirm",
+    actionId: "action.pause.confirm",
+    fill: "#14532d",
+  });
+  const cancel = createResolvedSurfaces({
+    id: "root/key:pause/key:cancel",
+    node: cancelNode,
+    index: 5,
+    parentId: dialog.node.id,
+    parentPath: dialog.node.path,
+    box: cancelBox,
+    role: "button",
+    paintId: "paint.pause.cancel",
+    actionId: "action.pause.cancel",
+    fill: "#3f1d1d",
+  });
 
   return {
     frameId: 1,
     viewport: environment.viewport,
-    nodes: [prompt.node, subtitle.node],
-    paint: [prompt.paint, subtitle.paint],
-    semantics: [prompt.semantic, subtitle.semantic],
-    actions: prompt.action === undefined ? [] : [prompt.action],
+    nodes: [prompt.node, subtitle.node, objective.node, dialog.node, confirm.node, cancel.node],
+    paint: [
+      prompt.paint,
+      subtitle.paint,
+      objective.paint,
+      dialog.paint,
+      confirm.paint,
+      cancel.paint,
+    ],
+    semantics: [
+      prompt.semantic,
+      subtitle.semantic,
+      objective.semantic,
+      {
+        ...dialog.semantic,
+        children: [confirm.semantic.id, cancel.semantic.id],
+      },
+      {
+        ...confirm.semantic,
+        parentId: dialog.semantic.id,
+      },
+      {
+        ...cancel.semantic,
+        parentId: dialog.semantic.id,
+      },
+    ],
+    actions: collectActions(prompt, objective, confirm, cancel),
     diagnostics: [],
   };
 }
@@ -109,8 +265,11 @@ export function createPlaygroundFrame(options: PlaygroundFrameOptions): Resolved
 function createResolvedSurfaces(input: {
   readonly id: string;
   readonly node: UiNode;
+  readonly index: number;
+  readonly parentId?: string;
+  readonly parentPath?: readonly string[];
   readonly box: ResolvedRect;
-  readonly role: "button" | "text";
+  readonly role: SemanticRole;
   readonly paintId: string;
   readonly actionId?: string;
   readonly fill?: string;
@@ -123,16 +282,18 @@ function createResolvedSurfaces(input: {
   readonly action?: ResolvedActionTarget;
 } {
   const key = requireKey(input.node);
-  const path = ["root", `key:${key}`];
+  const path = [...(input.parentPath ?? ["root"]), `key:${key}`];
   const label = getLabel(input.node);
   const resolvedNode: ResolvedNode = {
     id: input.id,
     path,
     type: input.node.type,
     key,
-    index: input.role === "button" ? 0 : 1,
+    index: input.index,
+    ...(input.parentId === undefined ? {} : { parentId: input.parentId }),
     box: input.box,
     props: requireProps(input.node),
+    ...(input.node.style === undefined ? {} : { style: input.node.style }),
     ...(input.node.action === undefined ? {} : { action: input.node.action }),
   };
   const paint =
@@ -242,7 +403,12 @@ function getLabel(node: UiNode): string {
     return label;
   }
 
-  return requireStringProp(node, "text");
+  const text = node.props?.text;
+  if (typeof text === "string") {
+    return text;
+  }
+
+  return requireStringProp(node, "title");
 }
 
 function requireStringProp(node: UiNode, propName: string): string {
@@ -265,4 +431,18 @@ function requireProps(node: UiNode): NonNullable<UiNode["props"]> {
     throw new TypeError("Expected playground node props.");
   }
   return node.props;
+}
+
+function requireChild(node: UiNode, key: string): UiNode {
+  const child = node.children?.find((entry) => entry.key === key);
+  if (child === undefined) {
+    throw new TypeError(`Expected playground child ${key}.`);
+  }
+  return child;
+}
+
+function collectActions(
+  ...surfaces: readonly ReturnType<typeof createResolvedSurfaces>[]
+): readonly ResolvedActionTarget[] {
+  return surfaces.flatMap((surface) => (surface.action === undefined ? [] : [surface.action]));
 }
