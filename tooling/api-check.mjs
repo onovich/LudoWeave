@@ -4,16 +4,19 @@ import { spawnSync } from "node:child_process";
 
 const workspaceRoots = ["packages", "apps", "examples", "tooling"];
 
-const configPaths = workspaceRoots.flatMap((root) => {
-  if (!existsSync(root)) {
-    return [];
-  }
+const configPaths = workspaceRoots
+  .flatMap((root) => {
+    if (!existsSync(root)) {
+      return [];
+    }
 
-  return readdirSync(root, { withFileTypes: true })
-    .filter((entry) => entry.isDirectory())
-    .map((entry) => join(root, entry.name, "api-extractor.json"))
-    .filter((configPath) => existsSync(configPath));
-});
+    return readdirSync(root, { withFileTypes: true })
+      .filter((entry) => entry.isDirectory())
+      .sort((left, right) => left.name.localeCompare(right.name))
+      .map((entry) => join(root, entry.name, "api-extractor.json"))
+      .filter((configPath) => existsSync(configPath));
+  })
+  .sort();
 
 if (configPaths.length === 0) {
   console.log("api-check: no API Extractor package configs yet.");
