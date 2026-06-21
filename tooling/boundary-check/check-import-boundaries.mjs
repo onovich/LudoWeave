@@ -44,6 +44,15 @@ const boundaryRules = [
       { label: "Sinan", pattern: /sinan/i },
     ],
   },
+  {
+    name: "Canvas2D renderer spike stays isolated",
+    root: "packages/renderer-canvas2d",
+    forbidden: [
+      { label: "DOM renderer", pattern: /^@ludoweave\/renderer-dom(\/|$)/ },
+      { label: "React", pattern: /^(react|react-dom)(\/|$)/ },
+      { label: "Sinan", pattern: /sinan/i },
+    ],
+  },
 ];
 
 const violations = [];

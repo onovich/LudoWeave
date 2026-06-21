@@ -1,0 +1,28 @@
+{
+  "name": "@ludoweave/renderer-canvas2d",
+  "version": "0.0.0",
+  "description": "Experimental Canvas2D renderer spike for LudoWeave resolved frames.",
+  "type": "module",
+  "sideEffects": false,
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "types": "./dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsc -b tsconfig.json",
+    "test": "vitest run --passWithNoTests",
+    "typecheck": "tsc -b tsconfig.json"
+  },
+  "dependencies": {
+    "@ludoweave/core": "workspace:*"
+  },
+  "devDependencies": {
+    "@ludoweave/testing": "workspace:*"
+  }
+}

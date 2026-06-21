@@ -75,6 +75,16 @@ importers:
 
   packages/core: {}
 
+  packages/renderer-canvas2d:
+    dependencies:
+      '@ludoweave/core':
+        specifier: workspace:*
+        version: link:../core
+    devDependencies:
+      '@ludoweave/testing':
+        specifier: workspace:*
+        version: link:../testing
+
   packages/renderer-dom:
     dependencies:
       '@ludoweave/core':
