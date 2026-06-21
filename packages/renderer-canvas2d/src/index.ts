@@ -18,6 +18,10 @@ export interface Canvas2DContextLike {
   fillRect(x: number, y: number, width: number, height: number): void;
   strokeRect?(x: number, y: number, width: number, height: number): void;
   fillText(text: string, x: number, y: number, maxWidth?: number): void;
+  beginPath?(): void;
+  roundRect?(x: number, y: number, width: number, height: number, radius: number): void;
+  fill?(): void;
+  stroke?(): void;
   save?(): void;
   restore?(): void;
 }
@@ -184,15 +188,7 @@ function renderCommand(context: Canvas2DContextLike, command: RenderCommand): Ca
     };
   }
 
-  if (command.fill !== undefined) {
-    context.fillStyle = command.fill;
-    context.fillRect(command.box.x, command.box.y, command.box.width, command.box.height);
-  }
-
-  if (command.stroke !== undefined && context.strokeRect !== undefined) {
-    context.strokeStyle = command.stroke;
-    context.strokeRect(command.box.x, command.box.y, command.box.width, command.box.height);
-  }
+  renderBoxCommand(context, command);
 
   return {
     kind: "box",
@@ -203,4 +199,55 @@ function renderCommand(context: Canvas2DContextLike, command: RenderCommand): Ca
     ...(command.stroke === undefined ? {} : { stroke: command.stroke }),
     ...(command.radius === undefined ? {} : { radius: command.radius }),
   };
+}
+
+function renderBoxCommand(
+  context: Canvas2DContextLike,
+  command: Extract<RenderCommand, { readonly kind: "box" }>,
+): void {
+  if (canRenderRoundedBoxPath(context, command)) {
+    const radius = command.radius ?? 0;
+    context.beginPath();
+    context.roundRect(command.box.x, command.box.y, command.box.width, command.box.height, radius);
+
+    if (command.fill !== undefined) {
+      context.fillStyle = command.fill;
+      context.fill?.();
+    }
+
+    if (command.stroke !== undefined) {
+      context.strokeStyle = command.stroke;
+      context.stroke?.();
+    }
+    return;
+  }
+
+  if (command.fill !== undefined) {
+    context.fillStyle = command.fill;
+    context.fillRect(command.box.x, command.box.y, command.box.width, command.box.height);
+  }
+
+  if (command.stroke !== undefined && context.strokeRect !== undefined) {
+    context.strokeStyle = command.stroke;
+    context.strokeRect(command.box.x, command.box.y, command.box.width, command.box.height);
+  }
+}
+
+function canRenderRoundedBoxPath(
+  context: Canvas2DContextLike,
+  command: Extract<RenderCommand, { readonly kind: "box" }>,
+): context is Canvas2DContextLike & Required<Pick<Canvas2DContextLike, "beginPath" | "roundRect">> {
+  if (command.radius === undefined || command.radius <= 0) {
+    return false;
+  }
+
+  if (context.beginPath === undefined || context.roundRect === undefined) {
+    return false;
+  }
+
+  if (command.fill !== undefined && context.fill === undefined) {
+    return false;
+  }
+
+  return command.stroke === undefined || context.stroke !== undefined;
 }

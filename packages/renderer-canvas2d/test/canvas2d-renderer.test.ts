@@ -99,6 +99,23 @@ describe("Canvas2D renderer spike", () => {
     expect(() => renderer.render(createRendererConformanceFixture().frame)).toThrow(/disposed/);
   });
 
+  it("uses rounded rect paths when the context supports them", () => {
+    const context = new RoundedPathCanvas2DContext();
+    const renderer = createCanvas2DRenderer({
+      context,
+    });
+
+    renderer.render(createRendererConformanceFixture().frame);
+
+    expect(context.calls).toContain("beginPath");
+    expect(context.calls).toContain("roundRect 520 596 240 48 8");
+    expect(context.calls).toContain("roundRect 440 238 400 220 8");
+    expect(context.calls).toContain("fill");
+    expect(context.calls).toContain("stroke");
+    expect(context.calls).not.toContain("fillRect 520 596 240 48");
+    expect(context.calls).not.toContain("strokeRect 440 238 400 220");
+  });
+
   it("records the supported conformance subset and fallback policy", () => {
     expect(canvas2DRendererConformancePolicy.supported).toEqual([
       "frame.clear",
@@ -185,5 +202,23 @@ class FakeCanvas2DContext implements Canvas2DContextLike {
 
   restore(): void {
     this.calls.push("restore");
+  }
+}
+
+class RoundedPathCanvas2DContext extends FakeCanvas2DContext {
+  beginPath(): void {
+    this.calls.push("beginPath");
+  }
+
+  roundRect(x: number, y: number, width: number, height: number, radius: number): void {
+    this.calls.push(`roundRect ${x} ${y} ${width} ${height} ${radius}`);
+  }
+
+  fill(): void {
+    this.calls.push("fill");
+  }
+
+  stroke(): void {
+    this.calls.push("stroke");
   }
 }
