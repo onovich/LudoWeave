@@ -72,6 +72,9 @@ export interface CreateLayoutEnvironmentOptions {
 }
 
 // @public
+export function createThemeTokenStyle(defaultThemeToken: UiThemeTokenName, style?: UiStyle): UiStyle;
+
+// @public
 export interface DiagnosticSink {
     clear(): void;
     hasErrors(): boolean;
@@ -137,6 +140,12 @@ export interface NormalizedUiTree {
     // (undocumented)
     readonly root: NormalizedUiNode;
 }
+
+// @public
+export function normalizeRuntimeUiThemeTokenContract(input: unknown): RuntimeUiThemeTokenContract;
+
+// @public
+export function normalizeThemeTokenName(value: unknown, path?: string): UiThemeTokenName;
 
 // @public
 export function normalizeUiDiagnostic(input: UiDiagnosticInput): UiDiagnostic;
@@ -317,6 +326,109 @@ export interface ResolveTextMeasureOptions {
     // (undocumented)
     readonly text: string;
 }
+
+// @public
+export interface RuntimeUiDialogThemeTokens {
+    // (undocumented)
+    readonly controls: UiThemeTokenName;
+    // (undocumented)
+    readonly root: UiThemeTokenName;
+    // (undocumented)
+    readonly title: UiThemeTokenName;
+}
+
+// @public
+export interface RuntimeUiObjectiveThemeTokens {
+    // (undocumented)
+    readonly body: UiThemeTokenName;
+    // (undocumented)
+    readonly root: UiThemeTokenName;
+    // (undocumented)
+    readonly title: UiThemeTokenName;
+}
+
+// @public
+export interface RuntimeUiPromptThemeTokens {
+    // (undocumented)
+    readonly root: UiThemeTokenName;
+    // (undocumented)
+    readonly text: UiThemeTokenName;
+}
+
+// @public
+export interface RuntimeUiSubtitleThemeTokens {
+    // (undocumented)
+    readonly root: UiThemeTokenName;
+    // (undocumented)
+    readonly text: UiThemeTokenName;
+}
+
+// @public
+export interface RuntimeUiThemeComponentTokens {
+    // (undocumented)
+    readonly dialog: RuntimeUiDialogThemeTokens;
+    // (undocumented)
+    readonly objective: RuntimeUiObjectiveThemeTokens;
+    // (undocumented)
+    readonly prompt: RuntimeUiPromptThemeTokens;
+    // (undocumented)
+    readonly subtitle: RuntimeUiSubtitleThemeTokens;
+}
+
+// @public
+export interface RuntimeUiThemeTokenContract {
+    // (undocumented)
+    readonly components: RuntimeUiThemeComponentTokens;
+    // (undocumented)
+    readonly version: "ludoweave.theme.v0.2";
+}
+
+// @public
+export const runtimeUiThemeTokenContract: Readonly<{
+    version: "ludoweave.theme.v0.2";
+    components: Readonly<{
+        prompt: Readonly<{
+            root: "runtime-ui.prompt.root";
+            text: "runtime-ui.prompt.text";
+        }>;
+        subtitle: Readonly<{
+            root: "runtime-ui.subtitle.root";
+            text: "runtime-ui.subtitle.text";
+        }>;
+        dialog: Readonly<{
+            root: "runtime-ui.dialog.root";
+            title: "runtime-ui.dialog.title";
+            controls: "runtime-ui.dialog.controls";
+        }>;
+        objective: Readonly<{
+            root: "runtime-ui.objective.root";
+            title: "runtime-ui.objective.title";
+            body: "runtime-ui.objective.body";
+        }>;
+    }>;
+}>;
+
+// @public
+export const runtimeUiThemeTokens: Readonly<{
+    prompt: Readonly<{
+        root: "runtime-ui.prompt.root";
+        text: "runtime-ui.prompt.text";
+    }>;
+    subtitle: Readonly<{
+        root: "runtime-ui.subtitle.root";
+        text: "runtime-ui.subtitle.text";
+    }>;
+    dialog: Readonly<{
+        root: "runtime-ui.dialog.root";
+        title: "runtime-ui.dialog.title";
+        controls: "runtime-ui.dialog.controls";
+    }>;
+    objective: Readonly<{
+        root: "runtime-ui.objective.root";
+        title: "runtime-ui.objective.title";
+        body: "runtime-ui.objective.body";
+    }>;
+}>;
 
 // @public
 export interface SemanticNode {
@@ -545,6 +657,12 @@ export type UiNodePath = readonly string[];
 
 // @public
 export type UiStyle = Readonly<Record<string, JsonValue>>;
+
+// @public
+export type UiThemeTokenName = string;
+
+// @public
+export const uiThemeTokenStyleKey = "themeToken";
 
 // (No @packageDocumentation comment for this package)
 

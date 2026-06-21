@@ -70,5 +70,22 @@ export type {
   TextMeasureResult,
 } from "./text-measure.js";
 export { resolveTextMeasure } from "./text-measure.js";
+export type {
+  RuntimeUiDialogThemeTokens,
+  RuntimeUiObjectiveThemeTokens,
+  RuntimeUiPromptThemeTokens,
+  RuntimeUiSubtitleThemeTokens,
+  RuntimeUiThemeComponentTokens,
+  RuntimeUiThemeTokenContract,
+  UiThemeTokenName,
+} from "./theme-token.js";
+export {
+  createThemeTokenStyle,
+  normalizeRuntimeUiThemeTokenContract,
+  normalizeThemeTokenName,
+  runtimeUiThemeTokenContract,
+  runtimeUiThemeTokens,
+  uiThemeTokenStyleKey,
+} from "./theme-token.js";
 export type { UiNode, UiNodeChildrenInput, UiNodeInput, UiStyle } from "./ui-node.js";
 export { normalizeUiNode } from "./ui-node.js";

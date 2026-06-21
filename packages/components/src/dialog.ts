@@ -4,7 +4,9 @@ import type {
   UiNodeChildrenInput,
   UiNodeInput,
   UiStyle,
+  UiThemeTokenName,
 } from "@ludoweave/core";
+import { createThemeTokenStyle, runtimeUiThemeTokens } from "@ludoweave/core";
 
 import { Button } from "./button.js";
 import {
@@ -37,6 +39,8 @@ export interface DialogProps extends ComponentProps {
     readonly scopeId?: string;
   };
   readonly inputShield?: ModalInputShieldDraftInput;
+  readonly themeToken?: UiThemeTokenName;
+  readonly controlsThemeToken?: UiThemeTokenName;
   readonly style?: UiStyle;
 }
 
@@ -91,9 +95,10 @@ export function renderDialog(props: Readonly<DialogProps>): UiNodeInput {
     children: createDialogChildren(props),
   };
 
-  if (props.style !== undefined) {
-    node.style = props.style;
-  }
+  node.style = createThemeTokenStyle(
+    props.themeToken ?? runtimeUiThemeTokens.dialog.root,
+    props.style,
+  );
 
   return node;
 }
@@ -159,12 +164,18 @@ function createDialogChildren(props: Readonly<DialogProps>): readonly UiNodeInpu
       label: "Confirm",
       intent: "confirm",
       ...(props.confirmAction === undefined ? {} : { action: props.confirmAction }),
+      style: createThemeTokenStyle(
+        props.controlsThemeToken ?? runtimeUiThemeTokens.dialog.controls,
+      ),
     }),
     Button.render({
       key: "cancel",
       label: "Cancel",
       intent: "cancel",
       ...(props.cancelAction === undefined ? {} : { action: props.cancelAction }),
+      style: createThemeTokenStyle(
+        props.controlsThemeToken ?? runtimeUiThemeTokens.dialog.controls,
+      ),
     }),
   );
   return children;

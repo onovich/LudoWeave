@@ -1,4 +1,11 @@
-import type { ActionRefInput, UiNodeInput, UiStyle } from "@ludoweave/core";
+import {
+  createThemeTokenStyle,
+  runtimeUiThemeTokens,
+  type ActionRefInput,
+  type UiNodeInput,
+  type UiStyle,
+  type UiThemeTokenName,
+} from "@ludoweave/core";
 
 import { Button } from "./button.js";
 import { definePureComponent, type ComponentProps } from "./pure-component.js";
@@ -13,6 +20,7 @@ export interface PromptProps extends ComponentProps {
   readonly action?: ActionRefInput;
   readonly key?: string;
   readonly disabled?: boolean;
+  readonly themeToken?: UiThemeTokenName;
   readonly style?: UiStyle;
 }
 
@@ -39,6 +47,6 @@ export function renderPrompt(props: Readonly<PromptProps>): UiNodeInput {
     label: props.label ?? "Press E",
     action: props.action ?? "runtime.gameplay.interact",
     ...(props.disabled === undefined ? {} : { disabled: props.disabled }),
-    ...(props.style === undefined ? {} : { style: props.style }),
+    style: createThemeTokenStyle(props.themeToken ?? runtimeUiThemeTokens.prompt.root, props.style),
   });
 }

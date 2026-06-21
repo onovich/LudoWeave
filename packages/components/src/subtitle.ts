@@ -1,4 +1,11 @@
-import type { JsonValue, UiNodeInput, UiStyle } from "@ludoweave/core";
+import {
+  createThemeTokenStyle,
+  runtimeUiThemeTokens,
+  type JsonValue,
+  type UiNodeInput,
+  type UiStyle,
+  type UiThemeTokenName,
+} from "@ludoweave/core";
 
 import { definePureComponent, type ComponentProps } from "./pure-component.js";
 
@@ -10,6 +17,7 @@ import { definePureComponent, type ComponentProps } from "./pure-component.js";
 export interface SubtitleProps extends ComponentProps {
   readonly text: string;
   readonly key?: string;
+  readonly themeToken?: UiThemeTokenName;
   readonly style?: UiStyle;
 }
 
@@ -39,9 +47,10 @@ export function renderSubtitle(props: Readonly<SubtitleProps>): UiNodeInput {
     },
   };
 
-  if (props.style !== undefined) {
-    node.style = props.style;
-  }
+  node.style = createThemeTokenStyle(
+    props.themeToken ?? runtimeUiThemeTokens.subtitle.root,
+    props.style,
+  );
 
   return node;
 }

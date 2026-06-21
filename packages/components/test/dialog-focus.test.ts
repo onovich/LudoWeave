@@ -33,6 +33,9 @@ describe("Dialog focus draft", () => {
               "intent": "confirm",
               "label": "Confirm",
             },
+            "style": {
+              "themeToken": "runtime-ui.dialog.controls",
+            },
             "type": "button",
           },
           {
@@ -43,6 +46,9 @@ describe("Dialog focus draft", () => {
             "props": {
               "intent": "cancel",
               "label": "Cancel",
+            },
+            "style": {
+              "themeToken": "runtime-ui.dialog.controls",
             },
             "type": "button",
           },
@@ -96,6 +102,9 @@ describe("Dialog focus draft", () => {
           "modal": true,
           "restoreFocus": true,
           "title": "Pause",
+        },
+        "style": {
+          "themeToken": "runtime-ui.dialog.root",
         },
         "type": "dialog",
       }

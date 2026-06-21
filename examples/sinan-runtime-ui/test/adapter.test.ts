@@ -58,12 +58,18 @@ describe("Sinan-like RuntimeUIViewModel mapping", () => {
           "props": {
             "label": "Press E",
           },
+          "style": {
+            "themeToken": "runtime-ui.prompt.root",
+          },
           "type": "button",
         },
         {
           "key": "subtitle.gate.hum",
           "props": {
             "text": "The gate hums softly.",
+          },
+          "style": {
+            "themeToken": "runtime-ui.subtitle.root",
           },
           "type": "text",
         },
@@ -79,6 +85,9 @@ describe("Sinan-like RuntimeUIViewModel mapping", () => {
             "body": "Bring the energy cell to the gate.",
             "status": "active",
             "title": "Deliver the cell",
+          },
+          "style": {
+            "themeToken": "runtime-ui.objective.root",
           },
           "type": "objective",
         },

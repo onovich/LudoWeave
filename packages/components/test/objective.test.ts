@@ -18,6 +18,9 @@ describe("Objective", () => {
         body: "Bring the energy cell to the gate.",
         status: "active",
       },
+      style: {
+        themeToken: "runtime-ui.objective.root",
+      },
     });
   });
 
@@ -39,6 +42,9 @@ describe("Objective", () => {
       props: {
         title: "Open the gate",
         status: "completed",
+      },
+      style: {
+        themeToken: "runtime-ui.objective.root",
       },
       action: {
         type: "runtime.objective.inspect",

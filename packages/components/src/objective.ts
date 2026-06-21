@@ -1,9 +1,12 @@
 import {
+  createThemeTokenStyle,
   normalizeActionRef,
+  runtimeUiThemeTokens,
   type ActionRefInput,
   type JsonValue,
   type UiNodeInput,
   type UiStyle,
+  type UiThemeTokenName,
 } from "@ludoweave/core";
 
 import { definePureComponent, type ComponentProps } from "./pure-component.js";
@@ -26,6 +29,7 @@ export interface ObjectiveProps extends ComponentProps {
   readonly status?: ObjectiveStatus;
   readonly action?: ActionRefInput;
   readonly key?: string;
+  readonly themeToken?: UiThemeTokenName;
   readonly style?: UiStyle;
 }
 
@@ -57,9 +61,10 @@ export function renderObjective(props: Readonly<ObjectiveProps>): UiNodeInput {
     node.action = normalizeActionRef(props.action);
   }
 
-  if (props.style !== undefined) {
-    node.style = props.style;
-  }
+  node.style = createThemeTokenStyle(
+    props.themeToken ?? runtimeUiThemeTokens.objective.root,
+    props.style,
+  );
 
   return node;
 }

@@ -10,6 +10,9 @@ describe("Prompt", () => {
       props: {
         label: "Press E",
       },
+      style: {
+        themeToken: "runtime-ui.prompt.root",
+      },
       action: {
         type: "runtime.gameplay.interact",
       },
@@ -47,6 +50,9 @@ describe("Subtitle", () => {
       key: "subtitle",
       props: {
         text: "The gate hums softly.",
+      },
+      style: {
+        themeToken: "runtime-ui.subtitle.root",
       },
     });
   });
