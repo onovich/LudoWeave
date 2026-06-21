@@ -1,7 +1,12 @@
 import { describe, expect, it } from "vitest";
 import { createActionLog, normalizeUiNode, type UiNode } from "@ludoweave/core";
 
-import { Button, Dialog, createFocusScopeDraft } from "../src/index.js";
+import {
+  Button,
+  Dialog,
+  createFocusScopeDraft,
+  createModalInputShieldDraft,
+} from "../src/index.js";
 
 describe("Dialog focus draft", () => {
   it("renders modal focus metadata and confirm/cancel children", () => {
@@ -46,6 +51,11 @@ describe("Dialog focus draft", () => {
           "containFocus": true,
           "focusScopeId": "pause.dialog",
           "initialFocusKey": "cancel",
+          "inputShieldBlockedScopes": [
+            "gameplay",
+          ],
+          "inputShieldEnabled": true,
+          "inputShieldHandoff": "host",
           "modal": true,
           "restoreFocus": true,
           "title": "Pause",
@@ -62,18 +72,66 @@ describe("Dialog focus draft", () => {
         containFocus: false,
         restoreFocus: false,
         initialFocusKey: " cancel ",
+        restoreFocusKey: " hud.pause ",
       }),
     ).toEqual({
       scopeId: "pause",
       containFocus: false,
       restoreFocus: false,
       initialFocusKey: "cancel",
+      restoreFocusKey: "hud.pause",
     });
     expect(() =>
       createFocusScopeDraft({
         scopeId: " ",
       }),
     ).toThrow(/Focus scope id/);
+  });
+
+  it("renders restore focus and host input shielding metadata", () => {
+    const dialog = normalizeUiNode(
+      Dialog.render({
+        title: "Pause",
+        focus: {
+          scopeId: "pause.dialog",
+          restoreFocusKey: "hud.pause-button",
+        },
+        inputShield: {
+          blockedScopes: [" gameplay ", "camera", "gameplay"],
+        },
+      }),
+    );
+
+    expect(dialog.props).toMatchObject({
+      focusScopeId: "pause.dialog",
+      restoreFocusKey: "hud.pause-button",
+      inputShieldEnabled: true,
+      inputShieldBlockedScopes: ["gameplay", "camera"],
+      inputShieldHandoff: "host",
+    });
+  });
+
+  it("normalizes modal input shielding without owning host input state", () => {
+    expect(createModalInputShieldDraft()).toEqual({
+      enabled: true,
+      blockedScopes: ["gameplay"],
+      handoff: "host",
+    });
+    expect(
+      createModalInputShieldDraft({
+        enabled: false,
+        blockedScopes: [" gameplay ", "ui-underlay", "gameplay"],
+      }),
+    ).toEqual({
+      enabled: false,
+      blockedScopes: ["gameplay", "ui-underlay"],
+      handoff: "host",
+    });
+    expect(() =>
+      createModalInputShieldDraft({
+        blockedScopes: [" "],
+      }),
+    ).toThrow(/Modal input shield scope/);
   });
 });
 

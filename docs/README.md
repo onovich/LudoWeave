@@ -20,6 +20,10 @@
 - [ADR-0003: ActionRef 禁止退化为 arbitrary callback](adr/0003-actionref-no-arbitrary-callback.md)
 - [ADR-0004: DOM renderer 消费 core layout，不成为第二布局事实源](adr/0004-dom-renderer-consumes-core-layout.md)
 
+## Runtime UI Contracts
+
+- [Pause Modal Behavior Contract](runtime-ui/pause-modal-behavior-contract.md)
+
 ## Source Material
 
 - `LudoWeave_游织_完整架构与技术设计说明书_v2.0.docx`

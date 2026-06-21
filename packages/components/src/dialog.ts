@@ -8,6 +8,11 @@ import type {
 
 import { Button } from "./button.js";
 import { createFocusScopeDraft, type FocusScopeDraftInput } from "./focus.js";
+import {
+  createModalInputShieldDraft,
+  type ModalInputShieldDraft,
+  type ModalInputShieldDraftInput,
+} from "./modal-behavior.js";
 import { definePureComponent, type ComponentProps } from "./pure-component.js";
 
 /**
@@ -22,6 +27,7 @@ export interface DialogProps extends ComponentProps {
   readonly confirmAction?: ActionRefInput;
   readonly cancelAction?: ActionRefInput;
   readonly focus?: Partial<Omit<FocusScopeDraftInput, "scopeId">> & { readonly scopeId?: string };
+  readonly inputShield?: ModalInputShieldDraftInput;
   readonly style?: UiStyle;
 }
 
@@ -57,11 +63,16 @@ export function renderDialog(props: Readonly<DialogProps>): UiNodeInput {
     focusInput.restoreFocus = props.focus.restoreFocus;
   }
 
+  if (props.focus?.restoreFocusKey !== undefined) {
+    focusInput.restoreFocusKey = props.focus.restoreFocusKey;
+  }
+
   const focus = createFocusScopeDraft(focusInput);
+  const inputShield = createModalInputShieldDraft(props.inputShield);
   const node: MutableUiNodeInput = {
     type: "dialog",
     key,
-    props: createDialogProps(props.title, focus),
+    props: createDialogProps(props.title, focus, inputShield),
     children: createDialogChildren(props),
   };
 
@@ -72,17 +83,28 @@ export function renderDialog(props: Readonly<DialogProps>): UiNodeInput {
   return node;
 }
 
-function createDialogProps(title: string, focus: ReturnType<typeof createFocusScopeDraft>) {
+function createDialogProps(
+  title: string,
+  focus: ReturnType<typeof createFocusScopeDraft>,
+  inputShield: ModalInputShieldDraft,
+) {
   const props: Record<string, JsonValue> = {
     title,
     modal: true,
     focusScopeId: focus.scopeId,
     containFocus: focus.containFocus,
     restoreFocus: focus.restoreFocus,
+    inputShieldEnabled: inputShield.enabled,
+    inputShieldBlockedScopes: inputShield.blockedScopes,
+    inputShieldHandoff: inputShield.handoff,
   };
 
   if (focus.initialFocusKey !== undefined) {
     props.initialFocusKey = focus.initialFocusKey;
+  }
+
+  if (focus.restoreFocusKey !== undefined) {
+    props.restoreFocusKey = focus.restoreFocusKey;
   }
 
   return props;
@@ -138,4 +160,5 @@ type MutableFocusScopeDraftInput = {
   containFocus?: boolean;
   restoreFocus?: boolean;
   initialFocusKey?: string;
+  restoreFocusKey?: string;
 };

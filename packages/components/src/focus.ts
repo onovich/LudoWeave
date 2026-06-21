@@ -8,6 +8,7 @@ export interface FocusScopeDraft {
   readonly containFocus: boolean;
   readonly restoreFocus: boolean;
   readonly initialFocusKey?: string;
+  readonly restoreFocusKey?: string;
 }
 
 /**
@@ -20,6 +21,7 @@ export interface FocusScopeDraftInput {
   readonly containFocus?: boolean;
   readonly restoreFocus?: boolean;
   readonly initialFocusKey?: string;
+  readonly restoreFocusKey?: string;
 }
 
 /**
@@ -38,6 +40,10 @@ export function createFocusScopeDraft(input: FocusScopeDraftInput): FocusScopeDr
     draft.initialFocusKey = normalizeNonEmptyString(input.initialFocusKey, "Focus initial key");
   }
 
+  if (input.restoreFocusKey !== undefined) {
+    draft.restoreFocusKey = normalizeNonEmptyString(input.restoreFocusKey, "Focus restore key");
+  }
+
   return draft;
 }
 
@@ -46,6 +52,7 @@ type MutableFocusScopeDraft = {
   containFocus: boolean;
   restoreFocus: boolean;
   initialFocusKey?: string;
+  restoreFocusKey?: string;
 };
 
 function normalizeNonEmptyString(value: string, label: string): string {
