@@ -1,6 +1,6 @@
 export { createSinanActionRefBridge } from "./action-bridge.js";
 export type { SinanActionRefBridge, SinanRuntimeUICommand } from "./action-bridge.js";
-export { mapRuntimeUIPromptAction } from "./action-mapping.js";
+export { mapRuntimeUIObjectiveAction, mapRuntimeUIPromptAction } from "./action-mapping.js";
 export {
   mapRuntimeUIViewModelToComponentProps,
   mapRuntimeUIViewModelToUiNodes,

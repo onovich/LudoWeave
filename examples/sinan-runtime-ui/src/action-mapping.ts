@@ -2,6 +2,10 @@ import type { ActionRefInput } from "@ludoweave/core";
 
 import type { RuntimeUIObjectiveElement, RuntimeUIPromptElement } from "./view-model.js";
 
+type RuntimeUIActionPayload =
+  | RuntimeUIPromptElement["payload"]
+  | RuntimeUIObjectiveElement["payload"];
+
 export function mapRuntimeUIPromptAction(element: RuntimeUIPromptElement): ActionRefInput {
   return mapRuntimeUIAction(element.action, element.payload);
 }
@@ -14,7 +18,10 @@ export function mapRuntimeUIObjectiveAction(element: RuntimeUIObjectiveElement):
   return mapRuntimeUIAction(element.action, element.payload);
 }
 
-function mapRuntimeUIAction(action: ActionRefInput, payload: RuntimeUIPromptElement["payload"]) {
+function mapRuntimeUIAction(
+  action: ActionRefInput,
+  payload: RuntimeUIActionPayload,
+): ActionRefInput {
   if (payload === undefined) {
     return action;
   }

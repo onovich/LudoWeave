@@ -3,11 +3,12 @@ import { describe, expect, it } from "vitest";
 import {
   createSinanActionRefBridge,
   gateDemoRuntimeUIViewModel,
+  mapRuntimeUIObjectiveAction,
   mapRuntimeUIViewModelToComponentProps,
   mapRuntimeUIViewModelToUiNodes,
   renderRuntimeUIViewModelFallback,
 } from "../src/index.js";
-import type { RuntimeUIViewModel } from "../src/index.js";
+import type { RuntimeUIObjectiveElement, RuntimeUIViewModel } from "../src/index.js";
 
 describe("Sinan-like ActionRef bridge", () => {
   it("records ActionRef-only commands for host dispatch", () => {
@@ -179,6 +180,30 @@ describe("Sinan-like fallback renderer", () => {
       text: "Pause",
       action: {
         type: "runtime.ui.pause",
+      },
+    });
+  });
+
+  it("exports objective action mapping with host-side payload overrides", () => {
+    const objective = {
+      type: "objective",
+      id: "objective.override",
+      title: "Override objective",
+      action: {
+        type: "runtime.objective.inspect",
+        payload: {
+          objectiveId: "stale",
+        },
+      },
+      payload: {
+        objectiveId: "delivery",
+      },
+    } satisfies RuntimeUIObjectiveElement;
+
+    expect(mapRuntimeUIObjectiveAction(objective)).toEqual({
+      type: "runtime.objective.inspect",
+      payload: {
+        objectiveId: "delivery",
       },
     });
   });
