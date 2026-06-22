@@ -27,6 +27,8 @@
 - [v0.3 Integration Status](roadmap/ludoweave-v0.3-integration-status.md)
 - [v0.3 Bounded Future Tracks](roadmap/ludoweave-v0.3-bounded-future-tracks.md)
 - [v0.3 Release Notes Draft](release/ludoweave-v0.3-release-notes-draft.md)
+- [v0.3 Final Report](release/ludoweave-v0.3-final-report.md)
+- [v0.3 Final Validation Log](release/ludoweave-v0.3-final-validation-log.md)
 
 ## Decision Records
 
