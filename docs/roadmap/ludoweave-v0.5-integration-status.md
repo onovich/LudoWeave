@@ -2,7 +2,7 @@
 
 Date: 2026-06-22
 
-Status: Round 12 integration pass for the v0.5 Richer Gamepad Navigation bounded track.
+Status: Final PASS for the v0.5 Richer Gamepad Navigation bounded track.
 
 Goal guide: [ludoweave-v0.5-goal-mode-execution-guide.md](../goal-mode/ludoweave-v0.5-goal-mode-execution-guide.md)
 
@@ -90,9 +90,9 @@ Use these locations during v0.5:
 | 9 | Canvas2D focus trace | Completed in `1782941`. |
 | 10 | Sinan-like Gate Demo navigation sequence | Completed in `b37182d`. |
 | 11 | Focus navigation contract docs | Completed in `943c6ec`. |
-| 12 | v0.5 integration pass | This document and release notes draft. |
-| 13-15 | Buffers | Use only for tooling, runtime, resolver, example, smoke, or docs fixes. |
-| 16 | Final validation and handoff | Planned. |
+| 12 | v0.5 integration pass | Completed in `446a96d`. |
+| 13-15 | Buffers | Not consumed. |
+| 16 | Final validation and handoff | Completed by the final validation log and final report. |
 
 ## Validation Baseline
 
@@ -137,3 +137,25 @@ Round-level validation follows the v0.5 goal guide. The full v0.5 acceptance mat
 - Debug: integrated scope is covered by core focus graph/input intent/resolver/diagnostics tests, component modal focus tests, Playground e2e/a11y smoke, Canvas2D focus trace tests, Sinan-like navigation sequence tests, and validation hook layer tests.
 - Architecture: host remains source-of-truth for physical input, focus state, rebinding, platform policy, native focus, accessibility, command routing, save, undo, Director, Timeline, and Event. Core and renderer packages do not read Gamepad API, keyboard events, native input events, DOM nodes, React components, or closures.
 - Scope: Round 12 updates integration docs and release notes only. It does not implement scroll, virtual list, rich text, real Sinan integration, production Canvas2D, Pixi/WebGPU, full DevTools, input rebinding UI, analog dead-zone handling, or low-level device polling.
+
+## Final Validation Snapshot
+
+Source validation HEAD: `446a96d docs(release): draft v0.5 integration notes`.
+
+| Command | Result |
+| --- | --- |
+| `Validate.cmd` | PASS |
+| `Smoke.cmd` | PASS |
+| `pnpm lint` | PASS |
+| `pnpm typecheck` | PASS |
+| `pnpm test` | PASS |
+| `pnpm build` | PASS |
+| `pnpm structure-check` | PASS |
+| `pnpm api-check` | PASS |
+| `pnpm validate` | PASS |
+| `pnpm test:e2e` | PASS |
+| `pnpm test:a11y` | PASS |
+| `pnpm format` | PASS |
+| `git diff --check` | PASS |
+| `git status --short --branch` | PASS |
+| `git ls-remote origin refs/heads/main` | PASS |

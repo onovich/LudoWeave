@@ -44,6 +44,8 @@
 
 - [v0.5 Integration Status](roadmap/ludoweave-v0.5-integration-status.md)
 - [v0.5 Release Notes Draft](release/ludoweave-v0.5-release-notes-draft.md)
+- [v0.5 Final Report](release/ludoweave-v0.5-final-report.md)
+- [v0.5 Final Validation Log](release/ludoweave-v0.5-final-validation-log.md)
 
 ## Decision Records
 
