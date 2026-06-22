@@ -57,6 +57,15 @@ test("renders v0.3 runtime UI states in the playground", async ({ page }) => {
   await actionFilter.selectOption("all");
   await expect(actionLog.locator("[data-action-type]")).toHaveCount(3);
 
+  const exportOutput = page.locator("#action-log-export-output");
+  await page.locator("#action-log-export").click();
+  await expect(exportOutput).toContainText('"version": "ludoweave.action-log-inspector.v0.3"');
+  await expect(exportOutput).toContainText('"runtime.pause.resume"');
+  await page.locator("#action-log-clear").click();
+  await expect(actionLog).toContainText("Waiting for ActionRef");
+  await expect(actionLog.locator("[data-action-type]")).toHaveCount(0);
+  await expect(exportOutput).toHaveText("");
+
   const themeResolution = page.locator("#theme-resolution");
   await expect(themeResolution).toContainText("Theme resolution");
   await expect(themeResolution.locator('[data-theme-state="default"]')).toHaveCount(4);

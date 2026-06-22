@@ -2,6 +2,8 @@ import { describe, expect, it } from "vitest";
 import type { UiActionLogEntry } from "@ludoweave/core";
 
 import {
+  createActionLogInspectorExport,
+  createActionLogInspectorExportPayload,
   createActionLogInspectorItems,
   formatActionLogInspectorEntry,
   getActionLogInspectorEmptyText,
@@ -90,6 +92,60 @@ describe("ActionRef log inspector", () => {
     expect(getActionLogInspectorEmptyText(createEntries(), { filter: staleFilter })).toBe(
       "No matching ActionRef",
     );
+  });
+
+  it("exports filtered action history as deterministic JSON", () => {
+    const payload = createActionLogInspectorExportPayload(createEntries(), {
+      filter: {
+        kind: "namespace",
+        namespace: "runtime.pause",
+      },
+    });
+
+    expect(payload).toEqual({
+      version: "ludoweave.action-log-inspector.v0.3",
+      filter: {
+        kind: "namespace",
+        namespace: "runtime.pause",
+      },
+      entries: [
+        {
+          sequence: 3,
+          actionType: "runtime.pause.resume",
+          action: {
+            type: "runtime.pause.resume",
+          },
+          source: {
+            nodeId: "root/key:pause/key:confirm",
+            label: "Confirm",
+          },
+          text: "runtime.pause.resume - Confirm",
+        },
+        {
+          sequence: 4,
+          actionType: "runtime.pause.close",
+          action: {
+            type: "runtime.pause.close",
+          },
+          source: {
+            nodeId: "root/key:pause/key:cancel",
+            label: "Cancel",
+          },
+          text: "runtime.pause.close - Cancel",
+        },
+      ],
+    });
+    expect(JSON.parse(JSON.stringify(payload))).toEqual(payload);
+  });
+
+  it("exports no DOM, event, or native object references", () => {
+    const exported = createActionLogInspectorExport(createEntries());
+    const parsed = JSON.parse(exported) as { readonly entries: readonly unknown[] };
+
+    expect(parsed.entries).toHaveLength(4);
+    expect(exported).not.toContain("HTML");
+    expect(exported).not.toContain("MouseEvent");
+    expect(exported).not.toContain("KeyboardEvent");
   });
 });
 

@@ -1,7 +1,11 @@
 import { createActionLog, type ResolvedActionTarget } from "@ludoweave/core";
 import { mountDomRenderer } from "@ludoweave/renderer-dom";
 
-import { renderActionLogInspector, type ActionLogInspectorFilter } from "./action-log-inspector.js";
+import {
+  createActionLogInspectorExport,
+  renderActionLogInspector,
+  type ActionLogInspectorFilter,
+} from "./action-log-inspector.js";
 import { createPlaygroundFrame } from "./frame.js";
 import { renderThemeResolutionPanel } from "./theme-resolution-panel.js";
 import "./styles.css";
@@ -9,6 +13,9 @@ import "./styles.css";
 const runtimeRoot = requireElement("#runtime-root");
 const actionLogRoot = requireElement("#action-log");
 const actionLogFilter = requireElement<HTMLSelectElement>("#action-log-filter");
+const actionLogExportButton = requireElement<HTMLButtonElement>("#action-log-export");
+const actionLogClearButton = requireElement<HTMLButtonElement>("#action-log-clear");
+const actionLogExportOutput = requireElement<HTMLPreElement>("#action-log-export-output");
 const themeResolutionRoot = requireElement("#theme-resolution");
 const actionLog = createActionLog();
 
@@ -33,6 +40,8 @@ renderThemeResolutionPanel(themeResolutionRoot);
 render();
 window.addEventListener("resize", render);
 actionLogFilter.addEventListener("change", renderActionLog);
+actionLogExportButton.addEventListener("click", exportActionLog);
+actionLogClearButton.addEventListener("click", clearActionLog);
 
 function wireActionTargets(actions: readonly ResolvedActionTarget[]): void {
   const elements = runtimeRoot.querySelectorAll<HTMLElement>("[data-ludoweave-node-id]");
@@ -76,6 +85,18 @@ function renderActionLog(): void {
   renderActionLogInspector(actionLogRoot, actionLog.snapshot(), {
     filter: parseActionLogFilter(actionLogFilter.value),
   });
+}
+
+function exportActionLog(): void {
+  actionLogExportOutput.textContent = createActionLogInspectorExport(actionLog.snapshot(), {
+    filter: parseActionLogFilter(actionLogFilter.value),
+  });
+}
+
+function clearActionLog(): void {
+  actionLog.clear();
+  actionLogExportOutput.textContent = "";
+  renderActionLog();
 }
 
 function parseActionLogFilter(value: string): ActionLogInspectorFilter {

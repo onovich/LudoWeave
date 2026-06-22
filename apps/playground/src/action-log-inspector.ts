@@ -23,6 +23,26 @@ export interface CreateActionLogInspectorItemsOptions {
   readonly filter?: ActionLogInspectorFilter;
 }
 
+export interface ActionLogInspectorExportSource {
+  readonly actionTargetId?: string;
+  readonly label?: string;
+  readonly nodeId?: string;
+}
+
+export interface ActionLogInspectorExportEntry {
+  readonly sequence: number;
+  readonly actionType: string;
+  readonly action: UiActionLogEntry["action"];
+  readonly source: ActionLogInspectorExportSource;
+  readonly text: string;
+}
+
+export interface ActionLogInspectorExportPayload {
+  readonly version: "ludoweave.action-log-inspector.v0.3";
+  readonly filter: ActionLogInspectorFilter;
+  readonly entries: readonly ActionLogInspectorExportEntry[];
+}
+
 export interface RenderActionLogInspectorOptions {
   readonly filter?: ActionLogInspectorFilter;
   readonly emptyText?: string;
@@ -33,13 +53,44 @@ export function createActionLogInspectorItems(
   entries: readonly UiActionLogEntry[],
   options: CreateActionLogInspectorItemsOptions = {},
 ): readonly ActionLogInspectorItem[] {
-  return entries
-    .filter((entry) => matchesActionLogFilter(entry, options.filter))
-    .map((entry) => ({
+  return filterActionLogEntries(entries, options.filter).map((entry) => ({
+    sequence: entry.sequence,
+    actionType: entry.action.type,
+    text: formatActionLogInspectorEntry(entry),
+  }));
+}
+
+export function filterActionLogEntries(
+  entries: readonly UiActionLogEntry[],
+  filter: ActionLogInspectorFilter | undefined,
+): readonly UiActionLogEntry[] {
+  return entries.filter((entry) => matchesActionLogFilter(entry, filter));
+}
+
+export function createActionLogInspectorExportPayload(
+  entries: readonly UiActionLogEntry[],
+  options: CreateActionLogInspectorItemsOptions = {},
+): ActionLogInspectorExportPayload {
+  const filter = options.filter ?? { kind: "all" };
+
+  return {
+    version: "ludoweave.action-log-inspector.v0.3",
+    filter,
+    entries: filterActionLogEntries(entries, filter).map((entry) => ({
       sequence: entry.sequence,
       actionType: entry.action.type,
+      action: entry.action,
+      source: createActionLogInspectorExportSource(entry),
       text: formatActionLogInspectorEntry(entry),
-    }));
+    })),
+  };
+}
+
+export function createActionLogInspectorExport(
+  entries: readonly UiActionLogEntry[],
+  options: CreateActionLogInspectorItemsOptions = {},
+): string {
+  return JSON.stringify(createActionLogInspectorExportPayload(entries, options), null, 2);
 }
 
 export function formatActionLogInspectorEntry(entry: UiActionLogEntry): string {
@@ -105,4 +156,14 @@ function matchesActionLogFilter(
   return (
     entry.action.type === filter.namespace || entry.action.type.startsWith(`${filter.namespace}.`)
   );
+}
+
+function createActionLogInspectorExportSource(
+  entry: UiActionLogEntry,
+): ActionLogInspectorExportSource {
+  return {
+    ...(entry.actionTargetId === undefined ? {} : { actionTargetId: entry.actionTargetId }),
+    ...(entry.label === undefined ? {} : { label: entry.label }),
+    ...(entry.nodeId === undefined ? {} : { nodeId: entry.nodeId }),
+  };
 }

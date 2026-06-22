@@ -28,8 +28,13 @@
               <option value="type:runtime.objective.inspect">runtime.objective.inspect</option>
             </select>
           </label>
+          <span class="action-log__commands">
+            <button id="action-log-export" type="button">Export JSON</button>
+            <button id="action-log-clear" type="button">Clear</button>
+          </span>
         </div>
         <ol id="action-log" aria-live="polite"></ol>
+        <pre class="action-log__export" id="action-log-export-output" aria-live="polite"></pre>
       </section>
       <section
         class="theme-resolution"

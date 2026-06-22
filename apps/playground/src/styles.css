@@ -183,6 +183,21 @@ body {
   font: inherit;
 }
 
+.action-log__commands {
+  display: inline-flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.action-log__commands button {
+  min-height: 28px;
+  border: 1px solid #52525b;
+  background: #27272a;
+  color: #f4f4f5;
+  font: inherit;
+  font-size: 12px;
+}
+
 .action-log ol {
   min-height: 22px;
   margin: 0;
@@ -194,6 +209,20 @@ body {
 
 .action-log__empty {
   color: #a1a1aa;
+}
+
+.action-log__export {
+  min-height: 0;
+  max-height: 140px;
+  margin: 0;
+  overflow: auto;
+  color: #bbf7d0;
+  background: #09090b;
+  border: 1px solid #3f3f46;
+  padding: 8px;
+  font-size: 12px;
+  line-height: 17px;
+  white-space: pre-wrap;
 }
 
 .theme-resolution {
