@@ -80,4 +80,25 @@ test("renders v0.3 runtime UI states in the playground", async ({ page }) => {
       '[data-theme-state="high-contrast"][data-theme-token="runtime-ui.dialog.controls"]',
     ),
   ).toContainText("#ffffff / #000000 / #dc2626");
+
+  const gateDemo = page.locator('[aria-label="Sinan Gate Demo"]');
+  await expect(gateDemo.locator("#gate-demo-status")).toHaveAttribute(
+    "data-gate-demo-status",
+    "pass",
+  );
+  await expect(
+    gateDemo.locator('[data-ludoweave-node-id="runtime.main/key:prompt.interact.switch_a"]'),
+  ).toHaveText("Press E");
+  await expect(
+    gateDemo.locator('[data-ludoweave-node-id="runtime.main/key:subtitle.gate.hum"]'),
+  ).toHaveText("The gate hums softly.");
+  await expect(
+    gateDemo.locator('[data-ludoweave-node-id="runtime.main/key:objective.delivery.cell"]'),
+  ).toContainText("Deliver the cell");
+  await expect(
+    gateDemo.locator('[data-ludoweave-node-id="runtime.main/key:pause.menu"]'),
+  ).toHaveAttribute("role", "dialog");
+  await expect(
+    gateDemo.locator('[data-ludoweave-node-id="runtime.main/key:editable.gate-code"]'),
+  ).toHaveText("Gate access code");
 });

@@ -13,6 +13,10 @@ test("has no blocking accessibility violations in the playground", async ({ page
     "dialog",
   );
   await expect(page.locator("#theme-resolution")).toContainText("Theme resolution");
+  await expect(page.locator("#gate-demo-status")).toHaveAttribute("data-gate-demo-status", "pass");
+  await expect(
+    page.locator('[data-ludoweave-node-id="runtime.main/key:editable.gate-code"]'),
+  ).toHaveAccessibleName("Gate access code");
 
   const results = await new AxeBuilder({ page })
     .withTags(["wcag2a", "wcag2aa", "best-practice"])

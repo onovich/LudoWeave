@@ -517,6 +517,10 @@ function getRole(node: ResolvedNode): SemanticRole {
     return "button";
   }
 
+  if (node.type === "dialog") {
+    return "dialog";
+  }
+
   if (node.type === "text" || node.type === "editable-text") {
     return "text";
   }

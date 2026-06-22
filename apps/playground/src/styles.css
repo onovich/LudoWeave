@@ -77,6 +77,12 @@ body {
   pointer-events: none;
 }
 
+#gate-demo-runtime-root {
+  position: absolute;
+  inset: 0 auto auto 0;
+  transform-origin: 0 0;
+}
+
 [data-ludoweave-node-type="button"] {
   border: 1px solid #94a3b8;
   background: #111827;
@@ -139,6 +145,100 @@ body {
 [data-ludoweave-node-id="root/key:pause/key:cancel"] {
   border-color: #f87171;
   background: #3f1d1d;
+}
+
+[data-ludoweave-node-id="runtime.main/key:pause.menu/key:confirm"] {
+  border-color: #34d399;
+  background: #14532d;
+}
+
+[data-ludoweave-node-id="runtime.main/key:pause.menu/key:cancel"] {
+  border-color: #f87171;
+  background: #3f1d1d;
+}
+
+[data-ludoweave-node-type="editable-text"] {
+  display: grid;
+  align-items: center;
+  padding: 0 14px;
+  border: 1px dashed #38bdf8;
+  background: rgba(8, 47, 73, 0.88);
+  color: #e0f2fe;
+  font-size: 15px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.gate-demo-smoke {
+  width: min(100%, 1040px);
+  display: grid;
+  gap: 10px;
+  padding: 12px 14px;
+  border: 1px solid #365314;
+  background: #101b0c;
+}
+
+.gate-demo-smoke__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.gate-demo-smoke h2 {
+  margin: 0;
+  color: #bef264;
+  font-size: 14px;
+  line-height: 22px;
+}
+
+#gate-demo-status {
+  color: #dcfce7;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0;
+}
+
+.gate-demo-smoke__stage {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  min-height: 300px;
+  overflow: hidden;
+  border: 1px solid #3f6212;
+  background: #071307;
+}
+
+.gate-demo-smoke__world,
+.gate-demo-smoke__gate,
+.gate-demo-smoke__floor {
+  position: absolute;
+}
+
+.gate-demo-smoke__world {
+  inset: 0;
+  background:
+    linear-gradient(transparent 0 72%, #1a2e05 72% 100%),
+    repeating-linear-gradient(90deg, #16310c 0 1px, transparent 1px 88px), #052e16;
+}
+
+.gate-demo-smoke__gate {
+  left: 50%;
+  bottom: 27%;
+  width: 148px;
+  height: 216px;
+  transform: translateX(-50%);
+  border: 2px solid #bef264;
+  background: #020617;
+  box-shadow: 0 0 42px rgba(190, 242, 100, 0.24);
+}
+
+.gate-demo-smoke__floor {
+  left: 12%;
+  right: 12%;
+  bottom: 18%;
+  height: 1px;
+  background: #84cc16;
 }
 
 .action-log {
