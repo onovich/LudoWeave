@@ -76,6 +76,7 @@
 
 - [v0.9 Goal 模式执行指南](goal-mode/ludoweave-v0.9-goal-mode-execution-guide.md)
 - [v0.9 Integration Status](roadmap/ludoweave-v0.9-integration-status.md)
+- [v0.9 Sinan Handoff Overview](sinan-cooperation/ludoweave-v0.9-sinan-handoff-overview.md)
 
 ## Decision Records
 
