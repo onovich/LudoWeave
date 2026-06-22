@@ -84,6 +84,7 @@
 - [v0.9 ActionRef Registry Review Pack](sinan-cooperation/ludoweave-v0.9-actionref-registry-review-pack.md)
 - [v0.9 Fallback Policy Review Pack](sinan-cooperation/ludoweave-v0.9-fallback-policy-review-pack.md)
 - [v0.9 Renderer Conformance Review Pack](sinan-cooperation/ludoweave-v0.9-renderer-conformance-review-pack.md)
+- [v0.9 DOM And A11y Smoke Review Pack](sinan-cooperation/ludoweave-v0.9-dom-a11y-smoke-review-pack.md)
 
 ## Decision Records
 

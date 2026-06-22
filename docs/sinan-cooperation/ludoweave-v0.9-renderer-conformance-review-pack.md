@@ -8,7 +8,7 @@ Related artifacts:
 
 - [Boundary Checklist](ludoweave-v0.9-boundary-checklist.md)
 - [Fixture Manifest](ludoweave-v0.9-fixture-manifest.md)
-- DOM and a11y smoke review pack planned for Round 10.
+- [DOM and A11y Smoke Review Pack](ludoweave-v0.9-dom-a11y-smoke-review-pack.md)
 - Canvas2D trace review pack planned for Round 11.
 
 ## Review Scope
