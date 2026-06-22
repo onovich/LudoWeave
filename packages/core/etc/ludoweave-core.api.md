@@ -43,6 +43,9 @@ export interface BoxRenderCommand extends RenderCommandBase {
 export function calculateFixedVirtualWindowRange(input: FixedVirtualWindowRangeInput): FixedVirtualWindowRangeResult;
 
 // @public
+export function collectRichTextDiagnostics(input: RichTextDiagnosticsInput): readonly UiDiagnostic[];
+
+// @public
 export function collectVirtualWindowDiagnostics(input: VirtualWindowDiagnosticsInput): readonly UiDiagnostic[];
 
 // @public
@@ -88,6 +91,9 @@ export interface CreateLayoutEnvironmentOptions {
     // (undocumented)
     readonly viewport: LayoutViewportInput;
 }
+
+// @public
+export function createRichTextDiagnostic(reason: RichTextDiagnosticReason, details?: Readonly<Record<string, JsonValue>>): UiDiagnostic;
 
 // @public
 export function createScrollDiagnostic(reason: ScrollDiagnosticReason, details?: Readonly<Record<string, JsonValue>>): UiDiagnostic;
@@ -837,6 +843,32 @@ export interface RichTextA11yMetadataInput {
     readonly pronunciationHint?: string;
     // (undocumented)
     readonly reviewStatus?: RichTextReviewStatus;
+}
+
+// @public
+export const richTextDiagnosticCodes: {
+    readonly emptyRun: "LW_RICH_TEXT_EMPTY_RUN";
+    readonly hostSanitizationMissing: "LW_RICH_TEXT_HOST_SANITIZATION_MISSING";
+    readonly invalidTokenReference: "LW_RICH_TEXT_INVALID_TOKEN_REFERENCE";
+    readonly missingFallbackText: "LW_RICH_TEXT_MISSING_FALLBACK_TEXT";
+    readonly nestedSpanOverflow: "LW_RICH_TEXT_NESTED_SPAN_OVERFLOW";
+    readonly nonSerializablePayload: "LW_RICH_TEXT_NON_SERIALIZABLE_PAYLOAD";
+    readonly unsupportedSpanType: "LW_RICH_TEXT_UNSUPPORTED_SPAN";
+};
+
+// @public
+export type RichTextDiagnosticReason = keyof typeof richTextDiagnosticCodes;
+
+// @public
+export interface RichTextDiagnosticsInput {
+    // (undocumented)
+    readonly hostPolicy?: HostRichTextPolicySnapshot;
+    // (undocumented)
+    readonly knownThemeTokenRefs?: readonly string[];
+    // (undocumented)
+    readonly maxNestedSpanDepth?: number;
+    // (undocumented)
+    readonly metadata: RichTextMetadata | RichTextMetadataInput;
 }
 
 // @public

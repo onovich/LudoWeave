@@ -138,6 +138,15 @@ export type {
 } from "./rich-text-metadata.js";
 export { normalizeRichTextMetadata, normalizeRichTextMetadataFrame } from "./rich-text-metadata.js";
 export type {
+  RichTextDiagnosticReason,
+  RichTextDiagnosticsInput,
+} from "./rich-text-diagnostics.js";
+export {
+  collectRichTextDiagnostics,
+  createRichTextDiagnostic,
+  richTextDiagnosticCodes,
+} from "./rich-text-diagnostics.js";
+export type {
   ScrollAxis,
   ScrollContainerMetadata,
   ScrollContainerMetadataInput,
