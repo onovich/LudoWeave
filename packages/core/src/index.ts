@@ -111,6 +111,16 @@ export {
   normalizeScrollContainerMetadata,
   normalizeScrollMetadataFrame,
 } from "./scroll-metadata.js";
+export type { ScrollDiagnosticReason } from "./scroll-diagnostics.js";
+export { createScrollDiagnostic, scrollDiagnosticCodes } from "./scroll-diagnostics.js";
+export type {
+  ScrollOffsetNormalizationResult,
+  ScrollRestorationResult,
+} from "./scroll-offset-normalization.js";
+export {
+  normalizeScrollOffsetForContainer,
+  resolveScrollRestoration,
+} from "./scroll-offset-normalization.js";
 export type {
   NormalizedUiNode,
   NormalizedUiTree,

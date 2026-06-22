@@ -78,6 +78,9 @@ export interface CreateLayoutEnvironmentOptions {
 }
 
 // @public
+export function createScrollDiagnostic(reason: ScrollDiagnosticReason, details?: Readonly<Record<string, JsonValue>>): UiDiagnostic;
+
+// @public
 export function createThemeTokenStyle(defaultThemeToken: UiThemeTokenName, style?: UiStyle): UiStyle;
 
 // @public
@@ -365,6 +368,9 @@ export function normalizeScrollContainerMetadata(input: ScrollContainerMetadataI
 export function normalizeScrollMetadataFrame(input: ScrollMetadataFrameInput): ScrollMetadataFrame;
 
 // @public
+export function normalizeScrollOffsetForContainer(containerInput: ScrollContainerMetadata | ScrollContainerMetadataInput, requestedOffsetInput?: Partial<ScrollOffsetSnapshot>): ScrollOffsetNormalizationResult;
+
+// @public
 export function normalizeTextInputOverlayCapability(input: TextInputOverlayCapability): TextInputOverlayCapability;
 
 // @public
@@ -521,6 +527,9 @@ export interface ResolvedViewport {
     // (undocumented)
     readonly width: number;
 }
+
+// @public
+export function resolveScrollRestoration(frameInput: ScrollMetadataFrameInput, containerId: string, requestedOffsetInput?: Partial<ScrollOffsetSnapshot>): ScrollRestorationResult;
 
 // @public
 export function resolveSizeConstraints(options: ResolveSizeConstraintsOptions): Pick<ResolvedRect, "width" | "height">;
@@ -710,6 +719,19 @@ export interface ScrollContainerMetadataInput {
 }
 
 // @public
+export const scrollDiagnosticCodes: {
+    readonly disabledScroll: "LW_SCROLL_DISABLED";
+    readonly emptyContainer: "LW_SCROLL_EMPTY_CONTAINER";
+    readonly missingHostCapability: "LW_SCROLL_MISSING_HOST_CAPABILITY";
+    readonly outOfRangeOffset: "LW_SCROLL_OUT_OF_RANGE_OFFSET";
+    readonly removedContainer: "LW_SCROLL_REMOVED_CONTAINER";
+    readonly staleContainer: "LW_SCROLL_STALE_CONTAINER";
+};
+
+// @public
+export type ScrollDiagnosticReason = keyof typeof scrollDiagnosticCodes;
+
+// @public
 export type ScrollDisabledReason = "empty-container" | "host-disabled" | "missing-capability" | "stale" | "unsupported";
 
 // @public
@@ -752,6 +774,22 @@ export interface ScrollMetadataFrameInput {
 }
 
 // @public
+export interface ScrollOffsetNormalizationResult {
+    // (undocumented)
+    readonly clamped: boolean;
+    // (undocumented)
+    readonly containerId: string;
+    // (undocumented)
+    readonly diagnostics: readonly UiDiagnostic[];
+    // (undocumented)
+    readonly maxOffset: ScrollOffsetSnapshot;
+    // (undocumented)
+    readonly normalizedOffset: ScrollOffsetSnapshot;
+    // (undocumented)
+    readonly requestedOffset: ScrollOffsetSnapshot;
+}
+
+// @public
 export interface ScrollOffsetSnapshot {
     // (undocumented)
     readonly revision?: number;
@@ -759,6 +797,18 @@ export interface ScrollOffsetSnapshot {
     readonly x: number;
     // (undocumented)
     readonly y: number;
+}
+
+// @public
+export interface ScrollRestorationResult {
+    // (undocumented)
+    readonly containerId: string;
+    // (undocumented)
+    readonly diagnostics: readonly UiDiagnostic[];
+    // (undocumented)
+    readonly offset?: ScrollOffsetNormalizationResult;
+    // (undocumented)
+    readonly status: "restored" | "removed";
 }
 
 // @public
