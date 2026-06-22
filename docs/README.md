@@ -79,6 +79,7 @@
 - [v0.9 Sinan Handoff Overview](sinan-cooperation/ludoweave-v0.9-sinan-handoff-overview.md)
 - [v0.9 Contract Coverage Matrix](sinan-cooperation/ludoweave-v0.9-contract-coverage-matrix.md)
 - [v0.9 Fixture Manifest](sinan-cooperation/ludoweave-v0.9-fixture-manifest.md)
+- [v0.9 Boundary Checklist](sinan-cooperation/ludoweave-v0.9-boundary-checklist.md)
 
 ## Decision Records
 
