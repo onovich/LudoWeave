@@ -1,8 +1,10 @@
 import {
+  collectVirtualWindowDiagnostics,
   normalizeScrollMetadataFrame,
   normalizeScrollOffsetForContainer,
   normalizeTextInputOverlayRequest,
   normalizeUiDiagnostic,
+  normalizeVirtualWindowMetadataFrame,
 } from "@ludoweave/core";
 import type {
   ActionRef,
@@ -19,6 +21,9 @@ import type {
   TextInputOverlayRequest,
   TextInputOverlaySelection,
   UiDiagnostic,
+  VirtualItemRange,
+  VirtualSelectionSnapshot,
+  VirtualWindowMetadataFrame,
 } from "@ludoweave/core";
 
 /**
@@ -209,6 +214,57 @@ export type Canvas2DScrollMetadataTrace =
     };
 
 /**
+ * Serializable realized item data recorded by Canvas2D virtual window traces.
+ *
+ * @public
+ */
+export interface Canvas2DVirtualWindowItemTrace {
+  readonly nodeId: string;
+  readonly itemKey: string;
+  readonly itemIndex: number;
+  readonly box: ResolvedRect;
+  readonly actionTargetId?: string;
+  readonly selected: boolean;
+  readonly focused: boolean;
+}
+
+/**
+ * Serializable virtual window data recorded by Canvas2D traces.
+ *
+ * @public
+ */
+export interface Canvas2DVirtualWindowTraceEntry {
+  readonly windowId: string;
+  readonly nodeId: string;
+  readonly totalCount: number;
+  readonly realizedRange: VirtualItemRange;
+  readonly overscanRange: VirtualItemRange;
+  readonly selection: VirtualSelectionSnapshot;
+  readonly realizedItems: readonly Canvas2DVirtualWindowItemTrace[];
+  readonly actionTargetIds: readonly string[];
+  readonly diagnostics: readonly UiDiagnostic[];
+}
+
+/**
+ * Deterministic virtual window trace for renderer tests and host coordination.
+ *
+ * @public
+ */
+export type Canvas2DVirtualWindowTrace =
+  | {
+      readonly kind: "virtual-window-trace";
+      readonly frameId: number;
+      readonly result: "windows";
+      readonly windows: readonly Canvas2DVirtualWindowTraceEntry[];
+    }
+  | {
+      readonly kind: "virtual-window-trace";
+      readonly frameId: number;
+      readonly result: "no-window";
+      readonly windows: readonly [];
+    };
+
+/**
  * Options for deriving a host text overlay request from a Canvas2D consumed frame.
  *
  * @public
@@ -288,6 +344,7 @@ export const canvas2DRendererConformancePolicy = Object.freeze({
     "action.hit-test.trace",
     "focus-graph.trace",
     "scroll-metadata.trace",
+    "virtual-window.trace",
     "text-input-overlay.coordination-trace",
   ],
   unsupported: [
@@ -297,6 +354,8 @@ export const canvas2DRendererConformancePolicy = Object.freeze({
     "native.text-input",
     "action.dispatch",
     "scroll.dispatch",
+    "collection.dispatch",
+    "selection.mutation",
     "rounded-rect.path-fidelity",
     "text.measurement",
   ],
@@ -433,6 +492,59 @@ export function traceCanvas2DScrollMetadata(
         maxOffset: offset.maxOffset,
         actionTargetIds: findScrollActionTargetIds(frame.actions, container.nodeId),
         diagnostics: offset.diagnostics,
+      };
+    }),
+  };
+}
+
+/**
+ * Traces virtual window metadata consumed by Canvas2D without reading input or mutating selection/scroll state.
+ *
+ * @public
+ */
+export function traceCanvas2DVirtualWindow(
+  frame: ResolvedUiFrame,
+  virtualWindowMetadata: VirtualWindowMetadataFrame,
+): Canvas2DVirtualWindowTrace {
+  const metadata = normalizeVirtualWindowMetadataFrame(virtualWindowMetadata);
+  if (metadata.windows.length === 0) {
+    return {
+      kind: "virtual-window-trace",
+      frameId: frame.frameId,
+      result: "no-window",
+      windows: [],
+    };
+  }
+
+  return {
+    kind: "virtual-window-trace",
+    frameId: frame.frameId,
+    result: "windows",
+    windows: metadata.windows.map((window) => {
+      const realizedItems = findVirtualWindowItems(frame, window.nodeId, window.selection);
+      const diagnostics = [
+        ...window.diagnostics,
+        ...collectVirtualWindowDiagnostics({
+          window,
+          realizedItems: realizedItems.map((item) => ({
+            index: item.itemIndex,
+            key: item.itemKey,
+          })),
+        }),
+      ];
+
+      return {
+        windowId: window.id,
+        nodeId: window.nodeId,
+        totalCount: window.totalCount,
+        realizedRange: window.realizedRange,
+        overscanRange: window.overscanRange,
+        selection: window.selection,
+        realizedItems,
+        actionTargetIds: realizedItems
+          .map((item) => item.actionTargetId)
+          .filter((id): id is string => id !== undefined),
+        diagnostics,
       };
     }),
   };
@@ -635,6 +747,10 @@ function readOptionalString(value: JsonValue | undefined): string | undefined {
   return typeof value === "string" ? value : undefined;
 }
 
+function readOptionalNumber(value: JsonValue | undefined): number | undefined {
+  return typeof value === "number" ? value : undefined;
+}
+
 function readOptionalBoolean(value: JsonValue | undefined): boolean | undefined {
   return typeof value === "boolean" ? value : undefined;
 }
@@ -677,6 +793,36 @@ function findScrollActionTargetIds(
         target.nodeId === containerNodeId || target.nodeId.startsWith(`${containerNodeId}/`),
     )
     .map((target) => target.id);
+}
+
+function findVirtualWindowItems(
+  frame: ResolvedUiFrame,
+  windowNodeId: string,
+  selection: VirtualSelectionSnapshot,
+): readonly Canvas2DVirtualWindowItemTrace[] {
+  return frame.nodes
+    .filter((node) => node.parentId === windowNodeId)
+    .flatMap((node) => {
+      const itemKey = readOptionalString(node.props?.itemKey);
+      const itemIndex = readOptionalNumber(node.props?.itemIndex);
+      if (itemKey === undefined || itemIndex === undefined) {
+        return [];
+      }
+
+      const actionTarget = frame.actions.find((candidate) => candidate.nodeId === node.id);
+
+      return [
+        {
+          nodeId: node.id,
+          itemKey,
+          itemIndex,
+          box: node.box,
+          ...(actionTarget === undefined ? {} : { actionTargetId: actionTarget.id }),
+          selected: selection.selectedKey === itemKey,
+          focused: selection.focusedKey === itemKey,
+        },
+      ];
+    });
 }
 
 function toHitTestTargetTrace(target: ResolvedActionTarget): Canvas2DHitTestTargetTrace {

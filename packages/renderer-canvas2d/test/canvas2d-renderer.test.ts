@@ -1,5 +1,6 @@
 import {
   createClippedScrollContentFixture,
+  createRealizedVirtualListFixture,
   createRendererConformanceFixture,
 } from "@ludoweave/testing";
 import { describe, expect, it } from "vitest";
@@ -11,10 +12,16 @@ import {
   traceCanvas2DFocusGraph,
   traceCanvas2DScrollMetadata,
   traceCanvas2DTextInputOverlayCoordination,
+  traceCanvas2DVirtualWindow,
   type Canvas2DContextLike,
   type Canvas2DRenderTrace,
 } from "../src/index.js";
-import { normalizeFocusGraph, normalizeScrollMetadataFrame } from "@ludoweave/core";
+import {
+  createVirtualWindowDiagnostic,
+  normalizeFocusGraph,
+  normalizeScrollMetadataFrame,
+  normalizeVirtualWindowMetadataFrame,
+} from "@ludoweave/core";
 
 describe("Canvas2D renderer spike", () => {
   it("consumes resolved frames and draws clear, box, and text commands", () => {
@@ -134,6 +141,7 @@ describe("Canvas2D renderer spike", () => {
       "action.hit-test.trace",
       "focus-graph.trace",
       "scroll-metadata.trace",
+      "virtual-window.trace",
       "text-input-overlay.coordination-trace",
     ]);
     expect(canvas2DRendererConformancePolicy.unsupported).toContain("native.text-input");
@@ -141,6 +149,8 @@ describe("Canvas2D renderer spike", () => {
     expect(canvas2DRendererConformancePolicy.unsupported).toContain("native.scroll-state");
     expect(canvas2DRendererConformancePolicy.unsupported).toContain("action.dispatch");
     expect(canvas2DRendererConformancePolicy.unsupported).toContain("scroll.dispatch");
+    expect(canvas2DRendererConformancePolicy.unsupported).toContain("collection.dispatch");
+    expect(canvas2DRendererConformancePolicy.unsupported).toContain("selection.mutation");
     expect(canvas2DRendererConformancePolicy.fallbackPolicy).toContain(
       "Hosts pair Canvas2D paint with a DOM or platform input overlay for focus and actions.",
     );
@@ -414,6 +424,112 @@ describe("Canvas2D renderer spike", () => {
       "LW_SCROLL_EMPTY_CONTAINER",
       "LW_SCROLL_OUT_OF_RANGE_OFFSET",
     ]);
+  });
+
+  it("traces virtual window geometry, range metadata, selection markers, and action targets", () => {
+    const fixture = createRealizedVirtualListFixture();
+
+    expect(
+      traceCanvas2DVirtualWindow(
+        fixture.frame,
+        normalizeVirtualWindowMetadataFrame({
+          activeWindowId: fixture.virtualWindow.id,
+          windows: [fixture.virtualWindow],
+        }),
+      ),
+    ).toEqual({
+      kind: "virtual-window-trace",
+      frameId: 4700,
+      result: "windows",
+      windows: [
+        {
+          windowId: "quest-log-window",
+          nodeId: "runtime.overlay/key:quest-log",
+          totalCount: 12,
+          realizedRange: { startIndex: 4, endIndex: 7 },
+          overscanRange: { startIndex: 3, endIndex: 9 },
+          selection: { selectedKey: "quest:5", focusedKey: "quest:5", revision: 2 },
+          realizedItems: [
+            {
+              nodeId: "runtime.overlay/key:quest-log/key:quest:4",
+              itemKey: "quest:4",
+              itemIndex: 4,
+              box: { x: 92, y: 120, width: 396, height: 40 },
+              actionTargetId: "action.quest:4.activate",
+              selected: false,
+              focused: false,
+            },
+            {
+              nodeId: "runtime.overlay/key:quest-log/key:quest:5",
+              itemKey: "quest:5",
+              itemIndex: 5,
+              box: { x: 92, y: 168, width: 396, height: 40 },
+              actionTargetId: "action.quest:5.activate",
+              selected: true,
+              focused: true,
+            },
+            {
+              nodeId: "runtime.overlay/key:quest-log/key:quest:6",
+              itemKey: "quest:6",
+              itemIndex: 6,
+              box: { x: 92, y: 216, width: 396, height: 40 },
+              actionTargetId: "action.quest:6.activate",
+              selected: false,
+              focused: false,
+            },
+          ],
+          actionTargetIds: [
+            "action.quest:4.activate",
+            "action.quest:5.activate",
+            "action.quest:6.activate",
+          ],
+          diagnostics: [],
+        },
+      ],
+    });
+    expect(
+      JSON.stringify(
+        traceCanvas2DVirtualWindow(fixture.frame, { windows: [fixture.virtualWindow] }),
+      ),
+    ).not.toContain("dispatch");
+    expect(
+      JSON.stringify(
+        traceCanvas2DVirtualWindow(fixture.frame, { windows: [fixture.virtualWindow] }),
+      ),
+    ).not.toContain("datasource");
+  });
+
+  it("reports no virtual windows and virtual window diagnostics without owning selection", () => {
+    const fixture = createRealizedVirtualListFixture();
+
+    expect(traceCanvas2DVirtualWindow(fixture.frame, { windows: [] })).toEqual({
+      kind: "virtual-window-trace",
+      frameId: 4700,
+      result: "no-window",
+      windows: [],
+    });
+
+    const diagnosticTrace = traceCanvas2DVirtualWindow(fixture.frame, {
+      windows: [
+        {
+          ...fixture.virtualWindow,
+          selection: { selectedKey: "quest:removed" },
+          diagnostics: [
+            createVirtualWindowDiagnostic("removedItem", {
+              windowId: fixture.virtualWindow.id,
+              itemKey: "quest:removed",
+            }),
+          ],
+        },
+      ],
+    });
+
+    expect(diagnosticTrace.result).toBe("windows");
+    expect(diagnosticTrace.windows[0]?.diagnostics.map((diagnostic) => diagnostic.code)).toEqual([
+      "LW_VIRTUAL_WINDOW_REMOVED_ITEM",
+      "LW_VIRTUAL_WINDOW_STALE_SELECTION",
+    ]);
+    expect(JSON.stringify(diagnosticTrace)).not.toContain("selection.mutation");
   });
 
   it("rejects non-finite hit-test points", () => {
