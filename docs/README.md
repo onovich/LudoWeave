@@ -54,6 +54,7 @@
 ## Runtime UI Contracts
 
 - [Pause Modal Behavior Contract](runtime-ui/pause-modal-behavior-contract.md)
+- [Focus Navigation Contract](runtime-ui/focus-navigation-contract.md)
 - [Canvas2D Renderer Spike](runtime-ui/canvas2d-renderer-spike.md)
 - [DOM Input Overlay Design](runtime-ui/dom-input-overlay-design.md)
 
