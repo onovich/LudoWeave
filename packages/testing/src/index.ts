@@ -14,3 +14,15 @@ export type {
   TextInputOverlayFailureScenario,
   TextInputOverlayLifecycleFixture,
 } from "./text-input-overlay-fixture.js";
+export {
+  createRuntimeUiThemeResolutionFixture,
+  resolveRuntimeUiThemeVisualHints,
+} from "./theme-resolution-fixture.js";
+export type {
+  ResolvedRuntimeUiThemeVisualHints,
+  ResolveRuntimeUiThemeVisualHintsOptions,
+  RuntimeUiThemeFixtureState,
+  RuntimeUiThemeResolutionEntry,
+  RuntimeUiThemeResolutionFixture,
+  RuntimeUiThemeVisualHints,
+} from "./theme-resolution-fixture.js";
