@@ -43,6 +43,7 @@
 ## v0.5 Drafts
 
 - [v0.5 Integration Status](roadmap/ludoweave-v0.5-integration-status.md)
+- [v0.5 Release Notes Draft](release/ludoweave-v0.5-release-notes-draft.md)
 
 ## Decision Records
 

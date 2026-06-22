@@ -2,7 +2,7 @@
 
 Date: 2026-06-22
 
-Status: Round 1 baseline for the v0.5 Richer Gamepad Navigation bounded track.
+Status: Round 12 integration pass for the v0.5 Richer Gamepad Navigation bounded track.
 
 Goal guide: [ludoweave-v0.5-goal-mode-execution-guide.md](../goal-mode/ludoweave-v0.5-goal-mode-execution-guide.md)
 
@@ -35,6 +35,19 @@ The phase should provide verifiable host-owned navigation contracts for:
 - Canvas2D focus trace fixtures that consume resolved geometry and action targets without input reads or dispatch.
 - Sinan-like Gate Demo fixture coverage for a gamepad navigation sequence and deterministic registry mock results.
 
+## Integrated Scope Through Round 12
+
+- Added focus graph metadata in `@ludoweave/core` with focusable id, resolved rect, scope, directional neighbors, priority, disabled reason, and JSON-only normalization.
+- Added host input intent data for confirm, cancel, navigate up/down/left/right, next, previous, pause, and menu without platform input reads.
+- Added a deterministic directional resolver with explicit neighbor preference, nearest target fallback, stable tie-breakers, disabled target, stale focus key, missing target, empty graph, and missing host capability diagnostics.
+- Added modal focus scope navigation helpers for Dialog/Pause controls with containFocus, restoreFocus, confirm/cancel outputs, and ActionRef action-log recording.
+- Added ActionRef-only modal navigation sequence recording and inspector export compatibility.
+- Added a Playground v0.5 navigation smoke panel exposing focus graph state, current focus, host intents, and ActionRef outputs.
+- Added Canvas2D focus graph trace output for focusable geometry and action target ids without input reads or dispatch.
+- Added Sinan-like Gate Demo gamepad navigation sequence with deterministic registry mock results and Canvas2D focus trace.
+- Extended the Gate Demo validation hook with a navigation layer that localizes mapping, registry routing, and renderer trace failures.
+- Added the runtime UI focus navigation contract note.
+
 ## Non-Goals
 
 v0.5 must not:
@@ -66,18 +79,18 @@ Use these locations during v0.5:
 
 | Round | Area | Status |
 | --- | --- | --- |
-| 1 | Contract baseline | This document. |
-| 2 | Focus graph metadata | Planned. |
-| 3 | Host input intent contract | Planned. |
-| 4 | Directional navigation resolver | Planned. |
-| 5 | Disabled/stale/missing diagnostics | Planned. |
-| 6 | Modal focus scope navigation | Planned. |
-| 7 | ActionRef output path | Planned. |
-| 8 | DOM playground navigation smoke | Planned. |
-| 9 | Canvas2D focus trace | Planned. |
-| 10 | Sinan-like Gate Demo navigation sequence | Planned. |
-| 11 | Focus navigation contract docs | Planned. |
-| 12 | v0.5 integration pass | Planned. |
+| 1 | Contract baseline | Completed in `eace756`. |
+| 2 | Focus graph metadata | Completed in `11788ff`. |
+| 3 | Host input intent contract | Completed in `1c469cf`. |
+| 4 | Directional navigation resolver | Completed in `7234e44`. |
+| 5 | Disabled/stale/missing diagnostics | Completed in `8613def`. |
+| 6 | Modal focus scope navigation | Completed in `bd343fb`. |
+| 7 | ActionRef output path | Completed in `004caf6`. |
+| 8 | DOM playground navigation smoke | Completed in `5ac7f05`. |
+| 9 | Canvas2D focus trace | Completed in `1782941`. |
+| 10 | Sinan-like Gate Demo navigation sequence | Completed in `b37182d`. |
+| 11 | Focus navigation contract docs | Completed in `943c6ec`. |
+| 12 | v0.5 integration pass | This document and release notes draft. |
 | 13-15 | Buffers | Use only for tooling, runtime, resolver, example, smoke, or docs fixes. |
 | 16 | Final validation and handoff | Planned. |
 
@@ -106,3 +119,21 @@ Round-level validation follows the v0.5 goal guide. The full v0.5 acceptance mat
 - Debug: this is a documentation-only baseline. Failure should localize to formatting, whitespace, stale docs index links, or an incorrect placement policy.
 - Architecture: the baseline keeps physical input, focus state, rebinding, and platform policy host-owned; it does not add runtime dependencies or implementation code.
 - Scope: Round 1 does not implement focus graph metadata, host input intent, resolver fixtures, modal scope navigation, DOM smoke, Canvas2D trace, Sinan-like navigation sequence, or final release docs.
+
+## Round 12 Validation Snapshot
+
+| Command | Result |
+| --- | --- |
+| `Validate.cmd` | PASS |
+| `Smoke.cmd` | PASS |
+| `pnpm validate` | PASS |
+| `pnpm test:e2e` | PASS |
+| `pnpm test:a11y` | PASS |
+| `pnpm format` | PASS |
+| `git diff --check` | PASS |
+
+## Round 12 Self-Check
+
+- Debug: integrated scope is covered by core focus graph/input intent/resolver/diagnostics tests, component modal focus tests, Playground e2e/a11y smoke, Canvas2D focus trace tests, Sinan-like navigation sequence tests, and validation hook layer tests.
+- Architecture: host remains source-of-truth for physical input, focus state, rebinding, platform policy, native focus, accessibility, command routing, save, undo, Director, Timeline, and Event. Core and renderer packages do not read Gamepad API, keyboard events, native input events, DOM nodes, React components, or closures.
+- Scope: Round 12 updates integration docs and release notes only. It does not implement scroll, virtual list, rich text, real Sinan integration, production Canvas2D, Pixi/WebGPU, full DevTools, input rebinding UI, analog dead-zone handling, or low-level device polling.
