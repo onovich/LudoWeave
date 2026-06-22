@@ -148,6 +148,12 @@ export {
   normalizeVirtualWindowMetadataFrame,
 } from "./virtual-window-metadata.js";
 export type {
+  FixedVirtualWindowRangeInput,
+  FixedVirtualWindowRangeResult,
+  VirtualWindowOverscan,
+} from "./virtual-window-range.js";
+export { calculateFixedVirtualWindowRange } from "./virtual-window-range.js";
+export type {
   NormalizedUiNode,
   NormalizedUiTree,
   NormalizeUiTreeOptions,

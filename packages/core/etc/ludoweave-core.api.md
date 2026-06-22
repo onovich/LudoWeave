@@ -40,6 +40,9 @@ export interface BoxRenderCommand extends RenderCommandBase {
 }
 
 // @public
+export function calculateFixedVirtualWindowRange(input: FixedVirtualWindowRangeInput): FixedVirtualWindowRangeResult;
+
+// @public
 export const coreDiagnosticCodes: {
     readonly invalidAction: "LW_CORE_INVALID_ACTION";
     readonly invalidJson: "LW_CORE_INVALID_JSON";
@@ -120,6 +123,48 @@ export interface DirectionalFocusResult {
 
 // @public
 export type DirectionalFocusResultStatus = "resolved" | "no-target";
+
+// @public
+export interface FixedVirtualWindowRangeInput {
+    // (undocumented)
+    readonly itemExtent: number;
+    // (undocumented)
+    readonly overscan?: number | Partial<VirtualWindowOverscan>;
+    // (undocumented)
+    readonly scrollOffset?: number;
+    // (undocumented)
+    readonly totalCount: number;
+    // (undocumented)
+    readonly viewportExtent: number;
+}
+
+// @public
+export interface FixedVirtualWindowRangeResult {
+    // (undocumented)
+    readonly clamped: boolean;
+    // (undocumented)
+    readonly estimatedContentExtent: number;
+    // (undocumented)
+    readonly itemExtent: number;
+    // (undocumented)
+    readonly maxOffset: number;
+    // (undocumented)
+    readonly normalizedOffset: number;
+    // (undocumented)
+    readonly overscan: VirtualWindowOverscan;
+    // (undocumented)
+    readonly overscanRange: VirtualItemRange;
+    // (undocumented)
+    readonly realizedRange: VirtualItemRange;
+    // (undocumented)
+    readonly requestedOffset: number;
+    // (undocumented)
+    readonly totalCount: number;
+    // (undocumented)
+    readonly viewportExtent: number;
+    // (undocumented)
+    readonly visibleRange: VirtualItemRange;
+}
 
 // @public
 export type FocusDirection = "up" | "down" | "left" | "right";
@@ -1355,6 +1400,14 @@ export interface VirtualWindowMetadataInput {
     readonly totalCount: number;
     // (undocumented)
     readonly viewportRect?: ResolvedRect;
+}
+
+// @public
+export interface VirtualWindowOverscan {
+    // (undocumented)
+    readonly after: number;
+    // (undocumented)
+    readonly before: number;
 }
 
 // (No @packageDocumentation comment for this package)
