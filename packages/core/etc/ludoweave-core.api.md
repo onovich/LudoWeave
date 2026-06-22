@@ -83,6 +83,26 @@ export interface DiagnosticSink {
 }
 
 // @public
+export type DirectionalFocusResolutionMethod = "explicit-neighbor" | "nearest-target";
+
+// @public
+export interface DirectionalFocusResult {
+    // (undocumented)
+    readonly direction: FocusDirection;
+    // (undocumented)
+    readonly fromId: string;
+    // (undocumented)
+    readonly method?: DirectionalFocusResolutionMethod;
+    // (undocumented)
+    readonly status: DirectionalFocusResultStatus;
+    // (undocumented)
+    readonly targetId?: string;
+}
+
+// @public
+export type DirectionalFocusResultStatus = "resolved" | "no-target";
+
+// @public
 export type FocusDirection = "up" | "down" | "left" | "right";
 
 // @public
@@ -344,6 +364,9 @@ export interface ResolvedActionTarget {
     // (undocumented)
     readonly path: UiNodePath;
 }
+
+// @public
+export function resolveDirectionalFocus(graph: FocusGraph, fromId: string, direction: FocusDirection): DirectionalFocusResult;
 
 // @public
 export interface ResolvedNode {
