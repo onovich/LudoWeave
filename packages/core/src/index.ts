@@ -71,6 +71,23 @@ export type {
 } from "./text-measure.js";
 export { resolveTextMeasure } from "./text-measure.js";
 export type {
+  TextInputOverlayCapability,
+  TextInputOverlayCapabilityStatus,
+  TextInputOverlayInputMode,
+  TextInputOverlayLifecycleReason,
+  TextInputOverlayRequest,
+  TextInputOverlayRequestInput,
+  TextInputOverlaySelection,
+  TextInputOverlaySelectionDirection,
+  TextInputOverlaySnapshot,
+  TextInputOverlaySnapshotInput,
+} from "./text-input-overlay.js";
+export {
+  normalizeTextInputOverlayCapability,
+  normalizeTextInputOverlayRequest,
+  normalizeTextInputOverlaySnapshot,
+} from "./text-input-overlay.js";
+export type {
   RuntimeUiDialogThemeTokens,
   RuntimeUiObjectiveThemeTokens,
   RuntimeUiPromptThemeTokens,

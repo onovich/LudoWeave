@@ -145,6 +145,15 @@ export interface NormalizedUiTree {
 export function normalizeRuntimeUiThemeTokenContract(input: unknown): RuntimeUiThemeTokenContract;
 
 // @public
+export function normalizeTextInputOverlayCapability(input: TextInputOverlayCapability): TextInputOverlayCapability;
+
+// @public
+export function normalizeTextInputOverlayRequest(input: TextInputOverlayRequestInput): TextInputOverlayRequest;
+
+// @public
+export function normalizeTextInputOverlaySnapshot(input: TextInputOverlaySnapshotInput): TextInputOverlaySnapshot;
+
+// @public
 export function normalizeThemeTokenName(value: unknown, path?: string): UiThemeTokenName;
 
 // @public
@@ -527,6 +536,132 @@ export interface StackLayoutOptions {
     readonly justify?: StackJustify;
     // (undocumented)
     readonly origin?: Pick<ResolvedRect, "x" | "y">;
+}
+
+// @public
+export interface TextInputOverlayCapability {
+    // (undocumented)
+    readonly diagnosticPath?: readonly string[];
+    // (undocumented)
+    readonly message?: string;
+    // (undocumented)
+    readonly reason?: TextInputOverlayLifecycleReason;
+    // (undocumented)
+    readonly status: TextInputOverlayCapabilityStatus;
+}
+
+// @public
+export type TextInputOverlayCapabilityStatus = "available" | "missing" | "disabled" | "unsupported-renderer";
+
+// @public
+export type TextInputOverlayInputMode = "none" | "text" | "decimal" | "numeric" | "tel" | "search" | "email" | "url";
+
+// @public
+export type TextInputOverlayLifecycleReason = "open" | "update" | "focus" | "snapshot" | "commit" | "cancel" | "blur" | "node-removed" | "route-change" | "host-dispose" | "capability-missing" | "capability-disabled" | "unsupported-renderer";
+
+// @public
+export interface TextInputOverlayRequest {
+    // (undocumented)
+    readonly ariaLabel: string;
+    // (undocumented)
+    readonly box: ResolvedRect;
+    // (undocumented)
+    readonly cancelAction?: ActionRef;
+    // (undocumented)
+    readonly commitAction?: ActionRef;
+    // (undocumented)
+    readonly diagnosticPath?: readonly string[];
+    // (undocumented)
+    readonly inputMode?: TextInputOverlayInputMode;
+    // (undocumented)
+    readonly multiline: boolean;
+    // (undocumented)
+    readonly nodeId: string;
+    // (undocumented)
+    readonly overlayId: string;
+    // (undocumented)
+    readonly placeholder?: string;
+    // (undocumented)
+    readonly selection?: TextInputOverlaySelection;
+    // (undocumented)
+    readonly themeToken?: UiThemeTokenName;
+    // (undocumented)
+    readonly value: string;
+}
+
+// @public
+export interface TextInputOverlayRequestInput {
+    // (undocumented)
+    readonly ariaLabel: string;
+    // (undocumented)
+    readonly box: ResolvedRect;
+    // (undocumented)
+    readonly cancelAction?: ActionRefInput;
+    // (undocumented)
+    readonly commitAction?: ActionRefInput;
+    // (undocumented)
+    readonly diagnosticPath?: readonly string[];
+    // (undocumented)
+    readonly inputMode?: TextInputOverlayInputMode;
+    // (undocumented)
+    readonly multiline: boolean;
+    // (undocumented)
+    readonly nodeId: string;
+    // (undocumented)
+    readonly overlayId: string;
+    // (undocumented)
+    readonly placeholder?: string;
+    // (undocumented)
+    readonly selection?: TextInputOverlaySelection;
+    // (undocumented)
+    readonly themeToken?: UiThemeTokenName;
+    // (undocumented)
+    readonly value: string;
+}
+
+// @public
+export interface TextInputOverlaySelection {
+    // (undocumented)
+    readonly direction?: TextInputOverlaySelectionDirection;
+    // (undocumented)
+    readonly end: number;
+    // (undocumented)
+    readonly start: number;
+}
+
+// @public
+export type TextInputOverlaySelectionDirection = "none" | "forward" | "backward";
+
+// @public
+export interface TextInputOverlaySnapshot {
+    // (undocumented)
+    readonly compositionText?: string;
+    // (undocumented)
+    readonly isComposing: boolean;
+    // (undocumented)
+    readonly nodeId?: string;
+    // (undocumented)
+    readonly overlayId: string;
+    // (undocumented)
+    readonly selection?: TextInputOverlaySelection;
+    // (undocumented)
+    readonly value: string;
+}
+
+// @public
+export interface TextInputOverlaySnapshotInput {
+    // (undocumented)
+    readonly compositionText?: string;
+    // (undocumented)
+    readonly isComposing?: boolean;
+    // (undocumented)
+    readonly nodeId?: string;
+    // (undocumented)
+    readonly overlayId: string;
+    // (undocumented)
+    readonly selection?: TextInputOverlaySelection;
+    // (undocumented)
+    readonly value: string;
 }
 
 // @public
