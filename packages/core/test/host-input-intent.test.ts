@@ -4,23 +4,21 @@ import { normalizeHostInputIntent } from "../src/host-input-intent.js";
 
 describe("host input intent contract", () => {
   it("normalizes confirm, cancel, navigation, next, previous, pause, and menu intents", () => {
-    expect(
-      [
-        normalizeHostInputIntent({ kind: "confirm", scopeId: "pause.dialog", focusId: "resume" }),
-        normalizeHostInputIntent({ kind: "cancel", scopeId: "pause.dialog" }),
-        normalizeHostInputIntent({
-          kind: "navigate",
-          direction: "down",
-          scopeId: "hud",
-          focusId: "prompt",
-          repeat: true,
-        }),
-        normalizeHostInputIntent({ kind: "next" }),
-        normalizeHostInputIntent({ kind: "previous" }),
-        normalizeHostInputIntent({ kind: "pause" }),
-        normalizeHostInputIntent({ kind: "menu", payload: { surface: "inventory" } }),
-      ],
-    ).toEqual([
+    expect([
+      normalizeHostInputIntent({ kind: "confirm", scopeId: "pause.dialog", focusId: "resume" }),
+      normalizeHostInputIntent({ kind: "cancel", scopeId: "pause.dialog" }),
+      normalizeHostInputIntent({
+        kind: "navigate",
+        direction: "down",
+        scopeId: "hud",
+        focusId: "prompt",
+        repeat: true,
+      }),
+      normalizeHostInputIntent({ kind: "next" }),
+      normalizeHostInputIntent({ kind: "previous" }),
+      normalizeHostInputIntent({ kind: "pause" }),
+      normalizeHostInputIntent({ kind: "menu", payload: { surface: "inventory" } }),
+    ]).toEqual([
       {
         kind: "confirm",
         handoff: "host",
@@ -86,9 +84,7 @@ describe("host input intent contract", () => {
       kind = "confirm";
     }
 
-    expect(() => normalizeHostInputIntent(new NativeInputEvent() as never)).toThrow(
-      /plain object/,
-    );
+    expect(() => normalizeHostInputIntent(new NativeInputEvent() as never)).toThrow(/plain object/);
 
     expect(() =>
       normalizeHostInputIntent({
@@ -105,9 +101,9 @@ describe("host input intent contract", () => {
   it("validates direction, unsupported kinds, and empty references", () => {
     expect(() => normalizeHostInputIntent({ kind: "navigate" })).toThrow(/direction/);
 
-    expect(() =>
-      normalizeHostInputIntent({ kind: "confirm", direction: "up" as never }),
-    ).toThrow(/direction is only valid/);
+    expect(() => normalizeHostInputIntent({ kind: "confirm", direction: "up" as never })).toThrow(
+      /direction is only valid/,
+    );
 
     expect(() => normalizeHostInputIntent({ kind: "submit" as never })).toThrow(/kind/);
 

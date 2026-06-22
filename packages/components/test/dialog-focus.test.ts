@@ -1,12 +1,19 @@
 import { describe, expect, it } from "vitest";
-import { createActionLog, normalizeUiNode, type UiNode } from "@ludoweave/core";
+import {
+  createActionLog,
+  normalizeHostInputIntent,
+  normalizeUiNode,
+  type UiNode,
+} from "@ludoweave/core";
 
 import {
   Button,
   Dialog,
   createFocusNavigationDraft,
   createFocusScopeDraft,
+  createModalFocusNavigationDraft,
   createModalInputShieldDraft,
+  resolveModalFocusIntent,
 } from "../src/index.js";
 
 describe("Dialog focus draft", () => {
@@ -284,6 +291,69 @@ describe("Dialog focus draft", () => {
       }),
     ).toThrow(/Modal input shield scope/);
   });
+
+  it("connects modal focus scope navigation to confirm and cancel ActionRefs", () => {
+    const draft = createModalFocusNavigationDraft({
+      scopeId: "pause.dialog",
+      initialFocusId: "resume",
+      restoreFocusKey: "hud.pause-button",
+      controls: [
+        {
+          id: "resume",
+          rect: { x: 440, y: 320, width: 240, height: 44 },
+          action: "runtime.pause.resume",
+        },
+        {
+          id: "cancel",
+          rect: { x: 440, y: 376, width: 240, height: 44 },
+          action: {
+            type: "runtime.ui.cancel",
+            payload: { surface: "pause" },
+          },
+        },
+      ],
+    });
+
+    expect(draft.scope).toEqual({
+      scopeId: "pause.dialog",
+      containFocus: true,
+      restoreFocus: true,
+      initialFocusKey: "resume",
+      restoreFocusKey: "hud.pause-button",
+    });
+    expect(resolveModalFocusIntent(draft, normalizeHostInputIntent({ kind: "confirm" }))).toEqual({
+      status: "action",
+      action: {
+        type: "runtime.pause.resume",
+      },
+      controlId: "resume",
+    });
+    expect(resolveModalFocusIntent(draft, normalizeHostInputIntent({ kind: "cancel" }))).toEqual({
+      status: "action",
+      action: {
+        type: "runtime.ui.cancel",
+        payload: {
+          surface: "pause",
+        },
+      },
+      controlId: "cancel",
+    });
+    expect(
+      resolveModalFocusIntent(
+        draft,
+        normalizeHostInputIntent({ kind: "navigate", direction: "down" }),
+      ),
+    ).toEqual({
+      status: "navigated",
+      navigation: {
+        status: "resolved",
+        fromId: "resume",
+        direction: "down",
+        targetId: "cancel",
+        method: "explicit-neighbor",
+      },
+    });
+  });
 });
 
 describe("Button and Dialog action logs", () => {
@@ -333,6 +403,63 @@ describe("Button and Dialog action logs", () => {
         },
         nodeId: "dialog.confirm",
         label: "Confirm",
+      },
+    ]);
+  });
+
+  it("records modal focus confirm and cancel outputs through the action log", () => {
+    const log = createActionLog();
+    const draft = createModalFocusNavigationDraft({
+      scopeId: "pause.dialog",
+      controls: [
+        {
+          id: "resume",
+          rect: { x: 440, y: 320, width: 240, height: 44 },
+          action: "runtime.pause.resume",
+        },
+        {
+          id: "cancel",
+          rect: { x: 440, y: 376, width: 240, height: 44 },
+          action: "runtime.ui.cancel",
+        },
+      ],
+    });
+
+    const confirm = resolveModalFocusIntent(
+      draft,
+      normalizeHostInputIntent({ kind: "confirm", focusId: "resume" }),
+    );
+    const cancel = resolveModalFocusIntent(draft, normalizeHostInputIntent({ kind: "cancel" }));
+
+    if (confirm.status !== "action" || cancel.status !== "action") {
+      throw new TypeError("Expected modal focus action results.");
+    }
+
+    log.record({
+      action: confirm.action,
+      source: { nodeId: `dialog.${confirm.controlId}`, label: "Resume" },
+    });
+    log.record({
+      action: cancel.action,
+      source: { nodeId: `dialog.${cancel.controlId}`, label: "Cancel" },
+    });
+
+    expect(log.snapshot()).toEqual([
+      {
+        sequence: 1,
+        action: {
+          type: "runtime.pause.resume",
+        },
+        nodeId: "dialog.resume",
+        label: "Resume",
+      },
+      {
+        sequence: 2,
+        action: {
+          type: "runtime.ui.cancel",
+        },
+        nodeId: "dialog.cancel",
+        label: "Cancel",
       },
     ]);
   });
