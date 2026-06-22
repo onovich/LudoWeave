@@ -33,6 +33,19 @@ export type {
   RuntimeUIViewModelFallbackPolicy,
 } from "./envelope.js";
 export {
+  gateDemoFallbackPolicyDiagnosticCodes,
+  gateDemoFallbackPolicyVersion,
+  resolveGateDemoFallbackPolicy,
+} from "./fallback-policy.js";
+export type {
+  GateDemoFallbackOwner,
+  GateDemoFallbackPolicyResult,
+  GateDemoFallbackReason,
+  GateDemoFallbackRoute,
+  GateDemoRequestedRenderer,
+  ResolveGateDemoFallbackPolicyOptions,
+} from "./fallback-policy.js";
+export {
   createGateDemoHostCapabilitySnapshot,
   createGateDemoMissingTextInputOverlayHostCapabilitySnapshot,
   createHostCapabilitySnapshotDiagnostics,
