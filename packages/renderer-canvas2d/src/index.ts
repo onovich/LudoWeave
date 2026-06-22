@@ -1,4 +1,10 @@
-import type { RenderCommand, ResolvedRect, ResolvedUiFrame } from "@ludoweave/core";
+import type {
+  ActionRef,
+  RenderCommand,
+  ResolvedActionTarget,
+  ResolvedRect,
+  ResolvedUiFrame,
+} from "@ludoweave/core";
 
 /**
  * Minimal Canvas2D-like context used by the experimental renderer spike.
@@ -66,6 +72,57 @@ export type Canvas2DRenderTrace =
     };
 
 /**
+ * CSS pixel point used for Canvas2D action target hit-test tracing.
+ *
+ * @public
+ */
+export interface Canvas2DHitTestPoint {
+  readonly x: number;
+  readonly y: number;
+}
+
+/**
+ * Serializable action target data recorded by Canvas2D hit-test traces.
+ *
+ * @public
+ */
+export interface Canvas2DHitTestTargetTrace {
+  readonly actionTargetId: string;
+  readonly nodeId: string;
+  readonly box: ResolvedRect;
+  readonly action: ActionRef;
+  readonly disabled?: boolean;
+  readonly label?: string;
+}
+
+/**
+ * Deterministic hit-test trace for renderer tests and host coordination.
+ *
+ * @public
+ */
+export type Canvas2DActionHitTestTrace =
+  | {
+      readonly kind: "action-hit-test";
+      readonly frameId: number;
+      readonly point: Canvas2DHitTestPoint;
+      readonly result: "target";
+      readonly target: Canvas2DHitTestTargetTrace;
+    }
+  | {
+      readonly kind: "action-hit-test";
+      readonly frameId: number;
+      readonly point: Canvas2DHitTestPoint;
+      readonly result: "disabled-target";
+      readonly target: Canvas2DHitTestTargetTrace;
+    }
+  | {
+      readonly kind: "action-hit-test";
+      readonly frameId: number;
+      readonly point: Canvas2DHitTestPoint;
+      readonly result: "outside-viewport" | "no-target";
+    };
+
+/**
  * Result returned after rendering one frame into a Canvas2D-like context.
  *
  * @public
@@ -100,11 +157,12 @@ export const canvas2DRendererConformancePolicy = Object.freeze({
     "paint.box.stroke",
     "paint.text.fill",
     "resolved-frame.consume",
+    "action.hit-test.trace",
   ],
   unsupported: [
     "dom.semantics",
     "native.focus",
-    "input.hit-testing",
+    "native.text-input",
     "action.dispatch",
     "rounded-rect.path-fidelity",
     "text.measurement",
@@ -115,6 +173,47 @@ export const canvas2DRendererConformancePolicy = Object.freeze({
     "Box radius is preserved in the trace and may render as rectangular fill or stroke in the spike.",
   ],
 });
+
+/**
+ * Traces which resolved ActionRef target is under a CSS pixel point.
+ *
+ * This helper is intentionally trace-only: it does not dispatch ActionRefs and does not
+ * own focus, accessibility, or native input state.
+ *
+ * @public
+ */
+export function traceCanvas2DActionHitTest(
+  frame: ResolvedUiFrame,
+  point: Canvas2DHitTestPoint,
+): Canvas2DActionHitTestTrace {
+  const normalizedPoint = normalizeHitTestPoint(point);
+  if (!pointInViewport(normalizedPoint, frame)) {
+    return {
+      kind: "action-hit-test",
+      frameId: frame.frameId,
+      point: normalizedPoint,
+      result: "outside-viewport",
+    };
+  }
+
+  const target = findTopmostActionTarget(frame.actions, normalizedPoint);
+  if (target === undefined) {
+    return {
+      kind: "action-hit-test",
+      frameId: frame.frameId,
+      point: normalizedPoint,
+      result: "no-target",
+    };
+  }
+
+  return {
+    kind: "action-hit-test",
+    frameId: frame.frameId,
+    point: normalizedPoint,
+    result: target.disabled === true ? "disabled-target" : "target",
+    target: toHitTestTargetTrace(target),
+  };
+}
 
 /**
  * Creates a minimal Canvas2D renderer spike that consumes resolved frames.
@@ -155,6 +254,64 @@ export function createCanvas2DRenderer(options: Canvas2DRendererOptions): Canvas
       disposed = true;
     },
   };
+}
+
+function normalizeHitTestPoint(point: Canvas2DHitTestPoint): Canvas2DHitTestPoint {
+  return {
+    x: normalizeFiniteNumber(point.x, "point.x"),
+    y: normalizeFiniteNumber(point.y, "point.y"),
+  };
+}
+
+function findTopmostActionTarget(
+  actions: readonly ResolvedActionTarget[],
+  point: Canvas2DHitTestPoint,
+): ResolvedActionTarget | undefined {
+  for (let index = actions.length - 1; index >= 0; index -= 1) {
+    const target = actions[index];
+    if (target !== undefined && pointInRect(point, target.box)) {
+      return target;
+    }
+  }
+
+  return undefined;
+}
+
+function toHitTestTargetTrace(target: ResolvedActionTarget): Canvas2DHitTestTargetTrace {
+  return {
+    actionTargetId: target.id,
+    nodeId: target.nodeId,
+    box: target.box,
+    action: target.action,
+    ...(target.disabled === undefined ? {} : { disabled: target.disabled }),
+    ...(target.label === undefined ? {} : { label: target.label }),
+  };
+}
+
+function pointInViewport(point: Canvas2DHitTestPoint, frame: ResolvedUiFrame): boolean {
+  return (
+    point.x >= 0 &&
+    point.y >= 0 &&
+    point.x < frame.viewport.width &&
+    point.y < frame.viewport.height
+  );
+}
+
+function pointInRect(point: Canvas2DHitTestPoint, rect: ResolvedRect): boolean {
+  return (
+    point.x >= rect.x &&
+    point.y >= rect.y &&
+    point.x < rect.x + rect.width &&
+    point.y < rect.y + rect.height
+  );
+}
+
+function normalizeFiniteNumber(value: unknown, path: string): number {
+  if (typeof value !== "number" || !Number.isFinite(value)) {
+    throw new TypeError(`${path} must be a finite number.`);
+  }
+
+  return value;
 }
 
 function clearFrame(context: Canvas2DContextLike, frame: ResolvedUiFrame): Canvas2DRenderTrace {

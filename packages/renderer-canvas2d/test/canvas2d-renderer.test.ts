@@ -4,6 +4,7 @@ import { describe, expect, it } from "vitest";
 import {
   canvas2DRendererConformancePolicy,
   createCanvas2DRenderer,
+  traceCanvas2DActionHitTest,
   type Canvas2DContextLike,
   type Canvas2DRenderTrace,
 } from "../src/index.js";
@@ -123,11 +124,131 @@ describe("Canvas2D renderer spike", () => {
       "paint.box.stroke",
       "paint.text.fill",
       "resolved-frame.consume",
+      "action.hit-test.trace",
     ]);
-    expect(canvas2DRendererConformancePolicy.unsupported).toContain("input.hit-testing");
+    expect(canvas2DRendererConformancePolicy.unsupported).toContain("native.text-input");
     expect(canvas2DRendererConformancePolicy.unsupported).toContain("native.focus");
+    expect(canvas2DRendererConformancePolicy.unsupported).toContain("action.dispatch");
     expect(canvas2DRendererConformancePolicy.fallbackPolicy).toContain(
       "Hosts pair Canvas2D paint with a DOM or platform input overlay for focus and actions.",
+    );
+  });
+
+  it("traces an action target under a point without dispatching it", () => {
+    const frame = createRendererConformanceFixture().frame;
+
+    expect(traceCanvas2DActionHitTest(frame, { x: 530, y: 604 })).toEqual({
+      kind: "action-hit-test",
+      frameId: 3600,
+      point: { x: 530, y: 604 },
+      result: "target",
+      target: {
+        actionTargetId: "action.prompt.primary",
+        nodeId: "runtime.overlay/key:prompt.primary",
+        box: {
+          x: 520,
+          y: 596,
+          width: 240,
+          height: 48,
+        },
+        action: {
+          type: "runtime.gameplay.interact",
+          payload: {
+            targetId: "switch_a",
+          },
+        },
+        label: "Press E",
+      },
+    });
+  });
+
+  it("reports disabled targets without dispatching", () => {
+    const fixture = createRendererConformanceFixture();
+    const frame = {
+      ...fixture.frame,
+      actions: fixture.frame.actions.map((target) => ({
+        ...target,
+        disabled: true,
+      })),
+    };
+
+    expect(traceCanvas2DActionHitTest(frame, { x: 530, y: 604 })).toMatchObject({
+      kind: "action-hit-test",
+      frameId: 3600,
+      point: { x: 530, y: 604 },
+      result: "disabled-target",
+      target: {
+        actionTargetId: "action.prompt.primary",
+        disabled: true,
+      },
+    });
+  });
+
+  it("uses the last matching action as the topmost overlap target", () => {
+    const fixture = createRendererConformanceFixture();
+    const baseTarget = fixture.frame.actions[0];
+    const frame = {
+      ...fixture.frame,
+      actions: [
+        baseTarget,
+        {
+          ...baseTarget,
+          id: "action.prompt.overlap",
+          nodeId: "runtime.overlay/key:prompt.overlap",
+          label: "Overlapping prompt",
+          action: {
+            type: "runtime.gameplay.inspect",
+            payload: {
+              targetId: "switch_b",
+            },
+          },
+          box: {
+            x: 528,
+            y: 600,
+            width: 120,
+            height: 32,
+          },
+        },
+      ],
+    };
+
+    expect(traceCanvas2DActionHitTest(frame, { x: 540, y: 610 })).toMatchObject({
+      result: "target",
+      target: {
+        actionTargetId: "action.prompt.overlap",
+        nodeId: "runtime.overlay/key:prompt.overlap",
+        action: {
+          type: "runtime.gameplay.inspect",
+          payload: {
+            targetId: "switch_b",
+          },
+        },
+      },
+    });
+  });
+
+  it("reports no-target and outside-viewport states", () => {
+    const frame = createRendererConformanceFixture().frame;
+
+    expect(traceCanvas2DActionHitTest(frame, { x: 16, y: 16 })).toEqual({
+      kind: "action-hit-test",
+      frameId: 3600,
+      point: { x: 16, y: 16 },
+      result: "no-target",
+    });
+    expect(traceCanvas2DActionHitTest(frame, { x: -1, y: 16 })).toEqual({
+      kind: "action-hit-test",
+      frameId: 3600,
+      point: { x: -1, y: 16 },
+      result: "outside-viewport",
+    });
+  });
+
+  it("rejects non-finite hit-test points", () => {
+    const frame = createRendererConformanceFixture().frame;
+
+    expect(() => traceCanvas2DActionHitTest(frame, { x: Number.NaN, y: 16 })).toThrow(
+      /point\.x must be a finite number/,
     );
   });
 });
