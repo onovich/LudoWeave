@@ -2,7 +2,7 @@
 
 Date: 2026-06-22
 
-Status: Round 12 integration pass for the v0.7 Bounded Virtual List Metadata track.
+Status: Final PASS for the v0.7 Bounded Virtual List Metadata track.
 
 Goal guide: [ludoweave-v0.7-goal-mode-execution-guide.md](../goal-mode/ludoweave-v0.7-goal-mode-execution-guide.md)
 
@@ -91,9 +91,9 @@ Use these locations during v0.7:
 | 9 | Canvas2D virtual window trace | Completed in `f70b15b`. |
 | 10 | Sinan-like Gate Demo virtual list fixture | Completed in `d945181`. |
 | 11 | Fallback policy and audit export | Completed in `af39453`. |
-| 12 | v0.7 integration pass and docs | This document and release notes draft. |
-| 13-15 | Buffers | Pending. |
-| 16 | Final validation and handoff | Pending. |
+| 12 | v0.7 integration pass and docs | Completed in `ce22e2d`. |
+| 13-15 | Buffers | Not consumed. |
+| 16 | Final validation and handoff | Completed by final validation log, final report, Role.md routing record, and planner handoff. |
 
 ## Validation Baseline
 
@@ -138,3 +138,31 @@ Round-level validation follows the v0.7 goal guide. The full v0.7 acceptance mat
 - Debug: integrated scope is covered by core metadata/intent/range/diagnostics tests, realized item fixture tests, renderer conformance tests, Playground e2e/a11y smoke, Canvas2D virtual window trace tests, Sinan-like virtual list sequence tests, validation hook layer tests, fallback policy tests, and virtual list audit export tests.
 - Architecture: host remains source-of-truth for collection data, item identity, data loading, selection state, scroll state, route changes, persistence, input policy, platform policy, native side effects, command routing, save, undo, Director, Timeline, and Event. Core and renderer packages do not read DOM measurement, observers, browser scroll state, native input events, datasource state, or platform input state.
 - Scope: Round 12 updates integration docs and release notes only. It does not implement datasource access, pagination, async loading, cache invalidation, item diffing, infinite scrolling, renderer recycling pools, DOM recycling pools, rich text, real Sinan integration, production Canvas2D, Pixi/WebGPU, or full DevTools.
+
+## Final Validation Snapshot
+
+Source validation HEAD: `ce22e2d docs(release): draft v0.7 integration notes`
+
+| Command | Result |
+| --- | --- |
+| `Validate.cmd` | PASS |
+| `Smoke.cmd` | PASS |
+| `pnpm lint` | PASS |
+| `pnpm typecheck` | PASS |
+| `pnpm test` | PASS: 61 test files, 231 tests passed. |
+| `pnpm build` | PASS |
+| `pnpm structure-check` | PASS |
+| `pnpm api-check` | PASS |
+| `pnpm validate` | PASS |
+| `pnpm test:e2e` | PASS: 1 Playwright Chrome test passed. |
+| `pnpm test:a11y` | PASS: 1 Playwright Chrome axe test passed. |
+| `pnpm format` | PASS |
+| `git diff --check` | PASS |
+| `git status --short --branch` | PASS: `## main...origin/main`. |
+| `git ls-remote origin refs/heads/main` | PASS: `ce22e2dd929f22728e64173739bc25fc3eaab90e`. |
+
+## Final Self-Check
+
+- Debug: final validation localizes any future failures to either the wrapper pipeline, direct package scripts, Playwright smoke, docs formatting, or remote status; all passed at source validation HEAD.
+- Architecture: the final track keeps collection data, item identity, data loading, selection state, scroll state, route changes, persistence, input policy, platform policy, native side effects, command routing, save, undo, Director, Timeline, and Event host-owned.
+- Scope: v0.7 remains a bounded virtual list metadata contract. It does not implement real Sinan integration, datasource access, pagination, async loading, cache invalidation, item diffing, infinite scrolling, renderer recycling pools, DOM recycling pools, rich text, production Canvas2D, Pixi/WebGPU, or full DevTools.

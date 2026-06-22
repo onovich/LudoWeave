@@ -60,6 +60,8 @@
 
 - [v0.7 Integration Status](roadmap/ludoweave-v0.7-integration-status.md)
 - [v0.7 Release Notes Draft](release/ludoweave-v0.7-release-notes-draft.md)
+- [v0.7 Final Report](release/ludoweave-v0.7-final-report.md)
+- [v0.7 Final Validation Log](release/ludoweave-v0.7-final-validation-log.md)
 
 ## Decision Records
 
