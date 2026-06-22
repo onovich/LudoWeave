@@ -147,6 +147,16 @@ export {
   richTextDiagnosticCodes,
 } from "./rich-text-diagnostics.js";
 export type {
+  ReviewRichTextA11yMetadataInput,
+  RichTextA11yReviewDiagnosticReason,
+  RichTextA11yReviewResult,
+} from "./rich-text-a11y-review.js";
+export {
+  createRichTextA11yReviewDiagnostic,
+  reviewRichTextA11yMetadata,
+  richTextA11yReviewDiagnosticCodes,
+} from "./rich-text-a11y-review.js";
+export type {
   ResolveRichTextThemeTokenRefsInput,
   RichTextThemeTokenContext,
   RichTextThemeTokenOwnerKind,

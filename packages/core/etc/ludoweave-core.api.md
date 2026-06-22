@@ -93,6 +93,9 @@ export interface CreateLayoutEnvironmentOptions {
 }
 
 // @public
+export function createRichTextA11yReviewDiagnostic(reason: RichTextA11yReviewDiagnosticReason, details?: Readonly<Record<string, JsonValue>>): UiDiagnostic;
+
+// @public
 export function createRichTextDiagnostic(reason: RichTextDiagnosticReason, details?: Readonly<Record<string, JsonValue>>): UiDiagnostic;
 
 // @public
@@ -833,6 +836,17 @@ export interface ResolveTextMeasureOptions {
 }
 
 // @public
+export function reviewRichTextA11yMetadata(input: ReviewRichTextA11yMetadataInput): RichTextA11yReviewResult;
+
+// @public
+export interface ReviewRichTextA11yMetadataInput {
+    // (undocumented)
+    readonly fallbackLabel?: string;
+    // (undocumented)
+    readonly metadata: RichTextMetadata | RichTextMetadataInput;
+}
+
+// @public
 export interface RichTextA11yMetadata {
     // (undocumented)
     readonly description?: string;
@@ -858,6 +872,34 @@ export interface RichTextA11yMetadataInput {
     readonly pronunciationHint?: string;
     // (undocumented)
     readonly reviewStatus?: RichTextReviewStatus;
+}
+
+// @public
+export const richTextA11yReviewDiagnosticCodes: {
+    readonly fallbackLabel: "LW_RICH_TEXT_A11Y_FALLBACK_LABEL";
+    readonly missingHostReview: "LW_RICH_TEXT_A11Y_MISSING_HOST_REVIEW";
+    readonly unsupportedLivePolicy: "LW_RICH_TEXT_A11Y_UNSUPPORTED_LIVE_POLICY";
+};
+
+// @public
+export type RichTextA11yReviewDiagnosticReason = keyof typeof richTextA11yReviewDiagnosticCodes;
+
+// @public
+export interface RichTextA11yReviewResult {
+    // (undocumented)
+    readonly blockId: string;
+    // (undocumented)
+    readonly description?: string;
+    // (undocumented)
+    readonly diagnostics: readonly UiDiagnostic[];
+    // (undocumented)
+    readonly label: string;
+    // (undocumented)
+    readonly liveRegion?: "assertive" | "off" | "polite";
+    // (undocumented)
+    readonly pronunciationHint?: string;
+    // (undocumented)
+    readonly reviewStatus: RichTextA11yMetadata["reviewStatus"];
 }
 
 // @public
