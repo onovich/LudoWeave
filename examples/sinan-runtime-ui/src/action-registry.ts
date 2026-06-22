@@ -124,6 +124,7 @@ function createRegistryConfig(options: CreateSinanUIActionRefRegistryMockOptions
         "runtime.pause",
         "runtime.collection",
         "runtime.scroll",
+        "runtime.richText",
         "runtime.ui",
         "runtime.input",
       ],

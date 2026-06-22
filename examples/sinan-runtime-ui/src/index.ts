@@ -3,10 +3,12 @@ export type { SinanActionRefBridge, SinanRuntimeUICommand } from "./action-bridg
 export {
   createGateDemoScrollAuditExportPayload,
   createGateDemoVirtualListAuditExportPayload,
+  createGateDemoRichTextAuditExportPayload,
   createGateDemoActionAuditExportPayload,
   createSinanActionAuditExportJson,
   createSinanActionAuditExportPayload,
   sinanActionAuditExportVersion,
+  sinanRichTextAuditExportVersion,
   sinanScrollAuditExportVersion,
   sinanVirtualListAuditExportVersion,
 } from "./action-audit-export.js";
@@ -16,6 +18,8 @@ export type {
   SinanActionAuditExportSource,
   SinanScrollAuditExportEntry,
   SinanScrollAuditExportPayload,
+  SinanRichTextAuditExportEntry,
+  SinanRichTextAuditExportPayload,
   SinanVirtualListAuditExportEntry,
   SinanVirtualListAuditExportPayload,
 } from "./action-audit-export.js";
@@ -104,6 +108,16 @@ export type {
   CreateGateDemoScrollSequenceOptions,
   GateDemoScrollSequenceResult,
 } from "./gate-demo-scroll.js";
+export {
+  createGateDemoRichTextSequence,
+  gateDemoRichTextSequenceVersion,
+} from "./gate-demo-rich-text.js";
+export type {
+  CreateGateDemoRichTextSequenceOptions,
+  GateDemoRichTextFallbackPolicy,
+  GateDemoRichTextLocalizedTextRecord,
+  GateDemoRichTextSequenceResult,
+} from "./gate-demo-rich-text.js";
 export {
   createGateDemoVirtualListSequence,
   gateDemoVirtualListSequenceVersion,

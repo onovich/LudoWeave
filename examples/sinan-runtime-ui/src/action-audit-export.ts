@@ -6,6 +6,7 @@ import {
   type SinanUIActionRegistrySource,
 } from "./action-registry.js";
 import { gateDemoRuntimeUIViewModelEnvelope } from "./fixture.js";
+import { createGateDemoRichTextSequence } from "./gate-demo-rich-text.js";
 import { createGateDemoScrollSequence } from "./gate-demo-scroll.js";
 import { createGateDemoVirtualListSequence } from "./gate-demo-virtual-list.js";
 import { mapRuntimeUIViewModelEnvelopeToResolvedFrame } from "./resolved-frame-adapter.js";
@@ -13,6 +14,7 @@ import { mapRuntimeUIViewModelEnvelopeToResolvedFrame } from "./resolved-frame-a
 export const sinanActionAuditExportVersion = "ludoweave.sinan-action-audit.v0.4";
 export const sinanScrollAuditExportVersion = "ludoweave.sinan-scroll-audit.v0.6";
 export const sinanVirtualListAuditExportVersion = "ludoweave.sinan-virtual-list-audit.v0.7";
+export const sinanRichTextAuditExportVersion = "ludoweave.sinan-rich-text-audit.v0.8";
 
 export interface SinanActionAuditExportSource {
   readonly actionTargetId?: string;
@@ -68,6 +70,30 @@ export interface SinanVirtualListAuditExportEntry {
 export interface SinanVirtualListAuditExportPayload {
   readonly version: typeof sinanVirtualListAuditExportVersion;
   readonly entries: readonly SinanVirtualListAuditExportEntry[];
+}
+
+export interface SinanRichTextAuditExportEntry {
+  readonly sequence: number;
+  readonly frameId: string;
+  readonly intentKind: string;
+  readonly blockId: string;
+  readonly nodeId: string;
+  readonly localeHint: string;
+  readonly plainTextFallback: string;
+  readonly actionType: string;
+  readonly payload?: Readonly<Record<string, JsonValue>>;
+  readonly routingResult: SinanUIActionRegistryAuditEntry["routingResult"];
+  readonly source: SinanActionAuditExportSource;
+  readonly diagnostics: readonly UiDiagnostic[];
+}
+
+export interface SinanRichTextAuditExportPayload {
+  readonly version: typeof sinanRichTextAuditExportVersion;
+  readonly localizedText: readonly JsonValue[];
+  readonly fallbackPolicy: Readonly<Record<string, JsonValue>>;
+  readonly hostPolicy: Readonly<Record<string, JsonValue>>;
+  readonly rendererTrace: Readonly<Record<string, JsonValue>>;
+  readonly entries: readonly SinanRichTextAuditExportEntry[];
 }
 
 export function createSinanActionAuditExportPayload(
@@ -149,6 +175,44 @@ export function createGateDemoVirtualListAuditExportPayload(): SinanVirtualListA
         intentKind: intent.kind,
         windowId: intent.windowId,
         ...(intent.itemKey === undefined ? {} : { itemKey: intent.itemKey }),
+        actionType: entry.action.type,
+        ...(entry.action.payload === undefined ? {} : { payload: entry.action.payload }),
+        routingResult: entry.routingResult,
+        source: createExportSource(entry.source),
+        diagnostics: [...entry.diagnostics, ...sequence.diagnostics],
+      };
+    }),
+  };
+}
+
+export function createGateDemoRichTextAuditExportPayload(): SinanRichTextAuditExportPayload {
+  const sequence = createGateDemoRichTextSequence();
+  const block = sequence.richTextMetadata.blocks[0];
+
+  if (block === undefined) {
+    throw new Error("Gate Demo rich text audit export requires one metadata block.");
+  }
+
+  return {
+    version: sinanRichTextAuditExportVersion,
+    localizedText: sequence.localizedText as unknown as readonly JsonValue[],
+    fallbackPolicy: sequence.fallbackPolicy as unknown as Readonly<Record<string, JsonValue>>,
+    hostPolicy: sequence.hostPolicy as unknown as Readonly<Record<string, JsonValue>>,
+    rendererTrace: sequence.rendererTrace as unknown as Readonly<Record<string, JsonValue>>,
+    entries: sequence.registryResults.map((entry, index) => {
+      const intent = sequence.intents[index];
+      if (intent === undefined) {
+        throw new Error("Gate Demo rich text audit export requires matching intent records.");
+      }
+
+      return {
+        sequence: entry.sequence,
+        frameId: entry.frameId,
+        intentKind: intent.kind,
+        blockId: intent.blockId,
+        nodeId: block.nodeId,
+        localeHint: block.localeHint,
+        plainTextFallback: block.plainTextFallback,
         actionType: entry.action.type,
         ...(entry.action.payload === undefined ? {} : { payload: entry.action.payload }),
         routingResult: entry.routingResult,

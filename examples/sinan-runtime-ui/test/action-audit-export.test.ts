@@ -8,12 +8,14 @@ import {
 import { createActionLogInspectorExportPayload } from "../../../apps/playground/src/action-log-inspector.js";
 import {
   createGateDemoActionAuditExportPayload,
+  createGateDemoRichTextAuditExportPayload,
   createGateDemoScrollAuditExportPayload,
   createGateDemoVirtualListAuditExportPayload,
   createSinanActionAuditExportJson,
   createSinanActionAuditExportPayload,
   createSinanUIActionRefRegistryMock,
   sinanActionAuditExportVersion,
+  sinanRichTextAuditExportVersion,
   sinanScrollAuditExportVersion,
   sinanVirtualListAuditExportVersion,
   sinanUIActionRegistryDiagnosticCodes,
@@ -230,6 +232,56 @@ describe("Sinan ActionRef audit export", () => {
     expect(JSON.stringify(payload)).not.toContain("Promise");
     expect(JSON.stringify(payload)).not.toContain("datasource");
     expect(JSON.stringify(payload)).not.toContain("HTMLElement");
+    expect(JSON.parse(JSON.stringify(payload))).toEqual(payload);
+  });
+
+  it("exports Gate Demo rich text review payloads without parser or editor state", () => {
+    const payload = createGateDemoRichTextAuditExportPayload();
+
+    expect(payload.version).toBe(sinanRichTextAuditExportVersion);
+    expect(payload.localizedText).toEqual([
+      {
+        sequence: 1,
+        localeHint: "en-US",
+        blockId: "gate-demo.subtitle.rich-text",
+        source: "host-runtime-ui",
+        text: "Gate: The north lock is humming. [sigil]",
+      },
+    ]);
+    expect(payload.fallbackPolicy).toMatchObject({
+      policy: "plain-text-fallback",
+      owner: "host",
+      reason: "unsupported-span",
+    });
+    expect(payload.rendererTrace).toMatchObject({
+      kind: "rich-text-trace",
+      result: "blocks",
+    });
+    expect(payload.entries.map((entry) => entry.intentKind)).toEqual([
+      "request-review",
+      "activate-span",
+      "use-fallback",
+      "dismiss-diagnostic",
+    ]);
+    expect(payload.entries.every((entry) => entry.actionType === "runtime.richText.intent")).toBe(
+      true,
+    );
+    expect(payload.entries.every((entry) => entry.routingResult === "accepted")).toBe(true);
+    expect(payload.entries[0]).toMatchObject({
+      sequence: 1,
+      frameId: "gate-demo:1024",
+      blockId: "gate-demo.subtitle.rich-text",
+      nodeId: "runtime.main/key:subtitle.gate.hum",
+      localeHint: "en-US",
+      plainTextFallback: "Gate: The north lock is humming. [sigil]",
+      source: {
+        nodeId: "runtime.main/key:subtitle.gate.hum",
+        label: "Gate Demo rich text intent",
+      },
+    });
+    expect(JSON.stringify(payload)).not.toContain("innerHTML");
+    expect(JSON.stringify(payload)).not.toContain("contenteditable");
+    expect(JSON.stringify(payload)).not.toContain("ClipboardEvent");
     expect(JSON.parse(JSON.stringify(payload))).toEqual(payload);
   });
 });

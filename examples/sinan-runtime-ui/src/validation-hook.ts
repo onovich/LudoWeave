@@ -17,6 +17,7 @@ import {
   type RuntimeUIHostCapabilitySnapshot,
 } from "./host-capabilities.js";
 import { createGateDemoNavigationSequence } from "./gate-demo-navigation.js";
+import { createGateDemoRichTextSequence } from "./gate-demo-rich-text.js";
 import { createGateDemoScrollSequence } from "./gate-demo-scroll.js";
 import { createGateDemoVirtualListSequence } from "./gate-demo-virtual-list.js";
 import {
@@ -35,7 +36,8 @@ export type GateDemoValidationLayer =
   | "overlay-coordination"
   | "navigation"
   | "scroll"
-  | "virtual-list";
+  | "virtual-list"
+  | "rich-text";
 
 export type GateDemoValidationStatus = "PASS" | "FAIL";
 
@@ -77,6 +79,9 @@ export const gateDemoValidationDiagnosticCodes = Object.freeze({
   virtualListMapping: "LW_EXAMPLE_VALIDATION_VIRTUAL_LIST_MAPPING",
   virtualListRegistryRoute: "LW_EXAMPLE_VALIDATION_VIRTUAL_LIST_REGISTRY_ROUTE",
   virtualListRendererTrace: "LW_EXAMPLE_VALIDATION_VIRTUAL_LIST_RENDERER_TRACE",
+  richTextMapping: "LW_EXAMPLE_VALIDATION_RICH_TEXT_MAPPING",
+  richTextRegistryRoute: "LW_EXAMPLE_VALIDATION_RICH_TEXT_REGISTRY_ROUTE",
+  richTextRendererTrace: "LW_EXAMPLE_VALIDATION_RICH_TEXT_RENDERER_TRACE",
 });
 
 const mappingDiagnosticCodes = new Set<string>([
@@ -104,6 +109,7 @@ export function runGateDemoValidationHook(
     createNavigationLayer(mapping, options.registryOptions),
     createScrollLayer(mapping, options.registryOptions),
     createVirtualListLayer(mapping, options.registryOptions),
+    createRichTextLayer(mapping, options.registryOptions),
   ];
   const diagnostics = layers.flatMap((layer) => layer.diagnostics);
 
@@ -113,6 +119,72 @@ export function runGateDemoValidationHook(
     ...(mapping.envelopeFrameId === undefined ? {} : { frameId: mapping.envelopeFrameId }),
     layers,
     diagnostics,
+  };
+}
+
+function createRichTextLayer(
+  mapping: RuntimeUIResolvedFrameMappingResult,
+  registryOptions: CreateSinanUIActionRefRegistryMockOptions | undefined,
+): GateDemoValidationLayerResult {
+  if (mapping.frame === undefined) {
+    return {
+      layer: "rich-text",
+      status: "FAIL",
+      summary: "Rich text skipped because mapping did not produce a frame.",
+      diagnostics: [
+        normalizeUiDiagnostic({
+          code: gateDemoValidationDiagnosticCodes.richTextMapping,
+          severity: "error",
+          message: "Rich text validation requires a ResolvedUiFrame.",
+          path: ["validation-hook", "rich-text", "mapping"],
+        }),
+      ],
+    };
+  }
+
+  const richTextOptions = {
+    frame: mapping.frame,
+    ...(mapping.envelopeFrameId === undefined ? {} : { frameId: mapping.envelopeFrameId }),
+    ...(registryOptions === undefined ? {} : { registryOptions }),
+  };
+  const richText = createGateDemoRichTextSequence(richTextOptions);
+  const registryFailures = richText.registryResults.filter(
+    (entry) => entry.routingResult !== "accepted" && entry.routingResult !== "no-op",
+  );
+
+  if (richText.rendererTrace.result !== "blocks") {
+    return {
+      layer: "rich-text",
+      status: "FAIL",
+      summary: "Rich text renderer trace did not expose rich text blocks.",
+      diagnostics: [
+        normalizeUiDiagnostic({
+          code: gateDemoValidationDiagnosticCodes.richTextRendererTrace,
+          severity: "error",
+          message: "Rich text validation requires Canvas2D rich text trace blocks.",
+          path: ["validation-hook", "rich-text", "renderer-trace"],
+          details: {
+            result: richText.rendererTrace.result,
+          },
+        }),
+      ],
+    };
+  }
+
+  if (registryFailures.length > 0) {
+    return {
+      layer: "rich-text",
+      status: "FAIL",
+      summary: "Rich text ActionRefs were rejected by the registry mock.",
+      diagnostics: registryFailures.flatMap((entry) => entry.diagnostics),
+    };
+  }
+
+  return {
+    layer: "rich-text",
+    status: "PASS",
+    summary: "Gate Demo rich text sequence maps, traces, and routes ActionRefs.",
+    diagnostics: [],
   };
 }
 

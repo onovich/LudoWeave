@@ -24,6 +24,7 @@ describe("Gate Demo validation hook", () => {
       ["navigation", "PASS"],
       ["scroll", "PASS"],
       ["virtual-list", "PASS"],
+      ["rich-text", "PASS"],
     ]);
     expect(result.diagnostics).toEqual([]);
     expect(JSON.parse(JSON.stringify(result))).toEqual(result);
@@ -65,6 +66,7 @@ describe("Gate Demo validation hook", () => {
       ["navigation", "PASS"],
       ["scroll", "PASS"],
       ["virtual-list", "PASS"],
+      ["rich-text", "PASS"],
     ]);
     expect(result.diagnostics).toContainEqual(
       expect.objectContaining({
@@ -138,6 +140,24 @@ describe("Gate Demo validation hook", () => {
 
     expect(result.layers.find((layer) => layer.layer === "virtual-list")).toMatchObject({
       layer: "virtual-list",
+      status: "FAIL",
+    });
+    expect(
+      result.diagnostics.some(
+        (diagnostic) => diagnostic.code === "LW_EXAMPLE_ACTION_REGISTRY_DISABLED",
+      ),
+    ).toBe(true);
+  });
+
+  it("localizes rejected rich text routes to the rich text layer", () => {
+    const result = runGateDemoValidationHook({
+      registryOptions: {
+        disabledActionTypes: ["runtime.richText.intent"],
+      },
+    });
+
+    expect(result.layers.find((layer) => layer.layer === "rich-text")).toMatchObject({
+      layer: "rich-text",
       status: "FAIL",
     });
     expect(

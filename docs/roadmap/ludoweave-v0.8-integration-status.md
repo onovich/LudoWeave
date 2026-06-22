@@ -2,7 +2,7 @@
 
 Date: 2026-06-22
 
-Status: Round 1 baseline for the v0.8 Bounded Rich Text Metadata track.
+Status: Round 12 implementation complete for the v0.8 Bounded Rich Text Metadata track; final validation remains pending.
 
 Goal guide: [ludoweave-v0.8-goal-mode-execution-guide.md](../goal-mode/ludoweave-v0.8-goal-mode-execution-guide.md)
 
@@ -71,19 +71,19 @@ Use these locations during v0.8:
 
 | Round | Area | Status |
 | --- | --- | --- |
-| 1 | Contract baseline | In progress. |
-| 2 | Rich text metadata contract | Pending. |
-| 3 | Host rich text policy contract | Pending. |
-| 4 | Inline run fixture | Pending. |
-| 5 | Plain text fallback fixture | Pending. |
-| 6 | Rich text diagnostics | Pending. |
-| 7 | Theme token integration | Pending. |
-| 8 | Accessibility review metadata | Pending. |
-| 9 | Renderer conformance frame | Pending. |
-| 10 | DOM no-innerHTML smoke | Pending. |
-| 11 | Canvas2D rich text trace | Pending. |
-| 12 | Sinan-like fixture, audit export, docs | Pending. |
-| 13-15 | Buffers | Pending. |
+| 1 | Contract baseline | Complete. |
+| 2 | Rich text metadata contract | Complete. |
+| 3 | Host rich text policy contract | Complete. |
+| 4 | Inline run fixture | Complete. |
+| 5 | Plain text fallback fixture | Complete. |
+| 6 | Rich text diagnostics | Complete. |
+| 7 | Theme token integration | Complete. |
+| 8 | Accessibility review metadata | Complete. |
+| 9 | Renderer conformance frame | Complete. |
+| 10 | DOM no-innerHTML smoke | Complete. |
+| 11 | Canvas2D rich text trace | Complete. |
+| 12 | Sinan-like fixture, audit export, docs | Complete. |
+| 13-15 | Buffers | Not used. |
 | 16 | Final validation and handoff | Pending. |
 
 ## Validation Baseline
