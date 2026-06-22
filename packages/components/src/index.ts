@@ -21,8 +21,11 @@ export type {
   ModalFocusIntentResult,
   ModalFocusNavigationDraft,
   ModalFocusNavigationDraftInput,
+  ModalFocusNavigationSequence,
+  ModalFocusNavigationSequenceEntry,
 } from "./modal-focus-navigation.js";
 export {
+  createModalFocusNavigationSequence,
   createModalFocusNavigationDraft,
   resolveModalFocusIntent,
 } from "./modal-focus-navigation.js";

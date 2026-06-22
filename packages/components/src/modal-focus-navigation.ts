@@ -1,4 +1,5 @@
 import {
+  createActionLog,
   normalizeActionRef,
   normalizeFocusGraph,
   resolveDirectionalFocus,
@@ -8,6 +9,7 @@ import {
   type FocusGraph,
   type HostInputIntent,
   type ResolvedRect,
+  type UiActionLogEntry,
 } from "@ludoweave/core";
 
 import { createFocusScopeDraft, type FocusScopeDraft } from "./focus.js";
@@ -80,6 +82,28 @@ export type ModalFocusIntentResult =
       readonly status: "ignored";
       readonly reason: "unsupported-intent" | "missing-focus";
     };
+
+/**
+ * One JSON-only modal focus navigation sequence entry.
+ *
+ * @public
+ */
+export interface ModalFocusNavigationSequenceEntry {
+  readonly sequence: number;
+  readonly intent: HostInputIntent;
+  readonly result: ModalFocusIntentResult;
+  readonly actionLogEntry?: UiActionLogEntry;
+}
+
+/**
+ * JSON-only navigation sequence payload for tests and inspector handoff.
+ *
+ * @public
+ */
+export interface ModalFocusNavigationSequence {
+  readonly entries: readonly ModalFocusNavigationSequenceEntry[];
+  readonly actionLog: readonly UiActionLogEntry[];
+}
 
 /**
  * Creates modal focus graph metadata without owning platform focus state.
@@ -172,6 +196,50 @@ export function resolveModalFocusIntent(
   return { status: "ignored", reason: "unsupported-intent" };
 }
 
+/**
+ * Records a host-owned modal navigation sequence while keeping ActionRefs callback-free.
+ *
+ * @public
+ */
+export function createModalFocusNavigationSequence(
+  draft: ModalFocusNavigationDraft,
+  intents: readonly HostInputIntent[],
+): ModalFocusNavigationSequence {
+  const actionLog = createActionLog();
+  const entries: ModalFocusNavigationSequenceEntry[] = [];
+
+  intents.forEach((intent, index) => {
+    const result = resolveModalFocusIntent(draft, intent);
+    const actionLogEntry =
+      result.status === "action"
+        ? actionLog.record({
+            action: result.action,
+            source: {
+              nodeId: `modal-focus.${result.controlId}`,
+              label: result.controlId,
+            },
+          })
+        : undefined;
+
+    const entry: MutableModalFocusNavigationSequenceEntry = {
+      sequence: index + 1,
+      intent,
+      result,
+    };
+
+    if (actionLogEntry !== undefined) {
+      entry.actionLogEntry = actionLogEntry;
+    }
+
+    entries.push(entry);
+  });
+
+  return {
+    entries,
+    actionLog: actionLog.snapshot(),
+  };
+}
+
 function normalizeControl(input: ModalFocusControlInput): ModalFocusControl {
   const id = normalizeNonEmptyString(input.id, "Modal focus control id");
   return {
@@ -233,4 +301,11 @@ type MutableFocusGraphInput = {
   scopeId: string;
   nodes: Parameters<typeof normalizeFocusGraph>[0]["nodes"];
   currentFocusId?: string;
+};
+
+type MutableModalFocusNavigationSequenceEntry = {
+  sequence: number;
+  intent: HostInputIntent;
+  result: ModalFocusIntentResult;
+  actionLogEntry?: UiActionLogEntry;
 };

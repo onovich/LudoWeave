@@ -1,4 +1,9 @@
 import { describe, expect, it } from "vitest";
+import { normalizeHostInputIntent } from "@ludoweave/core";
+import {
+  createModalFocusNavigationDraft,
+  createModalFocusNavigationSequence,
+} from "@ludoweave/components";
 
 import { createActionLogInspectorExportPayload } from "../../../apps/playground/src/action-log-inspector.js";
 import {
@@ -106,5 +111,39 @@ describe("Sinan ActionRef audit export", () => {
       entries: [],
     });
     expect(inspectorPayload.entries[0]?.actionType).toBe("runtime.gameplay.interact");
+  });
+
+  it("exports modal navigation ActionRefs through the existing inspector payload", () => {
+    const draft = createModalFocusNavigationDraft({
+      scopeId: "pause.dialog",
+      controls: [
+        {
+          id: "resume",
+          rect: { x: 440, y: 320, width: 240, height: 44 },
+          action: "runtime.pause.resume",
+        },
+        {
+          id: "cancel",
+          rect: { x: 440, y: 376, width: 240, height: 44 },
+          action: "runtime.ui.cancel",
+        },
+      ],
+    });
+    const sequence = createModalFocusNavigationSequence(draft, [
+      normalizeHostInputIntent({ kind: "navigate", direction: "down", focusId: "resume" }),
+      normalizeHostInputIntent({ kind: "confirm", focusId: "cancel" }),
+    ]);
+
+    expect(createActionLogInspectorExportPayload(sequence.actionLog)).toMatchObject({
+      version: "ludoweave.action-log-inspector.v0.3",
+      entries: [
+        {
+          sequence: 1,
+          actionType: "runtime.ui.cancel",
+          text: "runtime.ui.cancel - cancel",
+        },
+      ],
+    });
+    expect(JSON.parse(JSON.stringify(sequence))).toEqual(sequence);
   });
 });

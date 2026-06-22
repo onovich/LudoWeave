@@ -12,6 +12,7 @@ import {
   createFocusNavigationDraft,
   createFocusScopeDraft,
   createModalFocusNavigationDraft,
+  createModalFocusNavigationSequence,
   createModalInputShieldDraft,
   resolveModalFocusIntent,
 } from "../src/index.js";
@@ -462,6 +463,58 @@ describe("Button and Dialog action logs", () => {
         label: "Cancel",
       },
     ]);
+  });
+
+  it("records navigation sequence results and ActionRef-only outputs", () => {
+    const draft = createModalFocusNavigationDraft({
+      scopeId: "pause.dialog",
+      controls: [
+        {
+          id: "resume",
+          rect: { x: 440, y: 320, width: 240, height: 44 },
+          action: "runtime.pause.resume",
+        },
+        {
+          id: "cancel",
+          rect: { x: 440, y: 376, width: 240, height: 44 },
+          action: "runtime.ui.cancel",
+        },
+      ],
+    });
+
+    const sequence = createModalFocusNavigationSequence(draft, [
+      normalizeHostInputIntent({ kind: "navigate", direction: "down", focusId: "resume" }),
+      normalizeHostInputIntent({ kind: "confirm", focusId: "cancel" }),
+      normalizeHostInputIntent({ kind: "cancel" }),
+    ]);
+
+    expect(sequence.entries.map((entry) => entry.result.status)).toEqual([
+      "navigated",
+      "action",
+      "action",
+    ]);
+    expect(sequence.actionLog).toEqual([
+      {
+        sequence: 1,
+        action: {
+          type: "runtime.ui.cancel",
+        },
+        nodeId: "modal-focus.cancel",
+        label: "cancel",
+      },
+      {
+        sequence: 2,
+        action: {
+          type: "runtime.ui.cancel",
+        },
+        nodeId: "modal-focus.cancel",
+        label: "cancel",
+      },
+    ]);
+    expect(JSON.parse(JSON.stringify(sequence))).toEqual(sequence);
+    expect(JSON.stringify(sequence)).not.toContain("KeyboardEvent");
+    expect(JSON.stringify(sequence)).not.toContain("Gamepad");
+    expect(JSON.stringify(sequence)).not.toContain("function");
   });
 });
 
