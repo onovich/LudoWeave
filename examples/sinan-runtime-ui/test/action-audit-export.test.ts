@@ -8,10 +8,12 @@ import {
 import { createActionLogInspectorExportPayload } from "../../../apps/playground/src/action-log-inspector.js";
 import {
   createGateDemoActionAuditExportPayload,
+  createGateDemoScrollAuditExportPayload,
   createSinanActionAuditExportJson,
   createSinanActionAuditExportPayload,
   createSinanUIActionRefRegistryMock,
   sinanActionAuditExportVersion,
+  sinanScrollAuditExportVersion,
   sinanUIActionRegistryDiagnosticCodes,
 } from "../src/index.js";
 
@@ -145,5 +147,43 @@ describe("Sinan ActionRef audit export", () => {
       ],
     });
     expect(JSON.parse(JSON.stringify(sequence))).toEqual(sequence);
+  });
+
+  it("exports Gate Demo scroll intent, registry, and diagnostics review payloads", () => {
+    const payload = createGateDemoScrollAuditExportPayload();
+
+    expect(payload.version).toBe(sinanScrollAuditExportVersion);
+    expect(payload.entries.map((entry) => entry.intentKind)).toEqual([
+      "line",
+      "page",
+      "edge",
+      "restore",
+    ]);
+    expect(payload.entries.every((entry) => entry.actionType === "runtime.scroll.intent")).toBe(
+      true,
+    );
+    expect(payload.entries.every((entry) => entry.routingResult === "accepted")).toBe(true);
+    expect(payload.entries[0]).toMatchObject({
+      sequence: 1,
+      frameId: "gate-demo:1024",
+      intentKind: "line",
+      containerId: "gate-demo-objective-scroll",
+      actionType: "runtime.scroll.intent",
+      payload: {
+        kind: "line",
+        containerId: "gate-demo-objective-scroll",
+        axis: "y",
+        repeat: false,
+        direction: "down",
+      },
+      source: {
+        nodeId: "runtime.main/key:objective.delivery.cell",
+        label: "Gate Demo scroll intent",
+      },
+      diagnostics: [],
+    });
+    expect(JSON.stringify(payload)).not.toContain("WheelEvent");
+    expect(JSON.stringify(payload)).not.toContain("scrollTop");
+    expect(JSON.parse(JSON.stringify(payload))).toEqual(payload);
   });
 });

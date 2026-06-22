@@ -1,15 +1,19 @@
 export { createSinanActionRefBridge } from "./action-bridge.js";
 export type { SinanActionRefBridge, SinanRuntimeUICommand } from "./action-bridge.js";
 export {
+  createGateDemoScrollAuditExportPayload,
   createGateDemoActionAuditExportPayload,
   createSinanActionAuditExportJson,
   createSinanActionAuditExportPayload,
   sinanActionAuditExportVersion,
+  sinanScrollAuditExportVersion,
 } from "./action-audit-export.js";
 export type {
   SinanActionAuditExportEntry,
   SinanActionAuditExportPayload,
   SinanActionAuditExportSource,
+  SinanScrollAuditExportEntry,
+  SinanScrollAuditExportPayload,
 } from "./action-audit-export.js";
 export { mapRuntimeUIObjectiveAction, mapRuntimeUIPromptAction } from "./action-mapping.js";
 export {
@@ -46,7 +50,9 @@ export type {
 export {
   gateDemoFallbackPolicyDiagnosticCodes,
   gateDemoFallbackPolicyVersion,
+  gateDemoScrollFallbackPolicyVersion,
   resolveGateDemoFallbackPolicy,
+  resolveGateDemoScrollFallbackPolicy,
 } from "./fallback-policy.js";
 export type {
   GateDemoFallbackOwner,
@@ -54,7 +60,10 @@ export type {
   GateDemoFallbackReason,
   GateDemoFallbackRoute,
   GateDemoRequestedRenderer,
+  GateDemoScrollFallbackPolicyResult,
+  GateDemoScrollFallbackReason,
   ResolveGateDemoFallbackPolicyOptions,
+  ResolveGateDemoScrollFallbackPolicyOptions,
 } from "./fallback-policy.js";
 export {
   createGateDemoHostCapabilitySnapshot,

@@ -5,7 +5,9 @@ import {
   createGateDemoMissingTextInputOverlayHostCapabilitySnapshot,
   gateDemoFallbackPolicyDiagnosticCodes,
   gateDemoFallbackPolicyVersion,
+  gateDemoScrollFallbackPolicyVersion,
   resolveGateDemoFallbackPolicy,
+  resolveGateDemoScrollFallbackPolicy,
 } from "../src/index.js";
 
 describe("Gate Demo fallback renderer policy", () => {
@@ -99,6 +101,58 @@ describe("Gate Demo fallback renderer policy", () => {
           },
         },
       ],
+    });
+  });
+
+  it("keeps LudoWeave selected for scroll when renderer and host capability are available", () => {
+    expect(resolveGateDemoScrollFallbackPolicy()).toEqual({
+      version: gateDemoScrollFallbackPolicyVersion,
+      status: "PASS",
+      owner: "ludoweave",
+      route: "ludoweave-renderer",
+      reason: "none",
+      requestedRenderer: "dom",
+      hostScrollCapability: "available",
+      diagnostics: [],
+    });
+  });
+
+  it("selects Sinan-owned scroll fallback for unsupported renderers", () => {
+    expect(resolveGateDemoScrollFallbackPolicy({ requestedRenderer: "webgpu" })).toMatchObject({
+      version: gateDemoScrollFallbackPolicyVersion,
+      status: "PASS",
+      owner: "sinan",
+      route: "sinan-fallback-renderer",
+      reason: "unsupported-renderer",
+      requestedRenderer: "webgpu",
+      diagnostics: [
+        {
+          code: gateDemoFallbackPolicyDiagnosticCodes.scrollSelected,
+          severity: "info",
+        },
+      ],
+    });
+  });
+
+  it("selects Sinan-owned scroll fallback for missing and disabled host scroll", () => {
+    expect(
+      resolveGateDemoScrollFallbackPolicy({
+        hostScrollCapability: "missing",
+      }),
+    ).toMatchObject({
+      owner: "sinan",
+      reason: "missing-host-scroll-capability",
+      hostScrollCapability: "missing",
+    });
+
+    expect(
+      resolveGateDemoScrollFallbackPolicy({
+        hostScrollCapability: "disabled",
+      }),
+    ).toMatchObject({
+      owner: "sinan",
+      reason: "disabled-scroll",
+      hostScrollCapability: "disabled",
     });
   });
 });

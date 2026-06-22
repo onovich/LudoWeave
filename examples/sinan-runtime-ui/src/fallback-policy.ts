@@ -11,6 +11,7 @@ import {
 } from "./host-capabilities.js";
 
 export const gateDemoFallbackPolicyVersion = "ludoweave.sinan-gate-demo.fallback.v0.4";
+export const gateDemoScrollFallbackPolicyVersion = "ludoweave.sinan-gate-demo.scroll-fallback.v0.6";
 
 export type GateDemoRequestedRenderer = "dom" | "canvas2d" | "fallback" | "pixi" | "webgpu";
 export type GateDemoFallbackOwner = "ludoweave" | "sinan";
@@ -20,6 +21,11 @@ export type GateDemoFallbackReason =
   | "missing-capability"
   | "unsupported-renderer"
   | "requested-fallback";
+export type GateDemoScrollFallbackReason =
+  | "none"
+  | "disabled-scroll"
+  | "missing-host-scroll-capability"
+  | "unsupported-renderer";
 
 export interface ResolveGateDemoFallbackPolicyOptions {
   readonly requestedRenderer?: GateDemoRequestedRenderer;
@@ -37,9 +43,26 @@ export interface GateDemoFallbackPolicyResult {
   readonly diagnostics: readonly UiDiagnostic[];
 }
 
+export interface ResolveGateDemoScrollFallbackPolicyOptions {
+  readonly requestedRenderer?: GateDemoRequestedRenderer;
+  readonly hostScrollCapability?: "available" | "disabled" | "missing" | "unsupported";
+}
+
+export interface GateDemoScrollFallbackPolicyResult {
+  readonly version: typeof gateDemoScrollFallbackPolicyVersion;
+  readonly status: "PASS" | "FAIL";
+  readonly owner: GateDemoFallbackOwner;
+  readonly route: GateDemoFallbackRoute;
+  readonly reason: GateDemoScrollFallbackReason;
+  readonly requestedRenderer: GateDemoRequestedRenderer;
+  readonly hostScrollCapability: "available" | "disabled" | "missing" | "unsupported";
+  readonly diagnostics: readonly UiDiagnostic[];
+}
+
 export const gateDemoFallbackPolicyDiagnosticCodes = Object.freeze({
   selected: "LW_EXAMPLE_FALLBACK_POLICY_SELECTED",
   unavailable: "LW_EXAMPLE_FALLBACK_POLICY_UNAVAILABLE",
+  scrollSelected: "LW_EXAMPLE_SCROLL_FALLBACK_POLICY_SELECTED",
 });
 
 export function resolveGateDemoFallbackPolicy(
@@ -108,6 +131,50 @@ export function resolveGateDemoFallbackPolicy(
   };
 }
 
+export function resolveGateDemoScrollFallbackPolicy(
+  options: ResolveGateDemoScrollFallbackPolicyOptions = {},
+): GateDemoScrollFallbackPolicyResult {
+  const requestedRenderer = options.requestedRenderer ?? "dom";
+  const hostScrollCapability = options.hostScrollCapability ?? "available";
+  const reason = resolveScrollFallbackReason(requestedRenderer, hostScrollCapability);
+
+  if (reason === "none") {
+    return {
+      version: gateDemoScrollFallbackPolicyVersion,
+      status: "PASS",
+      owner: "ludoweave",
+      route: "ludoweave-renderer",
+      reason,
+      requestedRenderer,
+      hostScrollCapability,
+      diagnostics: [],
+    };
+  }
+
+  return {
+    version: gateDemoScrollFallbackPolicyVersion,
+    status: "PASS",
+    owner: "sinan",
+    route: "sinan-fallback-renderer",
+    reason,
+    requestedRenderer,
+    hostScrollCapability,
+    diagnostics: [
+      normalizeUiDiagnostic({
+        code: gateDemoFallbackPolicyDiagnosticCodes.scrollSelected,
+        severity: "info",
+        message: "Sinan-owned scroll fallback route selected for Gate Demo.",
+        path: ["fallback-policy", "scroll", reason],
+        details: {
+          requestedRenderer,
+          hostScrollCapability,
+          reason,
+        },
+      }),
+    ],
+  };
+}
+
 function resolveFallbackReason(
   requestedRenderer: GateDemoRequestedRenderer,
   hostCapabilities: RuntimeUIHostCapabilitySnapshot,
@@ -122,6 +189,25 @@ function resolveFallbackReason(
 
   if (hostCapabilities.textInputOverlay.status !== "available") {
     return "missing-capability";
+  }
+
+  return "none";
+}
+
+function resolveScrollFallbackReason(
+  requestedRenderer: GateDemoRequestedRenderer,
+  hostScrollCapability: "available" | "disabled" | "missing" | "unsupported",
+): GateDemoScrollFallbackReason {
+  if (requestedRenderer === "pixi" || requestedRenderer === "webgpu") {
+    return "unsupported-renderer";
+  }
+
+  if (hostScrollCapability === "missing" || hostScrollCapability === "unsupported") {
+    return "missing-host-scroll-capability";
+  }
+
+  if (hostScrollCapability === "disabled") {
+    return "disabled-scroll";
   }
 
   return "none";

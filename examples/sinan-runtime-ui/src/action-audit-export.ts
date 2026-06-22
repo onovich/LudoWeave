@@ -6,9 +6,11 @@ import {
   type SinanUIActionRegistrySource,
 } from "./action-registry.js";
 import { gateDemoRuntimeUIViewModelEnvelope } from "./fixture.js";
+import { createGateDemoScrollSequence } from "./gate-demo-scroll.js";
 import { mapRuntimeUIViewModelEnvelopeToResolvedFrame } from "./resolved-frame-adapter.js";
 
 export const sinanActionAuditExportVersion = "ludoweave.sinan-action-audit.v0.4";
+export const sinanScrollAuditExportVersion = "ludoweave.sinan-scroll-audit.v0.6";
 
 export interface SinanActionAuditExportSource {
   readonly actionTargetId?: string;
@@ -29,6 +31,23 @@ export interface SinanActionAuditExportEntry {
 export interface SinanActionAuditExportPayload {
   readonly version: typeof sinanActionAuditExportVersion;
   readonly entries: readonly SinanActionAuditExportEntry[];
+}
+
+export interface SinanScrollAuditExportEntry {
+  readonly sequence: number;
+  readonly frameId: string;
+  readonly intentKind: string;
+  readonly containerId: string;
+  readonly actionType: string;
+  readonly payload?: Readonly<Record<string, JsonValue>>;
+  readonly routingResult: SinanUIActionRegistryAuditEntry["routingResult"];
+  readonly source: SinanActionAuditExportSource;
+  readonly diagnostics: readonly UiDiagnostic[];
+}
+
+export interface SinanScrollAuditExportPayload {
+  readonly version: typeof sinanScrollAuditExportVersion;
+  readonly entries: readonly SinanScrollAuditExportEntry[];
 }
 
 export function createSinanActionAuditExportPayload(
@@ -65,6 +84,32 @@ export function createGateDemoActionAuditExportPayload(): SinanActionAuditExport
   }
 
   return createSinanActionAuditExportPayload(registry.auditLogSnapshot());
+}
+
+export function createGateDemoScrollAuditExportPayload(): SinanScrollAuditExportPayload {
+  const sequence = createGateDemoScrollSequence();
+
+  return {
+    version: sinanScrollAuditExportVersion,
+    entries: sequence.registryResults.map((entry, index) => {
+      const intent = sequence.intents[index];
+      if (intent === undefined) {
+        throw new Error("Gate Demo scroll audit export requires matching intent records.");
+      }
+
+      return {
+        sequence: entry.sequence,
+        frameId: entry.frameId,
+        intentKind: intent.kind,
+        containerId: intent.containerId,
+        actionType: entry.action.type,
+        ...(entry.action.payload === undefined ? {} : { payload: entry.action.payload }),
+        routingResult: entry.routingResult,
+        source: createExportSource(entry.source),
+        diagnostics: [...entry.diagnostics, ...sequence.diagnostics],
+      };
+    }),
+  };
 }
 
 function createExportEntry(entry: SinanUIActionRegistryAuditEntry): SinanActionAuditExportEntry {
