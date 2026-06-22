@@ -2,6 +2,17 @@ export { createSinanActionRefBridge } from "./action-bridge.js";
 export type { SinanActionRefBridge, SinanRuntimeUICommand } from "./action-bridge.js";
 export { mapRuntimeUIObjectiveAction, mapRuntimeUIPromptAction } from "./action-mapping.js";
 export {
+  createSinanUIActionRefRegistryMock,
+  sinanUIActionRegistryDiagnosticCodes,
+} from "./action-registry.js";
+export type {
+  CreateSinanUIActionRefRegistryMockOptions,
+  SinanUIActionRefRegistryMock,
+  SinanUIActionRefRoutingResult,
+  SinanUIActionRegistryAuditEntry,
+  SinanUIActionRegistrySource,
+} from "./action-registry.js";
+export {
   mapRuntimeUIViewModelToComponentProps,
   mapRuntimeUIViewModelToUiNodes,
 } from "./adapter.js";
