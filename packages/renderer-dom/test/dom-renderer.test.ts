@@ -266,12 +266,18 @@ describe("mountDomRenderer", () => {
     expect(fixture.scrollVisibleContentBox).toEqual({ x: 0, y: 84, width: 400, height: 220 });
     expect(fixture.scrollOffset.diagnostics).toEqual([]);
     expect(fixture.virtualWindow.realizedRange).toEqual({ startIndex: 2, endIndex: 4 });
+    expect(fixture.richTextMetadata).toMatchObject({
+      id: "subtitle.rich-text",
+      nodeId: "runtime.overlay/key:subtitle.primary",
+      a11y: { label: "The gate hums softly.", liveRegion: "off" },
+    });
     expect(
       fixture.virtualWindowRealizedNodeIds.every((nodeId) =>
         root.children.some((child) => child.dataset.ludoweaveNodeId === nodeId),
       ),
     ).toBe(true);
     expect(JSON.stringify(fixture.frame)).not.toContain("datasource");
+    expect(JSON.stringify(fixture.frame)).not.toContain("innerHTML");
   });
 });
 

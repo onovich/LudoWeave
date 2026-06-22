@@ -6,10 +6,12 @@ import {
   type ResolvedNode,
   type ResolvedRect,
   type ResolvedUiFrame,
+  type RichTextMetadata,
   type ScrollMetadataFrame,
   type ScrollOffsetNormalizationResult,
   type SemanticNode,
   type VirtualWindowMetadata,
+  normalizeRichTextMetadata,
   normalizeScrollMetadataFrame,
   normalizeScrollOffsetForContainer,
   normalizeVirtualWindowMetadata,
@@ -23,6 +25,7 @@ export interface RendererConformanceFixture {
   readonly scrollOffset: ScrollOffsetNormalizationResult;
   readonly virtualWindow: VirtualWindowMetadata;
   readonly virtualWindowRealizedNodeIds: readonly string[];
+  readonly richTextMetadata: RichTextMetadata;
   readonly expectedDomNodes: readonly RendererConformanceDomNodeExpectation[];
 }
 
@@ -148,6 +151,41 @@ export function createRendererConformanceFixture(): RendererConformanceFixture {
       "runtime.overlay/key:quest-log/key:quest:2",
       "runtime.overlay/key:quest-log/key:quest:3",
     ],
+    richTextMetadata: normalizeRichTextMetadata({
+      id: "subtitle.rich-text",
+      nodeId: "runtime.overlay/key:subtitle.primary",
+      localeHint: "en-US",
+      plainTextFallback: "The gate hums softly.",
+      spans: [
+        {
+          id: "tone.soft",
+          kind: "tone",
+          label: "soft",
+          rendererHints: ["muted"],
+          themeTokenRefs: ["runtime-ui.subtitle.text"],
+        },
+      ],
+      runs: [
+        {
+          id: "run.subtitle.body",
+          text: "The gate hums softly.",
+          spanIds: ["tone.soft"],
+          themeTokenRefs: ["runtime-ui.subtitle.text"],
+          rendererHints: ["muted"],
+        },
+      ],
+      hostPolicy: {
+        localizedContent: "approved",
+        markupPolicy: "approved",
+        sanitization: "approved",
+        accessibilityReview: "approved",
+      },
+      a11y: {
+        label: "The gate hums softly.",
+        liveRegion: "off",
+        reviewStatus: "approved",
+      },
+    }),
     expectedDomNodes: [
       {
         nodeId: "runtime.overlay",
@@ -263,6 +301,8 @@ function createNodes(boxes: {
       box: boxes.subtitleBox,
       props: {
         text: "The gate hums softly.",
+        richTextBlockId: "subtitle.rich-text",
+        richTextContract: "metadata-only",
       },
     },
     {

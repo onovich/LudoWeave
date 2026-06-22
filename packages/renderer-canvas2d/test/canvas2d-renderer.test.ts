@@ -179,9 +179,15 @@ describe("Canvas2D renderer spike", () => {
       "runtime.overlay/key:quest-log/key:quest:2",
       "runtime.overlay/key:quest-log/key:quest:3",
     ]);
+    expect(fixture.richTextMetadata).toMatchObject({
+      id: "subtitle.rich-text",
+      plainTextFallback: "The gate hums softly.",
+      hostPolicy: { sanitization: "approved" },
+    });
     expect(JSON.stringify(result.trace)).not.toContain("scrollTop");
     expect(JSON.stringify(result.trace)).not.toContain("datasource");
     expect(JSON.stringify(result.trace)).not.toContain("dispatch");
+    expect(JSON.stringify(result.trace)).not.toContain("innerHTML");
   });
 
   it("traces an action target under a point without dispatching it", () => {

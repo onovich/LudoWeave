@@ -31,8 +31,16 @@ describe("headless renderer conformance", () => {
       "runtime.overlay/key:quest-log/key:quest:2",
       "runtime.overlay/key:quest-log/key:quest:3",
     ]);
+    expect(fixture.richTextMetadata).toMatchObject({
+      id: "subtitle.rich-text",
+      nodeId: "runtime.overlay/key:subtitle.primary",
+      plainTextFallback: "The gate hums softly.",
+      runs: [{ id: "run.subtitle.body", text: "The gate hums softly." }],
+    });
     expect(fixture.scrollOffset.diagnostics).toEqual([]);
     expect(result.snapshot).not.toContain("scrollTop");
     expect(result.snapshot).not.toContain("datasource");
+    expect(result.snapshot).not.toContain("innerHTML");
+    expect(JSON.stringify(fixture.richTextMetadata)).not.toContain("Markdown");
   });
 });
