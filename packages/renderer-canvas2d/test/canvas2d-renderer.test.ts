@@ -5,10 +5,12 @@ import {
   canvas2DRendererConformancePolicy,
   createCanvas2DRenderer,
   traceCanvas2DActionHitTest,
+  traceCanvas2DFocusGraph,
   traceCanvas2DTextInputOverlayCoordination,
   type Canvas2DContextLike,
   type Canvas2DRenderTrace,
 } from "../src/index.js";
+import { normalizeFocusGraph } from "@ludoweave/core";
 
 describe("Canvas2D renderer spike", () => {
   it("consumes resolved frames and draws clear, box, and text commands", () => {
@@ -126,6 +128,7 @@ describe("Canvas2D renderer spike", () => {
       "paint.text.fill",
       "resolved-frame.consume",
       "action.hit-test.trace",
+      "focus-graph.trace",
       "text-input-overlay.coordination-trace",
     ]);
     expect(canvas2DRendererConformancePolicy.unsupported).toContain("native.text-input");
@@ -243,6 +246,66 @@ describe("Canvas2D renderer spike", () => {
       frameId: 3600,
       point: { x: -1, y: 16 },
       result: "outside-viewport",
+    });
+  });
+
+  it("traces focusable geometry and action target ids without reading input", () => {
+    const frame = createRendererConformanceFixture().frame;
+    const graph = normalizeFocusGraph({
+      scopeId: "pause.dialog",
+      nodes: [
+        {
+          id: "prompt",
+          nodeId: "runtime.overlay/key:prompt.primary",
+          rect: { x: 520, y: 596, width: 240, height: 48 },
+        },
+        {
+          id: "cancel",
+          nodeId: "runtime.overlay/key:pause.dialog",
+          rect: { x: 440, y: 238, width: 400, height: 220 },
+          disabledReason: "modal-excluded",
+        },
+      ],
+    });
+
+    expect(traceCanvas2DFocusGraph(frame, graph)).toEqual({
+      kind: "focus-graph-trace",
+      frameId: 3600,
+      scopeId: "pause.dialog",
+      result: "targets",
+      targets: [
+        {
+          focusId: "prompt",
+          nodeId: "runtime.overlay/key:prompt.primary",
+          scopeId: "pause.dialog",
+          box: { x: 520, y: 596, width: 240, height: 48 },
+          actionTargetId: "action.prompt.primary",
+        },
+        {
+          focusId: "cancel",
+          nodeId: "runtime.overlay/key:pause.dialog",
+          scopeId: "pause.dialog",
+          box: { x: 440, y: 238, width: 400, height: 220 },
+          disabledReason: "modal-excluded",
+        },
+      ],
+    });
+    expect(JSON.stringify(traceCanvas2DFocusGraph(frame, graph))).not.toContain("dispatch");
+    expect(JSON.stringify(traceCanvas2DFocusGraph(frame, graph))).not.toContain("KeyboardEvent");
+    expect(JSON.stringify(traceCanvas2DFocusGraph(frame, graph))).not.toContain("Gamepad");
+  });
+
+  it("reports empty focus graph traces without owning focus state", () => {
+    const frame = createRendererConformanceFixture().frame;
+
+    expect(
+      traceCanvas2DFocusGraph(frame, normalizeFocusGraph({ scopeId: "pause.dialog", nodes: [] })),
+    ).toEqual({
+      kind: "focus-graph-trace",
+      frameId: 3600,
+      scopeId: "pause.dialog",
+      result: "no-target",
+      targets: [],
     });
   });
 

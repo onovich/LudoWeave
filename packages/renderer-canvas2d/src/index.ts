@@ -2,6 +2,7 @@ import { normalizeTextInputOverlayRequest, normalizeUiDiagnostic } from "@ludowe
 import type {
   ActionRef,
   ActionRefInput,
+  FocusGraph,
   JsonValue,
   RenderCommand,
   ResolvedActionTarget,
@@ -130,6 +131,41 @@ export type Canvas2DActionHitTestTrace =
     };
 
 /**
+ * Serializable focus target data recorded by Canvas2D focus graph traces.
+ *
+ * @public
+ */
+export interface Canvas2DFocusTargetTrace {
+  readonly focusId: string;
+  readonly nodeId: string;
+  readonly scopeId: string;
+  readonly box: ResolvedRect;
+  readonly actionTargetId?: string;
+  readonly disabledReason?: string;
+}
+
+/**
+ * Deterministic focus graph trace for renderer tests and host coordination.
+ *
+ * @public
+ */
+export type Canvas2DFocusGraphTrace =
+  | {
+      readonly kind: "focus-graph-trace";
+      readonly frameId: number;
+      readonly scopeId: string;
+      readonly result: "targets";
+      readonly targets: readonly Canvas2DFocusTargetTrace[];
+    }
+  | {
+      readonly kind: "focus-graph-trace";
+      readonly frameId: number;
+      readonly scopeId: string;
+      readonly result: "no-target";
+      readonly targets: readonly [];
+    };
+
+/**
  * Options for deriving a host text overlay request from a Canvas2D consumed frame.
  *
  * @public
@@ -207,6 +243,7 @@ export const canvas2DRendererConformancePolicy = Object.freeze({
     "paint.text.fill",
     "resolved-frame.consume",
     "action.hit-test.trace",
+    "focus-graph.trace",
     "text-input-overlay.coordination-trace",
   ],
   unsupported: [
@@ -262,6 +299,51 @@ export function traceCanvas2DActionHitTest(
     point: normalizedPoint,
     result: target.disabled === true ? "disabled-target" : "target",
     target: toHitTestTargetTrace(target),
+  };
+}
+
+/**
+ * Traces focusable geometry and action target ids consumed by Canvas2D.
+ *
+ * This helper is intentionally trace-only: it does not read input, move focus,
+ * dispatch ActionRefs, or own accessibility.
+ *
+ * @public
+ */
+export function traceCanvas2DFocusGraph(
+  frame: ResolvedUiFrame,
+  focusGraph: FocusGraph,
+): Canvas2DFocusGraphTrace {
+  const targets = focusGraph.nodes.map((focusNode) => {
+    const actionTarget = frame.actions.find((candidate) => candidate.nodeId === focusNode.nodeId);
+    return {
+      focusId: focusNode.id,
+      nodeId: focusNode.nodeId,
+      scopeId: focusNode.scopeId,
+      box: focusNode.rect,
+      ...(actionTarget === undefined ? {} : { actionTargetId: actionTarget.id }),
+      ...(focusNode.disabledReason === undefined
+        ? {}
+        : { disabledReason: focusNode.disabledReason }),
+    };
+  });
+
+  if (targets.length === 0) {
+    return {
+      kind: "focus-graph-trace",
+      frameId: frame.frameId,
+      scopeId: focusGraph.scopeId,
+      result: "no-target",
+      targets: [],
+    };
+  }
+
+  return {
+    kind: "focus-graph-trace",
+    frameId: frame.frameId,
+    scopeId: focusGraph.scopeId,
+    result: "targets",
+    targets,
   };
 }
 
