@@ -26,6 +26,12 @@ export type {
   FocusGraphNodeInput,
 } from "./focus-graph.js";
 export { normalizeFocusGraph, normalizeFocusGraphNode } from "./focus-graph.js";
+export type {
+  HostInputIntent,
+  HostInputIntentInput,
+  HostInputIntentKind,
+} from "./host-input-intent.js";
+export { normalizeHostInputIntent } from "./host-input-intent.js";
 export type { JsonArray, JsonObject, JsonValue } from "./json-value.js";
 export type {
   AbsoluteAnchor,

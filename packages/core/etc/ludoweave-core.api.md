@@ -152,6 +152,43 @@ export interface FocusGraphNodeInput {
 }
 
 // @public
+export interface HostInputIntent {
+    // (undocumented)
+    readonly direction?: FocusDirection;
+    // (undocumented)
+    readonly focusId?: string;
+    // (undocumented)
+    readonly handoff: "host";
+    // (undocumented)
+    readonly kind: HostInputIntentKind;
+    // (undocumented)
+    readonly payload?: Readonly<Record<string, JsonValue>>;
+    // (undocumented)
+    readonly repeat: boolean;
+    // (undocumented)
+    readonly scopeId?: string;
+}
+
+// @public
+export interface HostInputIntentInput {
+    // (undocumented)
+    readonly direction?: FocusDirection;
+    // (undocumented)
+    readonly focusId?: string;
+    // (undocumented)
+    readonly kind: HostInputIntentKind;
+    // (undocumented)
+    readonly payload?: Readonly<Record<string, JsonValue>>;
+    // (undocumented)
+    readonly repeat?: boolean;
+    // (undocumented)
+    readonly scopeId?: string;
+}
+
+// @public
+export type HostInputIntentKind = "confirm" | "cancel" | "navigate" | "next" | "previous" | "pause" | "menu";
+
+// @public
 export type JsonArray = readonly JsonValue[];
 
 // @public
@@ -215,6 +252,9 @@ export function normalizeFocusGraph(input: FocusGraphInput): FocusGraph;
 
 // @public
 export function normalizeFocusGraphNode(input: FocusGraphNodeInput): FocusGraphNode;
+
+// @public
+export function normalizeHostInputIntent(input: HostInputIntentInput): HostInputIntent;
 
 // @public
 export function normalizeRuntimeUiThemeTokenContract(input: unknown): RuntimeUiThemeTokenContract;
