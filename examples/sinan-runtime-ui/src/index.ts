@@ -6,6 +6,21 @@ export {
   mapRuntimeUIViewModelToUiNodes,
 } from "./adapter.js";
 export type { RuntimeUIComponentPropsMapping } from "./adapter.js";
+export {
+  runtimeUIViewModelEnvelopeCapabilities,
+  runtimeUIViewModelEnvelopeVersion,
+  validateRuntimeUIViewModelEnvelope,
+} from "./envelope.js";
+export type {
+  RuntimeUIViewModelEnvelope,
+  RuntimeUIViewModelEnvelopeCapability,
+  RuntimeUIViewModelEnvelopeDiagnostic,
+  RuntimeUIViewModelEnvelopeDiagnosticCode,
+  RuntimeUIViewModelEnvelopeSurface,
+  RuntimeUIViewModelEnvelopeValidationResult,
+  RuntimeUIViewModelEnvelopeVersion,
+  RuntimeUIViewModelFallbackPolicy,
+} from "./envelope.js";
 export { renderRuntimeUIViewModelFallback } from "./fallback-renderer.js";
 export type {
   FallbackRuntimeUIElement,
@@ -15,7 +30,7 @@ export type {
   FallbackRuntimeUISnapshot,
   FallbackRuntimeUISubtitleElement,
 } from "./fallback-renderer.js";
-export { gateDemoRuntimeUIViewModel } from "./fixture.js";
+export { gateDemoRuntimeUIViewModel, gateDemoRuntimeUIViewModelEnvelope } from "./fixture.js";
 export type {
   RuntimeUIElement,
   RuntimeUILayer,

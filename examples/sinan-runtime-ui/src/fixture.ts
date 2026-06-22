@@ -1,4 +1,9 @@
 import type { RuntimeUIViewModel } from "./view-model.js";
+import {
+  runtimeUIViewModelEnvelopeCapabilities,
+  runtimeUIViewModelEnvelopeVersion,
+  type RuntimeUIViewModelEnvelope,
+} from "./envelope.js";
 
 export const gateDemoRuntimeUIViewModel = {
   frame: 1024,
@@ -42,3 +47,16 @@ export const gateDemoRuntimeUIViewModel = {
     },
   ],
 } satisfies RuntimeUIViewModel;
+
+export const gateDemoRuntimeUIViewModelEnvelope = {
+  version: runtimeUIViewModelEnvelopeVersion,
+  frameId: "gate-demo:1024",
+  surface: "gate-demo",
+  capabilities: runtimeUIViewModelEnvelopeCapabilities,
+  fallbackPolicy: {
+    renderer: "sinan-owned-fallback",
+    missingCapability: "emit-diagnostic",
+    unsupportedSurface: "use-host-runtime-ui",
+  },
+  viewModel: gateDemoRuntimeUIViewModel,
+} satisfies RuntimeUIViewModelEnvelope;
