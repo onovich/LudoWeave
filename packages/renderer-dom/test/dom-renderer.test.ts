@@ -257,6 +257,14 @@ describe("mountDomRenderer", () => {
         expect(element.attributesAsObject()).toEqual(expected.attributes);
       }
     }
+
+    expect(fixture.scrollMetadata.containers[0]).toMatchObject({
+      id: "pause-dialog-scroll",
+      nodeId: "runtime.overlay/key:pause.dialog",
+      offset: { x: 0, y: 84, revision: 2 },
+    });
+    expect(fixture.scrollVisibleContentBox).toEqual({ x: 0, y: 84, width: 400, height: 220 });
+    expect(fixture.scrollOffset.diagnostics).toEqual([]);
   });
 });
 

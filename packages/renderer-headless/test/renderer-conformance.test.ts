@@ -15,5 +15,12 @@ describe("headless renderer conformance", () => {
     expect(result.snapshot).toContain('"frameId": 3600');
     expect(result.snapshot).toContain('"nodeId": "runtime.overlay/key:prompt.primary"');
     expect(result.snapshot).toContain('"role": "dialog"');
+    expect(fixture.scrollMetadata.containers[0]).toMatchObject({
+      id: "pause-dialog-scroll",
+      nodeId: "runtime.overlay/key:pause.dialog",
+      offset: { x: 0, y: 84, revision: 2 },
+    });
+    expect(fixture.scrollOffset.diagnostics).toEqual([]);
+    expect(result.snapshot).not.toContain("scrollTop");
   });
 });

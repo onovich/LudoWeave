@@ -6,12 +6,19 @@ import {
   type ResolvedNode,
   type ResolvedRect,
   type ResolvedUiFrame,
+  type ScrollMetadataFrame,
+  type ScrollOffsetNormalizationResult,
   type SemanticNode,
+  normalizeScrollMetadataFrame,
+  normalizeScrollOffsetForContainer,
 } from "@ludoweave/core";
 
 export interface RendererConformanceFixture {
   readonly name: "runtime-overlay-conformance";
   readonly frame: ResolvedUiFrame;
+  readonly scrollMetadata: ScrollMetadataFrame;
+  readonly scrollVisibleContentBox: ResolvedRect;
+  readonly scrollOffset: ScrollOffsetNormalizationResult;
   readonly expectedDomNodes: readonly RendererConformanceDomNodeExpectation[];
 }
 
@@ -69,6 +76,25 @@ export function createRendererConformanceFixture(): RendererConformanceFixture {
     },
   });
   const nodes = createNodes({ contentBox, promptBox, subtitleBox, dialogBox });
+  const scrollMetadata = normalizeScrollMetadataFrame({
+    activeContainerId: "pause-dialog-scroll",
+    containers: [
+      {
+        id: "pause-dialog-scroll",
+        nodeId: "runtime.overlay/key:pause.dialog",
+        contentRect: { ...dialogBox, height: 420 },
+        viewportRect: dialogBox,
+        axis: "y",
+        offset: { x: 0, y: 84, revision: 2 },
+        extent: { width: dialogBox.width, height: 420 },
+        hostCapability: { status: "available" },
+      },
+    ],
+  });
+  const scrollContainer = scrollMetadata.containers[0];
+  if (scrollContainer === undefined) {
+    throw new Error("Expected renderer conformance fixture to create scroll metadata.");
+  }
 
   return {
     name: "runtime-overlay-conformance",
@@ -81,6 +107,14 @@ export function createRendererConformanceFixture(): RendererConformanceFixture {
       actions: createActions(promptBox),
       diagnostics: [],
     },
+    scrollMetadata,
+    scrollVisibleContentBox: {
+      x: 0,
+      y: 84,
+      width: dialogBox.width,
+      height: dialogBox.height,
+    },
+    scrollOffset: normalizeScrollOffsetForContainer(scrollContainer),
     expectedDomNodes: [
       {
         nodeId: "runtime.overlay",

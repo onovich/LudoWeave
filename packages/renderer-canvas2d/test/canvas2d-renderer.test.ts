@@ -139,6 +139,24 @@ describe("Canvas2D renderer spike", () => {
     );
   });
 
+  it("consumes the shared frame while scroll metadata remains a conformance sidecar", () => {
+    const fixture = createRendererConformanceFixture();
+    const renderer = createCanvas2DRenderer({
+      context: new FakeCanvas2DContext(),
+    });
+    const result = renderer.render(fixture.frame);
+
+    expect(result.frame).toBe(fixture.frame);
+    expect(fixture.scrollMetadata.containers[0]).toMatchObject({
+      id: "pause-dialog-scroll",
+      nodeId: "runtime.overlay/key:pause.dialog",
+      offset: { x: 0, y: 84, revision: 2 },
+    });
+    expect(fixture.scrollVisibleContentBox).toEqual({ x: 0, y: 84, width: 400, height: 220 });
+    expect(JSON.stringify(result.trace)).not.toContain("scrollTop");
+    expect(JSON.stringify(result.trace)).not.toContain("dispatch");
+  });
+
   it("traces an action target under a point without dispatching it", () => {
     const frame = createRendererConformanceFixture().frame;
 
