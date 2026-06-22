@@ -778,6 +778,21 @@ export interface ResolvedViewport {
 }
 
 // @public
+export function resolveRichTextThemeTokenRefs(input: ResolveRichTextThemeTokenRefsInput): RichTextThemeTokenResolution;
+
+// @public
+export interface ResolveRichTextThemeTokenRefsInput {
+    // (undocumented)
+    readonly context?: RichTextThemeTokenContext;
+    // (undocumented)
+    readonly knownThemeTokenRefs: readonly UiThemeTokenName[];
+    // (undocumented)
+    readonly metadata: RichTextMetadata | RichTextMetadataInput;
+    // (undocumented)
+    readonly unsupportedTokenScopes?: readonly string[];
+}
+
+// @public
 export function resolveScrollRestoration(frameInput: ScrollMetadataFrameInput, containerId: string, requestedOffsetInput?: Partial<ScrollOffsetSnapshot>): ScrollRestorationResult;
 
 // @public
@@ -1027,6 +1042,46 @@ export interface RichTextSemanticSpanInput {
 
 // @public
 export type RichTextSpanKind = "choice-hint" | "disabled-reason" | "emphasis" | "locked-reason" | "speaker" | "tone" | "unsupported";
+
+// @public
+export interface RichTextThemeTokenContext {
+    // (undocumented)
+    readonly disabled?: boolean;
+    // (undocumented)
+    readonly focused?: boolean;
+    // (undocumented)
+    readonly selected?: boolean;
+}
+
+// @public
+export type RichTextThemeTokenOwnerKind = "run" | "span";
+
+// @public
+export interface RichTextThemeTokenResolution {
+    // (undocumented)
+    readonly diagnostics: readonly UiDiagnostic[];
+    // (undocumented)
+    readonly usages: readonly RichTextThemeTokenUsage[];
+}
+
+// @public
+export type RichTextThemeTokenStatus = "available" | "missing" | "unsupported-scope";
+
+// @public
+export interface RichTextThemeTokenUsage {
+    // (undocumented)
+    readonly blockId: string;
+    // (undocumented)
+    readonly context: RichTextThemeTokenContext;
+    // (undocumented)
+    readonly ownerId: string;
+    // (undocumented)
+    readonly ownerKind: RichTextThemeTokenOwnerKind;
+    // (undocumented)
+    readonly status: RichTextThemeTokenStatus;
+    // (undocumented)
+    readonly tokenRef: UiThemeTokenName;
+}
 
 // @public
 export interface RuntimeUiDialogThemeTokens {

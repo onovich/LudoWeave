@@ -147,6 +147,15 @@ export {
   richTextDiagnosticCodes,
 } from "./rich-text-diagnostics.js";
 export type {
+  ResolveRichTextThemeTokenRefsInput,
+  RichTextThemeTokenContext,
+  RichTextThemeTokenOwnerKind,
+  RichTextThemeTokenResolution,
+  RichTextThemeTokenStatus,
+  RichTextThemeTokenUsage,
+} from "./rich-text-theme-token.js";
+export { resolveRichTextThemeTokenRefs } from "./rich-text-theme-token.js";
+export type {
   ScrollAxis,
   ScrollContainerMetadata,
   ScrollContainerMetadataInput,
