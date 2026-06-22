@@ -64,6 +64,9 @@ export function createDiagnosticSink(initialDiagnostics?: readonly UiDiagnosticI
 export function createFocusNavigationDiagnostic(reason: FocusNavigationDiagnosticReason, details?: Readonly<Record<string, JsonValue>>): UiDiagnostic;
 
 // @public
+export function createHostScrollIntentActionRef(intent: Omit<HostScrollIntent, "action">): ActionRef;
+
+// @public
 export function createLayoutEnvironment(options: CreateLayoutEnvironmentOptions): LayoutEnvironment;
 
 // @public
@@ -231,6 +234,57 @@ export interface HostInputIntentInput {
 export type HostInputIntentKind = "confirm" | "cancel" | "navigate" | "next" | "previous" | "pause" | "menu";
 
 // @public
+export interface HostScrollIntent {
+    // (undocumented)
+    readonly action: ActionRef;
+    // (undocumented)
+    readonly axis: ScrollAxis;
+    // (undocumented)
+    readonly containerId: string;
+    // (undocumented)
+    readonly direction?: HostScrollIntentDirection;
+    // (undocumented)
+    readonly edge?: HostScrollIntentEdge;
+    // (undocumented)
+    readonly handoff: "host";
+    // (undocumented)
+    readonly kind: HostScrollIntentKind;
+    // (undocumented)
+    readonly repeat: boolean;
+    // (undocumented)
+    readonly restoreOffset?: ScrollOffsetSnapshot;
+}
+
+// @public
+export type HostScrollIntentDirection = "up" | "down" | "left" | "right";
+
+// @public
+export type HostScrollIntentEdge = "start" | "end";
+
+// @public
+export interface HostScrollIntentInput {
+    // (undocumented)
+    readonly action?: ActionRefInput;
+    // (undocumented)
+    readonly axis?: ScrollAxis;
+    // (undocumented)
+    readonly containerId: string;
+    // (undocumented)
+    readonly direction?: HostScrollIntentDirection;
+    // (undocumented)
+    readonly edge?: HostScrollIntentEdge;
+    // (undocumented)
+    readonly kind: HostScrollIntentKind;
+    // (undocumented)
+    readonly repeat?: boolean;
+    // (undocumented)
+    readonly restoreOffset?: Partial<ScrollOffsetSnapshot>;
+}
+
+// @public
+export type HostScrollIntentKind = "line" | "page" | "edge" | "restore";
+
+// @public
 export type JsonArray = readonly JsonValue[];
 
 // @public
@@ -297,6 +351,9 @@ export function normalizeFocusGraphNode(input: FocusGraphNodeInput): FocusGraphN
 
 // @public
 export function normalizeHostInputIntent(input: HostInputIntentInput): HostInputIntent;
+
+// @public
+export function normalizeHostScrollIntent(input: HostScrollIntentInput): HostScrollIntent;
 
 // @public
 export function normalizeRuntimeUiThemeTokenContract(input: unknown): RuntimeUiThemeTokenContract;

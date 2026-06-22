@@ -44,6 +44,17 @@ export type {
   HostInputIntentKind,
 } from "./host-input-intent.js";
 export { normalizeHostInputIntent } from "./host-input-intent.js";
+export type {
+  HostScrollIntent,
+  HostScrollIntentDirection,
+  HostScrollIntentEdge,
+  HostScrollIntentInput,
+  HostScrollIntentKind,
+} from "./host-scroll-intent.js";
+export {
+  createHostScrollIntentActionRef,
+  normalizeHostScrollIntent,
+} from "./host-scroll-intent.js";
 export type { JsonArray, JsonObject, JsonValue } from "./json-value.js";
 export type {
   AbsoluteAnchor,
