@@ -90,6 +90,8 @@
 - [v0.9 Sinan Handoff Checklist](sinan-cooperation/ludoweave-v0.9-sinan-handoff-checklist.md)
 - [v0.9 Sinan Review Matrix](sinan-cooperation/ludoweave-v0.9-sinan-review-matrix.md)
 - [v0.9 Release Notes Draft](release/ludoweave-v0.9-release-notes-draft.md)
+- [v0.9 Final Report](release/ludoweave-v0.9-final-report.md)
+- [v0.9 Final Validation Log](release/ludoweave-v0.9-final-validation-log.md)
 
 ## Decision Records
 

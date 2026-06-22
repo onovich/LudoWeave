@@ -2,7 +2,7 @@
 
 Date: 2026-06-23
 
-Status: Draft release notes for the Bounded Sinan Handoff Checklist track.
+Status: Final draft release notes for the accepted implementation package; planner/checker acceptance remains external.
 
 ## Summary
 
@@ -19,7 +19,7 @@ v0.9 packages the accepted v0.4 through v0.8 Runtime UI contracts into a Sinan-r
 
 ## Validation
 
-Round 12 validation is required before this draft can be considered final:
+Round 12 and Round 16 validation completed:
 
 - `C:\Users\Administrator\.codex\skills\project-ops-workflow\scripts\ops\Validate.cmd`
 - `C:\Users\Administrator\.codex\skills\project-ops-workflow\scripts\ops\Smoke.cmd`
@@ -29,7 +29,7 @@ Round 12 validation is required before this draft can be considered final:
 - `cmd /c pnpm.cmd format`
 - `git diff --check`
 
-Round 16 final validation must rerun the full guide matrix and record final evidence.
+Final evidence is recorded in [ludoweave-v0.9-final-validation-log.md](ludoweave-v0.9-final-validation-log.md).
 
 ## Non-Goals
 
