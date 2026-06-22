@@ -28,3 +28,8 @@ export type {
 } from "./theme-resolution-fixture.js";
 export { createClippedScrollContentFixture } from "./scroll-metadata-fixture.js";
 export type { ClippedScrollContentFixture } from "./scroll-metadata-fixture.js";
+export { createRealizedVirtualListFixture } from "./virtual-list-fixture.js";
+export type {
+  RealizedVirtualListFixture,
+  RealizedVirtualListItem,
+} from "./virtual-list-fixture.js";
