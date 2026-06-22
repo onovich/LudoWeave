@@ -23,6 +23,7 @@ describe("Gate Demo validation hook", () => {
       ["overlay-coordination", "PASS"],
       ["navigation", "PASS"],
       ["scroll", "PASS"],
+      ["virtual-list", "PASS"],
     ]);
     expect(result.diagnostics).toEqual([]);
     expect(JSON.parse(JSON.stringify(result))).toEqual(result);
@@ -63,6 +64,7 @@ describe("Gate Demo validation hook", () => {
       ["overlay-coordination", "PASS"],
       ["navigation", "PASS"],
       ["scroll", "PASS"],
+      ["virtual-list", "PASS"],
     ]);
     expect(result.diagnostics).toContainEqual(
       expect.objectContaining({
@@ -118,6 +120,24 @@ describe("Gate Demo validation hook", () => {
 
     expect(result.layers.find((layer) => layer.layer === "scroll")).toMatchObject({
       layer: "scroll",
+      status: "FAIL",
+    });
+    expect(
+      result.diagnostics.some(
+        (diagnostic) => diagnostic.code === "LW_EXAMPLE_ACTION_REGISTRY_DISABLED",
+      ),
+    ).toBe(true);
+  });
+
+  it("localizes rejected virtual list routes to the virtual list layer", () => {
+    const result = runGateDemoValidationHook({
+      registryOptions: {
+        disabledActionTypes: ["runtime.collection.intent"],
+      },
+    });
+
+    expect(result.layers.find((layer) => layer.layer === "virtual-list")).toMatchObject({
+      layer: "virtual-list",
       status: "FAIL",
     });
     expect(

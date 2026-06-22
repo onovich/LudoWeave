@@ -122,6 +122,7 @@ function createRegistryConfig(options: CreateSinanUIActionRefRegistryMockOptions
         "runtime.gameplay",
         "runtime.objective",
         "runtime.pause",
+        "runtime.collection",
         "runtime.scroll",
         "runtime.ui",
         "runtime.input",

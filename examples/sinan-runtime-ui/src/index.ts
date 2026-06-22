@@ -95,6 +95,14 @@ export type {
   CreateGateDemoScrollSequenceOptions,
   GateDemoScrollSequenceResult,
 } from "./gate-demo-scroll.js";
+export {
+  createGateDemoVirtualListSequence,
+  gateDemoVirtualListSequenceVersion,
+} from "./gate-demo-virtual-list.js";
+export type {
+  CreateGateDemoVirtualListSequenceOptions,
+  GateDemoVirtualListSequenceResult,
+} from "./gate-demo-virtual-list.js";
 export { renderRuntimeUIViewModelFallback } from "./fallback-renderer.js";
 export type {
   FallbackRuntimeUIElement,

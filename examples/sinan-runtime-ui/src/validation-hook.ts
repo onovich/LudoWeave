@@ -18,6 +18,7 @@ import {
 } from "./host-capabilities.js";
 import { createGateDemoNavigationSequence } from "./gate-demo-navigation.js";
 import { createGateDemoScrollSequence } from "./gate-demo-scroll.js";
+import { createGateDemoVirtualListSequence } from "./gate-demo-virtual-list.js";
 import {
   mapRuntimeUIViewModelEnvelopeToResolvedFrame,
   runtimeUIAdapterDiagnosticCodes,
@@ -33,7 +34,8 @@ export type GateDemoValidationLayer =
   | "action-registry"
   | "overlay-coordination"
   | "navigation"
-  | "scroll";
+  | "scroll"
+  | "virtual-list";
 
 export type GateDemoValidationStatus = "PASS" | "FAIL";
 
@@ -72,6 +74,9 @@ export const gateDemoValidationDiagnosticCodes = Object.freeze({
   scrollMapping: "LW_EXAMPLE_VALIDATION_SCROLL_MAPPING",
   scrollRegistryRoute: "LW_EXAMPLE_VALIDATION_SCROLL_REGISTRY_ROUTE",
   scrollRendererTrace: "LW_EXAMPLE_VALIDATION_SCROLL_RENDERER_TRACE",
+  virtualListMapping: "LW_EXAMPLE_VALIDATION_VIRTUAL_LIST_MAPPING",
+  virtualListRegistryRoute: "LW_EXAMPLE_VALIDATION_VIRTUAL_LIST_REGISTRY_ROUTE",
+  virtualListRendererTrace: "LW_EXAMPLE_VALIDATION_VIRTUAL_LIST_RENDERER_TRACE",
 });
 
 const mappingDiagnosticCodes = new Set<string>([
@@ -98,6 +103,7 @@ export function runGateDemoValidationHook(
     createOverlayCoordinationLayer(mapping.frame, hostCapabilities),
     createNavigationLayer(mapping, options.registryOptions),
     createScrollLayer(mapping, options.registryOptions),
+    createVirtualListLayer(mapping, options.registryOptions),
   ];
   const diagnostics = layers.flatMap((layer) => layer.diagnostics);
 
@@ -107,6 +113,72 @@ export function runGateDemoValidationHook(
     ...(mapping.envelopeFrameId === undefined ? {} : { frameId: mapping.envelopeFrameId }),
     layers,
     diagnostics,
+  };
+}
+
+function createVirtualListLayer(
+  mapping: RuntimeUIResolvedFrameMappingResult,
+  registryOptions: CreateSinanUIActionRefRegistryMockOptions | undefined,
+): GateDemoValidationLayerResult {
+  if (mapping.frame === undefined) {
+    return {
+      layer: "virtual-list",
+      status: "FAIL",
+      summary: "Virtual list skipped because mapping did not produce a frame.",
+      diagnostics: [
+        normalizeUiDiagnostic({
+          code: gateDemoValidationDiagnosticCodes.virtualListMapping,
+          severity: "error",
+          message: "Virtual list validation requires a ResolvedUiFrame.",
+          path: ["validation-hook", "virtual-list", "mapping"],
+        }),
+      ],
+    };
+  }
+
+  const virtualListOptions = {
+    frame: mapping.frame,
+    ...(mapping.envelopeFrameId === undefined ? {} : { frameId: mapping.envelopeFrameId }),
+    ...(registryOptions === undefined ? {} : { registryOptions }),
+  };
+  const virtualList = createGateDemoVirtualListSequence(virtualListOptions);
+  const registryFailures = virtualList.registryResults.filter(
+    (entry) => entry.routingResult !== "accepted" && entry.routingResult !== "no-op",
+  );
+
+  if (virtualList.rendererTrace.result !== "windows") {
+    return {
+      layer: "virtual-list",
+      status: "FAIL",
+      summary: "Virtual list renderer trace did not expose virtual windows.",
+      diagnostics: [
+        normalizeUiDiagnostic({
+          code: gateDemoValidationDiagnosticCodes.virtualListRendererTrace,
+          severity: "error",
+          message: "Virtual list validation requires Canvas2D virtual window trace entries.",
+          path: ["validation-hook", "virtual-list", "renderer-trace"],
+          details: {
+            result: virtualList.rendererTrace.result,
+          },
+        }),
+      ],
+    };
+  }
+
+  if (registryFailures.length > 0) {
+    return {
+      layer: "virtual-list",
+      status: "FAIL",
+      summary: "Virtual list ActionRefs were rejected by the registry mock.",
+      diagnostics: registryFailures.flatMap((entry) => entry.diagnostics),
+    };
+  }
+
+  return {
+    layer: "virtual-list",
+    status: "PASS",
+    summary: "Gate Demo virtual list sequence maps, traces, and routes ActionRefs.",
+    diagnostics: [],
   };
 }
 
