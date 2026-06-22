@@ -136,6 +136,46 @@ describe("Sinan-like fallback renderer", () => {
                 "title": "Deliver the cell",
                 "type": "objective",
               },
+              {
+                "cancelAction": {
+                  "type": "runtime.pause.close",
+                },
+                "confirmAction": {
+                  "type": "runtime.pause.resume",
+                },
+                "id": "pause.menu",
+                "title": "Paused",
+                "type": "pause",
+              },
+              {
+                "cancelAction": {
+                  "payload": {
+                    "field": "gate-code",
+                  },
+                  "type": "runtime.input.cancel",
+                },
+                "commitAction": {
+                  "payload": {
+                    "field": "gate-code",
+                  },
+                  "type": "runtime.input.commit",
+                },
+                "fallbackAction": {
+                  "payload": {
+                    "field": "gate-code",
+                    "reason": "missing-overlay-capability",
+                  },
+                  "type": "runtime.input.open-host-modal",
+                },
+                "id": "editable.gate-code",
+                "inputMode": "text",
+                "label": "Gate access code",
+                "multiline": false,
+                "placeholder": "Enter gate code",
+                "requiredCapability": "overlay.text-input",
+                "type": "editable-overlay-candidate",
+                "value": "",
+              },
             ],
             "id": "runtime.main",
             "zIndex": 10,

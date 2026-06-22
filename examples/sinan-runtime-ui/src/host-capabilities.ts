@@ -159,6 +159,17 @@ export function createGateDemoHostCapabilitySnapshot(
   };
 }
 
+export function createGateDemoMissingTextInputOverlayHostCapabilitySnapshot(): RuntimeUIHostCapabilitySnapshot {
+  return createGateDemoHostCapabilitySnapshot({
+    textInputOverlay: {
+      status: "missing",
+      reason: "capability-missing",
+      diagnosticPath: ["host", "text-input-overlay"],
+      message: "Host did not provide editable text overlay support.",
+    },
+  });
+}
+
 export function createHostCapabilitySnapshotDiagnostics(
   snapshot: RuntimeUIHostCapabilitySnapshot,
 ): readonly UiDiagnostic[] {

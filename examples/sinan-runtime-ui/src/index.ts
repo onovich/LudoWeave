@@ -34,6 +34,7 @@ export type {
 } from "./envelope.js";
 export {
   createGateDemoHostCapabilitySnapshot,
+  createGateDemoMissingTextInputOverlayHostCapabilitySnapshot,
   createHostCapabilitySnapshotDiagnostics,
   hostCapabilityDiagnosticCodes,
 } from "./host-capabilities.js";
@@ -51,17 +52,21 @@ export type {
 export { renderRuntimeUIViewModelFallback } from "./fallback-renderer.js";
 export type {
   FallbackRuntimeUIElement,
+  FallbackRuntimeUIEditableOverlayCandidateElement,
   FallbackRuntimeUILayer,
   FallbackRuntimeUIObjectiveElement,
+  FallbackRuntimeUIPauseElement,
   FallbackRuntimeUIPromptElement,
   FallbackRuntimeUISnapshot,
   FallbackRuntimeUISubtitleElement,
 } from "./fallback-renderer.js";
 export { gateDemoRuntimeUIViewModel, gateDemoRuntimeUIViewModelEnvelope } from "./fixture.js";
 export type {
+  RuntimeUIEditableOverlayCandidateElement,
   RuntimeUIElement,
   RuntimeUILayer,
   RuntimeUIObjectiveElement,
+  RuntimeUIPauseElement,
   RuntimeUIPromptElement,
   RuntimeUISubtitleElement,
   RuntimeUIViewModel,

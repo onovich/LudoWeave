@@ -38,6 +38,8 @@ describe("Sinan-like runtime UI loop", () => {
     expect(result.frameId).toBe(1024);
     expect(result.snapshot).toContain('"runtime.gameplay.interact"');
     expect(result.snapshot).toContain('"Deliver the cell"');
+    expect(result.snapshot).toContain('"Paused"');
+    expect(result.snapshot).toContain('"Gate access code"');
     expect(command).toEqual({
       sequence: 1,
       channel: "runtime-ui",
@@ -138,6 +140,65 @@ function resolveFixtureBoxes(contentBox: ResolvedRect): ReadonlyMap<string, Reso
         },
       }),
     ],
+    [
+      "runtime.main/key:pause.menu",
+      resolveAbsoluteAnchor({
+        container: contentBox,
+        size: { width: 360, height: 160 },
+        anchor: {
+          horizontal: "end",
+          vertical: "start",
+          inset: {
+            top: 48,
+            right: 48,
+          },
+        },
+      }),
+    ],
+    [
+      "runtime.main/key:pause.menu/key:confirm",
+      resolveAbsoluteAnchor({
+        container: contentBox,
+        size: { width: 120, height: 44 },
+        anchor: {
+          horizontal: "end",
+          vertical: "start",
+          inset: {
+            top: 132,
+            right: 196,
+          },
+        },
+      }),
+    ],
+    [
+      "runtime.main/key:pause.menu/key:cancel",
+      resolveAbsoluteAnchor({
+        container: contentBox,
+        size: { width: 120, height: 44 },
+        anchor: {
+          horizontal: "end",
+          vertical: "start",
+          inset: {
+            top: 132,
+            right: 64,
+          },
+        },
+      }),
+    ],
+    [
+      "runtime.main/key:editable.gate-code",
+      resolveAbsoluteAnchor({
+        container: contentBox,
+        size: { width: 320, height: 44 },
+        anchor: {
+          horizontal: "center",
+          vertical: "end",
+          inset: {
+            bottom: 168,
+          },
+        },
+      }),
+    ],
   ]);
 }
 
@@ -216,6 +277,39 @@ function resolvePaint(node: ResolvedNode): readonly RenderCommand[] {
     ];
   }
 
+  if (node.type === "dialog") {
+    return [
+      {
+        id: "paint.pause.menu",
+        kind: "box",
+        nodeId: node.id,
+        box: node.box,
+        fill: "#1f2937",
+      },
+    ];
+  }
+
+  if (node.type === "editable-text") {
+    return [
+      {
+        id: "paint.editable.gate-code",
+        kind: "box",
+        nodeId: node.id,
+        box: node.box,
+        fill: "#111827",
+      },
+      {
+        id: "paint.editable.gate-code.label",
+        kind: "text",
+        nodeId: node.id,
+        box: node.box,
+        text: getLabel(node),
+        color: "#e5e7eb",
+        fontSize: 16,
+      },
+    ];
+  }
+
   return [];
 }
 
@@ -260,9 +354,22 @@ function resolveAction(node: ResolvedNode): readonly ResolvedActionTarget[] {
     ];
   }
 
+  if (node.key === "prompt.interact.switch_a") {
+    return [
+      {
+        id: "action.prompt.interact.switch_a",
+        nodeId: node.id,
+        path: node.path,
+        action: node.action,
+        box: node.box,
+        label: getLabel(node),
+      },
+    ];
+  }
+
   return [
     {
-      id: "action.prompt.interact.switch_a",
+      id: `action.${node.key ?? node.type}`,
       nodeId: node.id,
       path: node.path,
       action: node.action,

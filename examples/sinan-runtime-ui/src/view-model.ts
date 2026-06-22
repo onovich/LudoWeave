@@ -1,4 +1,4 @@
-import type { ActionRefInput, JsonValue } from "@ludoweave/core";
+import type { ActionRefInput, JsonValue, TextInputOverlayInputMode } from "@ludoweave/core";
 
 export interface RuntimeUIViewModel {
   readonly frame: number;
@@ -15,7 +15,9 @@ export interface RuntimeUILayer {
 export type RuntimeUIElement =
   | RuntimeUIPromptElement
   | RuntimeUISubtitleElement
-  | RuntimeUIObjectiveElement;
+  | RuntimeUIObjectiveElement
+  | RuntimeUIPauseElement
+  | RuntimeUIEditableOverlayCandidateElement;
 
 export interface RuntimeUIPromptElement {
   readonly type: "prompt";
@@ -40,4 +42,26 @@ export interface RuntimeUIObjectiveElement {
   readonly status?: "active" | "completed" | "failed";
   readonly action?: ActionRefInput;
   readonly payload?: Readonly<Record<string, JsonValue>>;
+}
+
+export interface RuntimeUIPauseElement {
+  readonly type: "pause";
+  readonly id: string;
+  readonly title: string;
+  readonly confirmAction?: ActionRefInput;
+  readonly cancelAction?: ActionRefInput;
+}
+
+export interface RuntimeUIEditableOverlayCandidateElement {
+  readonly type: "editable-overlay-candidate";
+  readonly id: string;
+  readonly label: string;
+  readonly value: string;
+  readonly placeholder?: string;
+  readonly inputMode?: TextInputOverlayInputMode;
+  readonly multiline: boolean;
+  readonly requiredCapability: "overlay.text-input";
+  readonly commitAction: ActionRefInput;
+  readonly cancelAction: ActionRefInput;
+  readonly fallbackAction?: ActionRefInput;
 }

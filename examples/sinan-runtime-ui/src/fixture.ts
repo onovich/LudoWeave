@@ -43,6 +43,42 @@ export const gateDemoRuntimeUIViewModel = {
             },
           },
         },
+        {
+          type: "pause",
+          id: "pause.menu",
+          title: "Paused",
+          confirmAction: "runtime.pause.resume",
+          cancelAction: "runtime.pause.close",
+        },
+        {
+          type: "editable-overlay-candidate",
+          id: "editable.gate-code",
+          label: "Gate access code",
+          value: "",
+          placeholder: "Enter gate code",
+          inputMode: "text",
+          multiline: false,
+          requiredCapability: "overlay.text-input",
+          commitAction: {
+            type: "runtime.input.commit",
+            payload: {
+              field: "gate-code",
+            },
+          },
+          cancelAction: {
+            type: "runtime.input.cancel",
+            payload: {
+              field: "gate-code",
+            },
+          },
+          fallbackAction: {
+            type: "runtime.input.open-host-modal",
+            payload: {
+              field: "gate-code",
+              reason: "missing-overlay-capability",
+            },
+          },
+        },
       ],
     },
   ],
