@@ -85,6 +85,22 @@ export type {
   TextRenderCommand,
 } from "./resolved-frame.js";
 export type {
+  ScrollAxis,
+  ScrollContainerMetadata,
+  ScrollContainerMetadataInput,
+  ScrollDisabledReason,
+  ScrollExtent,
+  ScrollHostCapability,
+  ScrollHostCapabilityStatus,
+  ScrollMetadataFrame,
+  ScrollMetadataFrameInput,
+  ScrollOffsetSnapshot,
+} from "./scroll-metadata.js";
+export {
+  normalizeScrollContainerMetadata,
+  normalizeScrollMetadataFrame,
+} from "./scroll-metadata.js";
+export type {
   NormalizedUiNode,
   NormalizedUiTree,
   NormalizeUiTreeOptions,

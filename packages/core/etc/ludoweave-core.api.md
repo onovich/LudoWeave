@@ -302,6 +302,12 @@ export function normalizeHostInputIntent(input: HostInputIntentInput): HostInput
 export function normalizeRuntimeUiThemeTokenContract(input: unknown): RuntimeUiThemeTokenContract;
 
 // @public
+export function normalizeScrollContainerMetadata(input: ScrollContainerMetadataInput): ScrollContainerMetadata;
+
+// @public
+export function normalizeScrollMetadataFrame(input: ScrollMetadataFrameInput): ScrollMetadataFrame;
+
+// @public
 export function normalizeTextInputOverlayCapability(input: TextInputOverlayCapability): TextInputOverlayCapability;
 
 // @public
@@ -598,6 +604,105 @@ export const runtimeUiThemeTokens: Readonly<{
         body: "runtime-ui.objective.body";
     }>;
 }>;
+
+// @public
+export type ScrollAxis = "x" | "y" | "both";
+
+// @public
+export interface ScrollContainerMetadata {
+    // (undocumented)
+    readonly axis: ScrollAxis;
+    // (undocumented)
+    readonly contentRect: ResolvedRect;
+    // (undocumented)
+    readonly disabledReason?: ScrollDisabledReason;
+    // (undocumented)
+    readonly extent: ScrollExtent;
+    // (undocumented)
+    readonly hostCapability: ScrollHostCapability;
+    // (undocumented)
+    readonly id: string;
+    // (undocumented)
+    readonly nodeId: string;
+    // (undocumented)
+    readonly offset: ScrollOffsetSnapshot;
+    // (undocumented)
+    readonly viewportRect: ResolvedRect;
+}
+
+// @public
+export interface ScrollContainerMetadataInput {
+    // (undocumented)
+    readonly axis?: ScrollAxis;
+    // (undocumented)
+    readonly contentRect: ResolvedRect;
+    // (undocumented)
+    readonly disabledReason?: ScrollDisabledReason;
+    // (undocumented)
+    readonly extent?: Partial<ScrollExtent>;
+    // (undocumented)
+    readonly hostCapability?: Partial<ScrollHostCapability>;
+    // (undocumented)
+    readonly id: string;
+    // (undocumented)
+    readonly nodeId?: string;
+    // (undocumented)
+    readonly offset?: Partial<ScrollOffsetSnapshot>;
+    // (undocumented)
+    readonly viewportRect: ResolvedRect;
+}
+
+// @public
+export type ScrollDisabledReason = "empty-container" | "host-disabled" | "missing-capability" | "stale" | "unsupported";
+
+// @public
+export interface ScrollExtent {
+    // (undocumented)
+    readonly height: number;
+    // (undocumented)
+    readonly width: number;
+}
+
+// @public
+export interface ScrollHostCapability {
+    // (undocumented)
+    readonly reason?: ScrollDisabledReason;
+    // (undocumented)
+    readonly status: ScrollHostCapabilityStatus;
+}
+
+// @public
+export type ScrollHostCapabilityStatus = "available" | "disabled" | "missing" | "unsupported";
+
+// @public
+export interface ScrollMetadataFrame {
+    // (undocumented)
+    readonly activeContainerId?: string;
+    // (undocumented)
+    readonly containers: readonly ScrollContainerMetadata[];
+    // (undocumented)
+    readonly restoreContainerId?: string;
+}
+
+// @public
+export interface ScrollMetadataFrameInput {
+    // (undocumented)
+    readonly activeContainerId?: string;
+    // (undocumented)
+    readonly containers: readonly ScrollContainerMetadataInput[];
+    // (undocumented)
+    readonly restoreContainerId?: string;
+}
+
+// @public
+export interface ScrollOffsetSnapshot {
+    // (undocumented)
+    readonly revision?: number;
+    // (undocumented)
+    readonly x: number;
+    // (undocumented)
+    readonly y: number;
+}
 
 // @public
 export interface SemanticNode {
