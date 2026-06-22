@@ -400,6 +400,12 @@ export interface NormalizeUiTreeOptions {
 }
 
 // @public
+export function normalizeVirtualWindowMetadata(input: VirtualWindowMetadataInput): VirtualWindowMetadata;
+
+// @public
+export function normalizeVirtualWindowMetadataFrame(input: VirtualWindowMetadataFrameInput): VirtualWindowMetadataFrame;
+
+// @public
 export type PixelSnapPolicy = "none" | "device-pixel";
 
 // @public
@@ -1170,6 +1176,128 @@ export type UiThemeTokenName = string;
 
 // @public
 export const uiThemeTokenStyleKey = "themeToken";
+
+// @public
+export interface VirtualItemRange {
+    // (undocumented)
+    readonly endIndex: number;
+    // (undocumented)
+    readonly startIndex: number;
+}
+
+// @public
+export interface VirtualItemSizeEstimate {
+    // (undocumented)
+    readonly height: number;
+    // (undocumented)
+    readonly width: number;
+}
+
+// @public
+export interface VirtualSelectionSnapshot {
+    // (undocumented)
+    readonly anchorKey?: string;
+    // (undocumented)
+    readonly focusedKey?: string;
+    // (undocumented)
+    readonly revision?: number;
+    // (undocumented)
+    readonly selectedKey?: string;
+}
+
+// @public
+export type VirtualWindowDisabledReason = "empty-list" | "host-disabled" | "missing-capability" | "stale" | "unsupported";
+
+// @public
+export interface VirtualWindowHostCapability {
+    // (undocumented)
+    readonly reason?: VirtualWindowDisabledReason;
+    // (undocumented)
+    readonly status: VirtualWindowHostCapabilityStatus;
+}
+
+// @public
+export type VirtualWindowHostCapabilityStatus = "available" | "disabled" | "missing" | "unsupported";
+
+// @public
+export interface VirtualWindowMetadata {
+    // (undocumented)
+    readonly diagnostics: readonly UiDiagnostic[];
+    // (undocumented)
+    readonly disabledReason?: VirtualWindowDisabledReason;
+    // (undocumented)
+    readonly estimatedItemSize: VirtualItemSizeEstimate;
+    // (undocumented)
+    readonly hostCapability: VirtualWindowHostCapability;
+    // (undocumented)
+    readonly id: string;
+    // (undocumented)
+    readonly itemKeyNamespace: string;
+    // (undocumented)
+    readonly nodeId: string;
+    // (undocumented)
+    readonly overscanRange: VirtualItemRange;
+    // (undocumented)
+    readonly realizedRange: VirtualItemRange;
+    // (undocumented)
+    readonly scrollContainerId?: string;
+    // (undocumented)
+    readonly selection: VirtualSelectionSnapshot;
+    // (undocumented)
+    readonly totalCount: number;
+    // (undocumented)
+    readonly viewportRect?: ResolvedRect;
+}
+
+// @public
+export interface VirtualWindowMetadataFrame {
+    // (undocumented)
+    readonly activeWindowId?: string;
+    // (undocumented)
+    readonly restoreWindowId?: string;
+    // (undocumented)
+    readonly windows: readonly VirtualWindowMetadata[];
+}
+
+// @public
+export interface VirtualWindowMetadataFrameInput {
+    // (undocumented)
+    readonly activeWindowId?: string;
+    // (undocumented)
+    readonly restoreWindowId?: string;
+    // (undocumented)
+    readonly windows: readonly VirtualWindowMetadataInput[];
+}
+
+// @public
+export interface VirtualWindowMetadataInput {
+    // (undocumented)
+    readonly diagnostics?: readonly UiDiagnosticInput[];
+    // (undocumented)
+    readonly disabledReason?: VirtualWindowDisabledReason;
+    // (undocumented)
+    readonly estimatedItemSize: Partial<VirtualItemSizeEstimate>;
+    // (undocumented)
+    readonly hostCapability?: Partial<VirtualWindowHostCapability>;
+    // (undocumented)
+    readonly id: string;
+    // (undocumented)
+    readonly itemKeyNamespace: string;
+    // (undocumented)
+    readonly nodeId?: string;
+    // (undocumented)
+    readonly overscanRange?: VirtualItemRange;
+    // (undocumented)
+    readonly realizedRange: VirtualItemRange;
+    // (undocumented)
+    readonly scrollContainerId?: string;
+    // (undocumented)
+    readonly selection?: Partial<VirtualSelectionSnapshot>;
+    // (undocumented)
+    readonly totalCount: number;
+    // (undocumented)
+    readonly viewportRect?: ResolvedRect;
+}
 
 // (No @packageDocumentation comment for this package)
 

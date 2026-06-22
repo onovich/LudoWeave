@@ -122,6 +122,22 @@ export {
   resolveScrollRestoration,
 } from "./scroll-offset-normalization.js";
 export type {
+  VirtualItemRange,
+  VirtualItemSizeEstimate,
+  VirtualSelectionSnapshot,
+  VirtualWindowDisabledReason,
+  VirtualWindowHostCapability,
+  VirtualWindowHostCapabilityStatus,
+  VirtualWindowMetadata,
+  VirtualWindowMetadataFrame,
+  VirtualWindowMetadataFrameInput,
+  VirtualWindowMetadataInput,
+} from "./virtual-window-metadata.js";
+export {
+  normalizeVirtualWindowMetadata,
+  normalizeVirtualWindowMetadataFrame,
+} from "./virtual-window-metadata.js";
+export type {
   NormalizedUiNode,
   NormalizedUiTree,
   NormalizeUiTreeOptions,
