@@ -68,6 +68,8 @@
 
 - [v0.8 Integration Status](roadmap/ludoweave-v0.8-integration-status.md)
 - [v0.8 Release Notes Draft](release/ludoweave-v0.8-release-notes-draft.md)
+- [v0.8 Final Report](release/ludoweave-v0.8-final-report.md)
+- [v0.8 Final Validation Log](release/ludoweave-v0.8-final-validation-log.md)
 
 ## Decision Records
 
