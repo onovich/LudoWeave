@@ -16,6 +16,16 @@ export type {
   UiDiagnosticSeverity,
 } from "./diagnostics.js";
 export { coreDiagnosticCodes, createDiagnosticSink, normalizeUiDiagnostic } from "./diagnostics.js";
+export type {
+  FocusDirection,
+  FocusDirectionalNeighbors,
+  FocusDisabledReason,
+  FocusGraph,
+  FocusGraphInput,
+  FocusGraphNode,
+  FocusGraphNodeInput,
+} from "./focus-graph.js";
+export { normalizeFocusGraph, normalizeFocusGraphNode } from "./focus-graph.js";
 export type { JsonArray, JsonObject, JsonValue } from "./json-value.js";
 export type {
   AbsoluteAnchor,

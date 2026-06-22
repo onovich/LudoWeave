@@ -83,6 +83,75 @@ export interface DiagnosticSink {
 }
 
 // @public
+export type FocusDirection = "up" | "down" | "left" | "right";
+
+// @public
+export type FocusDirectionalNeighbors = Partial<Record<FocusDirection, string>>;
+
+// @public
+export type FocusDisabledReason = "host-disabled" | "missing-capability" | "modal-excluded" | "stale" | "unsupported";
+
+// @public
+export interface FocusGraph {
+    // (undocumented)
+    readonly currentFocusId?: string;
+    // (undocumented)
+    readonly nodes: readonly FocusGraphNode[];
+    // (undocumented)
+    readonly restoreFocusId?: string;
+    // (undocumented)
+    readonly scopeId: string;
+}
+
+// @public
+export interface FocusGraphInput {
+    // (undocumented)
+    readonly currentFocusId?: string;
+    // (undocumented)
+    readonly nodes: readonly FocusGraphNodeInput[];
+    // (undocumented)
+    readonly restoreFocusId?: string;
+    // (undocumented)
+    readonly scopeId?: string;
+}
+
+// @public
+export interface FocusGraphNode {
+    // (undocumented)
+    readonly directionalNeighbors?: FocusDirectionalNeighbors;
+    // (undocumented)
+    readonly disabledReason?: FocusDisabledReason;
+    // (undocumented)
+    readonly id: string;
+    // (undocumented)
+    readonly nodeId: string;
+    // (undocumented)
+    readonly priority: number;
+    // (undocumented)
+    readonly rect: ResolvedRect;
+    // (undocumented)
+    readonly scopeId: string;
+}
+
+// @public
+export interface FocusGraphNodeInput {
+    // (undocumented)
+    readonly directionalNeighbors?: FocusDirectionalNeighbors;
+    // (undocumented)
+    readonly disabledReason?: FocusDisabledReason;
+    // (undocumented)
+    readonly id: string;
+    // (undocumented)
+    readonly nodeId?: string;
+    // (undocumented)
+    readonly priority?: number;
+    // (undocumented)
+    readonly rect: ResolvedRect;
+    // (undocumented)
+    readonly scopeId?: string;
+}
+
+// @public
 export type JsonArray = readonly JsonValue[];
 
 // @public
@@ -140,6 +209,12 @@ export interface NormalizedUiTree {
     // (undocumented)
     readonly root: NormalizedUiNode;
 }
+
+// @public
+export function normalizeFocusGraph(input: FocusGraphInput): FocusGraph;
+
+// @public
+export function normalizeFocusGraphNode(input: FocusGraphNodeInput): FocusGraphNode;
 
 // @public
 export function normalizeRuntimeUiThemeTokenContract(input: unknown): RuntimeUiThemeTokenContract;
