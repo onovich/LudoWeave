@@ -64,6 +64,9 @@ export function createDiagnosticSink(initialDiagnostics?: readonly UiDiagnosticI
 export function createFocusNavigationDiagnostic(reason: FocusNavigationDiagnosticReason, details?: Readonly<Record<string, JsonValue>>): UiDiagnostic;
 
 // @public
+export function createHostCollectionIntentActionRef(intent: Omit<HostCollectionIntent, "action">): ActionRef;
+
+// @public
 export function createHostScrollIntentActionRef(intent: Omit<HostScrollIntent, "action">): ActionRef;
 
 // @public
@@ -198,6 +201,58 @@ export const focusNavigationDiagnosticCodes: {
 
 // @public
 export type FocusNavigationDiagnosticReason = keyof typeof focusNavigationDiagnosticCodes;
+
+// @public
+export interface HostCollectionIntent {
+    // (undocumented)
+    readonly action: ActionRef;
+    // (undocumented)
+    readonly direction?: HostCollectionMoveDirection;
+    // (undocumented)
+    readonly handoff: "host";
+    // (undocumented)
+    readonly itemKey?: string;
+    // (undocumented)
+    readonly itemKeyNamespace: string;
+    // (undocumented)
+    readonly kind: HostCollectionIntentKind;
+    // (undocumented)
+    readonly repeat: boolean;
+    // (undocumented)
+    readonly requestedRange?: VirtualItemRange;
+    // (undocumented)
+    readonly restoreSelection?: VirtualSelectionSnapshot;
+    // (undocumented)
+    readonly windowId: string;
+}
+
+// @public
+export interface HostCollectionIntentInput {
+    // (undocumented)
+    readonly action?: ActionRefInput;
+    // (undocumented)
+    readonly direction?: HostCollectionMoveDirection;
+    // (undocumented)
+    readonly itemKey?: string;
+    // (undocumented)
+    readonly itemKeyNamespace: string;
+    // (undocumented)
+    readonly kind: HostCollectionIntentKind;
+    // (undocumented)
+    readonly repeat?: boolean;
+    // (undocumented)
+    readonly requestedRange?: VirtualItemRange;
+    // (undocumented)
+    readonly restoreSelection?: Partial<VirtualSelectionSnapshot>;
+    // (undocumented)
+    readonly windowId: string;
+}
+
+// @public
+export type HostCollectionIntentKind = "select-item" | "activate-item" | "move-selection" | "request-window" | "restore-selection";
+
+// @public
+export type HostCollectionMoveDirection = "next" | "previous" | "page-next" | "page-previous" | "start" | "end";
 
 // @public
 export interface HostInputIntent {
@@ -351,6 +406,9 @@ export function normalizeFocusGraph(input: FocusGraphInput): FocusGraph;
 
 // @public
 export function normalizeFocusGraphNode(input: FocusGraphNodeInput): FocusGraphNode;
+
+// @public
+export function normalizeHostCollectionIntent(input: HostCollectionIntentInput): HostCollectionIntent;
 
 // @public
 export function normalizeHostInputIntent(input: HostInputIntentInput): HostInputIntent;

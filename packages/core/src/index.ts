@@ -39,6 +39,16 @@ export type {
 } from "./focus-graph.js";
 export { normalizeFocusGraph, normalizeFocusGraphNode } from "./focus-graph.js";
 export type {
+  HostCollectionIntent,
+  HostCollectionIntentInput,
+  HostCollectionIntentKind,
+  HostCollectionMoveDirection,
+} from "./host-collection-intent.js";
+export {
+  createHostCollectionIntentActionRef,
+  normalizeHostCollectionIntent,
+} from "./host-collection-intent.js";
+export type {
   HostInputIntent,
   HostInputIntentInput,
   HostInputIntentKind,
