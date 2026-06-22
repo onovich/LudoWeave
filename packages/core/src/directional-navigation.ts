@@ -1,4 +1,6 @@
 import type { FocusDirection, FocusGraph, FocusGraphNode } from "./focus-graph.js";
+import type { UiDiagnostic } from "./diagnostics.js";
+import { createFocusNavigationDiagnostic } from "./focus-navigation-diagnostics.js";
 
 /**
  * Result status for deterministic directional focus resolution.
@@ -6,6 +8,17 @@ import type { FocusDirection, FocusGraph, FocusGraphNode } from "./focus-graph.j
  * @public
  */
 export type DirectionalFocusResultStatus = "resolved" | "no-target";
+
+/**
+ * Stable reason why directional focus could not resolve a target.
+ *
+ * @public
+ */
+export type DirectionalFocusBlockedReason =
+  | "disabled-target"
+  | "empty-graph"
+  | "missing-target"
+  | "stale-focus-key";
 
 /**
  * How a directional focus target was selected.
@@ -25,6 +38,8 @@ export interface DirectionalFocusResult {
   readonly direction: FocusDirection;
   readonly targetId?: string;
   readonly method?: DirectionalFocusResolutionMethod;
+  readonly blockedReason?: DirectionalFocusBlockedReason;
+  readonly diagnostic?: UiDiagnostic;
 }
 
 /**
@@ -37,19 +52,19 @@ export function resolveDirectionalFocus(
   fromId: string,
   direction: FocusDirection,
 ): DirectionalFocusResult {
+  if (graph.nodes.length === 0) {
+    return blockedResult("empty-graph", fromId, direction);
+  }
+
   const from = graph.nodes.find((node) => node.id === fromId);
   if (from === undefined) {
-    return {
-      status: "no-target",
-      fromId,
-      direction,
-    };
+    return blockedResult("stale-focus-key", fromId, direction);
   }
 
   const explicitTargetId = from.directionalNeighbors?.[direction];
   if (explicitTargetId !== undefined) {
-    const explicitTarget = findEnabledNode(graph.nodes, explicitTargetId);
-    if (explicitTarget !== undefined) {
+    const explicitTarget = graph.nodes.find((node) => node.id === explicitTargetId);
+    if (explicitTarget !== undefined && explicitTarget.disabledReason === undefined) {
       return {
         status: "resolved",
         fromId,
@@ -58,6 +73,12 @@ export function resolveDirectionalFocus(
         method: "explicit-neighbor",
       };
     }
+
+    if (explicitTarget !== undefined) {
+      return blockedResult("disabled-target", fromId, direction, explicitTarget.id);
+    }
+
+    return blockedResult("missing-target", fromId, direction, explicitTargetId);
   }
 
   const nearest = findNearestDirectionalTarget(graph.nodes, from, direction);
@@ -78,13 +99,6 @@ export function resolveDirectionalFocus(
   };
 }
 
-function findEnabledNode(
-  nodes: readonly FocusGraphNode[],
-  id: string,
-): FocusGraphNode | undefined {
-  return nodes.find((node) => node.id === id && node.disabledReason === undefined);
-}
-
 function findNearestDirectionalTarget(
   nodes: readonly FocusGraphNode[],
   from: FocusGraphNode,
@@ -99,6 +113,50 @@ function findNearestDirectionalTarget(
 
   return scored[0]?.node;
 }
+
+function blockedResult(
+  blockedReason: DirectionalFocusBlockedReason,
+  fromId: string,
+  direction: FocusDirection,
+  targetId?: string,
+): DirectionalFocusResult {
+  const reason =
+    blockedReason === "disabled-target"
+      ? "disabledTarget"
+      : blockedReason === "empty-graph"
+        ? "emptyGraph"
+        : blockedReason === "missing-target"
+          ? "missingTarget"
+          : "staleFocusKey";
+
+  const result: MutableDirectionalFocusResult = {
+    status: "no-target",
+    fromId,
+    direction,
+    blockedReason,
+    diagnostic: createFocusNavigationDiagnostic(reason, {
+      fromId,
+      direction,
+      ...(targetId === undefined ? {} : { targetId }),
+    }),
+  };
+
+  if (targetId !== undefined) {
+    result.targetId = targetId;
+  }
+
+  return result;
+}
+
+type MutableDirectionalFocusResult = {
+  status: DirectionalFocusResultStatus;
+  fromId: string;
+  direction: FocusDirection;
+  targetId?: string;
+  method?: DirectionalFocusResolutionMethod;
+  blockedReason?: DirectionalFocusBlockedReason;
+  diagnostic?: UiDiagnostic;
+};
 
 interface Point {
   readonly x: number;

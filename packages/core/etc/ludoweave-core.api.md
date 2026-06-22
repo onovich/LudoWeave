@@ -61,6 +61,9 @@ export interface CreateActionLogOptions {
 export function createDiagnosticSink(initialDiagnostics?: readonly UiDiagnosticInput[]): DiagnosticSink;
 
 // @public
+export function createFocusNavigationDiagnostic(reason: FocusNavigationDiagnosticReason, details?: Readonly<Record<string, JsonValue>>): UiDiagnostic;
+
+// @public
 export function createLayoutEnvironment(options: CreateLayoutEnvironmentOptions): LayoutEnvironment;
 
 // @public
@@ -83,10 +86,17 @@ export interface DiagnosticSink {
 }
 
 // @public
+export type DirectionalFocusBlockedReason = "disabled-target" | "empty-graph" | "missing-target" | "stale-focus-key";
+
+// @public
 export type DirectionalFocusResolutionMethod = "explicit-neighbor" | "nearest-target";
 
 // @public
 export interface DirectionalFocusResult {
+    // (undocumented)
+    readonly blockedReason?: DirectionalFocusBlockedReason;
+    // (undocumented)
+    readonly diagnostic?: UiDiagnostic;
     // (undocumented)
     readonly direction: FocusDirection;
     // (undocumented)
@@ -170,6 +180,18 @@ export interface FocusGraphNodeInput {
     // (undocumented)
     readonly scopeId?: string;
 }
+
+// @public
+export const focusNavigationDiagnosticCodes: {
+    readonly disabledTarget: "LW_FOCUS_DISABLED_TARGET";
+    readonly emptyGraph: "LW_FOCUS_EMPTY_GRAPH";
+    readonly missingHostCapability: "LW_FOCUS_MISSING_HOST_CAPABILITY";
+    readonly missingTarget: "LW_FOCUS_MISSING_TARGET";
+    readonly staleFocusKey: "LW_FOCUS_STALE_KEY";
+};
+
+// @public
+export type FocusNavigationDiagnosticReason = keyof typeof focusNavigationDiagnosticCodes;
 
 // @public
 export interface HostInputIntent {

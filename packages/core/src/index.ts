@@ -17,11 +17,17 @@ export type {
 } from "./diagnostics.js";
 export { coreDiagnosticCodes, createDiagnosticSink, normalizeUiDiagnostic } from "./diagnostics.js";
 export type {
+  DirectionalFocusBlockedReason,
   DirectionalFocusResolutionMethod,
   DirectionalFocusResult,
   DirectionalFocusResultStatus,
 } from "./directional-navigation.js";
 export { resolveDirectionalFocus } from "./directional-navigation.js";
+export type { FocusNavigationDiagnosticReason } from "./focus-navigation-diagnostics.js";
+export {
+  createFocusNavigationDiagnostic,
+  focusNavigationDiagnosticCodes,
+} from "./focus-navigation-diagnostics.js";
 export type {
   FocusDirection,
   FocusDirectionalNeighbors,
