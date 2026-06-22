@@ -12,6 +12,7 @@
 - [v0.1 Release Notes Draft](release/ludoweave-v0.1-release-notes-draft.md)
 - [v0.2 Goal 模式执行指南](goal-mode/ludoweave-v0.2-goal-mode-execution-guide.md) - 16 轮会话预算
 - [v0.3 Goal 模式执行指南](goal-mode/ludoweave-v0.3-goal-mode-execution-guide.md) - 16 轮会话预算
+- [v0.4 Goal 模式执行指南](goal-mode/ludoweave-v0.4-goal-mode-execution-guide.md) - 16 轮会话预算
 - [对 Sinan RFC 的判断与研发计划重排](sinan-cooperation/ludoweave-response-and-rd-plan-2026-06-20.md)
 - [v0.3 Sinan Host Integration Readiness](sinan-cooperation/ludoweave-v0.3-sinan-host-integration-readiness.md)
 
@@ -29,6 +30,10 @@
 - [v0.3 Release Notes Draft](release/ludoweave-v0.3-release-notes-draft.md)
 - [v0.3 Final Report](release/ludoweave-v0.3-final-report.md)
 - [v0.3 Final Validation Log](release/ludoweave-v0.3-final-validation-log.md)
+
+## v0.4 Drafts
+
+- [v0.4 Integration Status](roadmap/ludoweave-v0.4-integration-status.md)
 
 ## Decision Records
 
