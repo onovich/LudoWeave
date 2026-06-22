@@ -24,6 +24,7 @@
 ## v0.3 Drafts
 
 - [v0.3 Integration Status](roadmap/ludoweave-v0.3-integration-status.md)
+- [v0.3 Bounded Future Tracks](roadmap/ludoweave-v0.3-bounded-future-tracks.md)
 
 ## Decision Records
 
