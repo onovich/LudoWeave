@@ -73,6 +73,9 @@ export function createFocusNavigationDiagnostic(reason: FocusNavigationDiagnosti
 export function createHostCollectionIntentActionRef(intent: Omit<HostCollectionIntent, "action">): ActionRef;
 
 // @public
+export function createHostRichTextIntentActionRef(intent: Omit<HostRichTextIntent, "action">): ActionRef;
+
+// @public
 export function createHostScrollIntentActionRef(intent: Omit<HostScrollIntent, "action">): ActionRef;
 
 // @public
@@ -343,6 +346,119 @@ export interface HostInputIntentInput {
 export type HostInputIntentKind = "confirm" | "cancel" | "navigate" | "next" | "previous" | "pause" | "menu";
 
 // @public
+export interface HostRichTextIntent {
+    // (undocumented)
+    readonly action: ActionRef;
+    // (undocumented)
+    readonly blockId: string;
+    // (undocumented)
+    readonly diagnosticCode?: UiDiagnosticCode;
+    // (undocumented)
+    readonly fallbackReason?: string;
+    // (undocumented)
+    readonly handoff: "host";
+    // (undocumented)
+    readonly kind: HostRichTextIntentKind;
+    // (undocumented)
+    readonly policyLane: HostRichTextPolicyLane;
+    // (undocumented)
+    readonly spanId?: string;
+}
+
+// @public
+export interface HostRichTextIntentInput {
+    // (undocumented)
+    readonly action?: ActionRefInput;
+    // (undocumented)
+    readonly blockId: string;
+    // (undocumented)
+    readonly diagnosticCode?: UiDiagnosticCode;
+    // (undocumented)
+    readonly fallbackReason?: string;
+    // (undocumented)
+    readonly kind: HostRichTextIntentKind;
+    // (undocumented)
+    readonly policyLane: HostRichTextPolicyLane;
+    // (undocumented)
+    readonly spanId?: string;
+}
+
+// @public
+export type HostRichTextIntentKind = "activate-span" | "dismiss-diagnostic" | "request-review" | "use-fallback";
+
+// @public
+export type HostRichTextPolicyLane = "accessibility-review" | "font-selection" | "localized-content" | "markup-policy" | "narrative-state" | "platform-policy" | "sanitization" | "text-measurement";
+
+// @public
+export interface HostRichTextPolicySnapshot {
+    // (undocumented)
+    readonly accessibilityReview: HostRichTextPolicyState;
+    // (undocumented)
+    readonly blockId: string;
+    // (undocumented)
+    readonly contentRevision?: number;
+    // (undocumented)
+    readonly fontSelection: HostRichTextPolicyState;
+    // (undocumented)
+    readonly localeHint: string;
+    // (undocumented)
+    readonly localizedContent: HostRichTextPolicyState;
+    // (undocumented)
+    readonly markupPolicy: HostRichTextPolicyState;
+    // (undocumented)
+    readonly narrativeState: HostRichTextPolicyState;
+    // (undocumented)
+    readonly platformPolicy: HostRichTextPolicyState;
+    // (undocumented)
+    readonly sanitization: HostRichTextPolicyState;
+    // (undocumented)
+    readonly textMeasurement: HostRichTextPolicyState;
+}
+
+// @public
+export interface HostRichTextPolicySnapshotInput {
+    // (undocumented)
+    readonly accessibilityReview?: Partial<HostRichTextPolicyState>;
+    // (undocumented)
+    readonly blockId: string;
+    // (undocumented)
+    readonly contentRevision?: number;
+    // (undocumented)
+    readonly fontSelection?: Partial<HostRichTextPolicyState>;
+    // (undocumented)
+    readonly localeHint?: string;
+    // (undocumented)
+    readonly localizedContent?: Partial<HostRichTextPolicyState>;
+    // (undocumented)
+    readonly markupPolicy?: Partial<HostRichTextPolicyState>;
+    // (undocumented)
+    readonly narrativeState?: Partial<HostRichTextPolicyState>;
+    // (undocumented)
+    readonly platformPolicy?: Partial<HostRichTextPolicyState>;
+    // (undocumented)
+    readonly sanitization?: Partial<HostRichTextPolicyState>;
+    // (undocumented)
+    readonly textMeasurement?: Partial<HostRichTextPolicyState>;
+}
+
+// @public
+export interface HostRichTextPolicyState {
+    // (undocumented)
+    readonly lane: HostRichTextPolicyLane;
+    // (undocumented)
+    readonly owner: "host";
+    // (undocumented)
+    readonly revision?: number;
+    // (undocumented)
+    readonly sourceId?: string;
+    // (undocumented)
+    readonly status: HostRichTextPolicyStatus;
+}
+
+// @public
+export type HostRichTextPolicyStatus = "available" | "missing" | "pending" | "rejected";
+
+// @public
 export interface HostScrollIntent {
     // (undocumented)
     readonly action: ActionRef;
@@ -463,6 +579,12 @@ export function normalizeHostCollectionIntent(input: HostCollectionIntentInput):
 
 // @public
 export function normalizeHostInputIntent(input: HostInputIntentInput): HostInputIntent;
+
+// @public
+export function normalizeHostRichTextIntent(input: HostRichTextIntentInput): HostRichTextIntent;
+
+// @public
+export function normalizeHostRichTextPolicySnapshot(input: HostRichTextPolicySnapshotInput): HostRichTextPolicySnapshot;
 
 // @public
 export function normalizeHostScrollIntent(input: HostScrollIntentInput): HostScrollIntent;

@@ -49,6 +49,21 @@ export {
   normalizeHostCollectionIntent,
 } from "./host-collection-intent.js";
 export type {
+  HostRichTextIntent,
+  HostRichTextIntentInput,
+  HostRichTextIntentKind,
+  HostRichTextPolicyLane,
+  HostRichTextPolicySnapshot,
+  HostRichTextPolicySnapshotInput,
+  HostRichTextPolicyState,
+  HostRichTextPolicyStatus,
+} from "./host-rich-text-policy.js";
+export {
+  createHostRichTextIntentActionRef,
+  normalizeHostRichTextIntent,
+  normalizeHostRichTextPolicySnapshot,
+} from "./host-rich-text-policy.js";
+export type {
   HostInputIntent,
   HostInputIntentInput,
   HostInputIntentKind,
