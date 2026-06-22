@@ -17,6 +17,7 @@ import {
   type RuntimeUIHostCapabilitySnapshot,
 } from "./host-capabilities.js";
 import { createGateDemoNavigationSequence } from "./gate-demo-navigation.js";
+import { createGateDemoScrollSequence } from "./gate-demo-scroll.js";
 import {
   mapRuntimeUIViewModelEnvelopeToResolvedFrame,
   runtimeUIAdapterDiagnosticCodes,
@@ -31,7 +32,8 @@ export type GateDemoValidationLayer =
   | "host-capability"
   | "action-registry"
   | "overlay-coordination"
-  | "navigation";
+  | "navigation"
+  | "scroll";
 
 export type GateDemoValidationStatus = "PASS" | "FAIL";
 
@@ -67,6 +69,9 @@ export const gateDemoValidationDiagnosticCodes = Object.freeze({
   navigationMapping: "LW_EXAMPLE_VALIDATION_NAVIGATION_MAPPING",
   navigationRegistryRoute: "LW_EXAMPLE_VALIDATION_NAVIGATION_REGISTRY_ROUTE",
   navigationRendererTrace: "LW_EXAMPLE_VALIDATION_NAVIGATION_RENDERER_TRACE",
+  scrollMapping: "LW_EXAMPLE_VALIDATION_SCROLL_MAPPING",
+  scrollRegistryRoute: "LW_EXAMPLE_VALIDATION_SCROLL_REGISTRY_ROUTE",
+  scrollRendererTrace: "LW_EXAMPLE_VALIDATION_SCROLL_RENDERER_TRACE",
 });
 
 const mappingDiagnosticCodes = new Set<string>([
@@ -92,6 +97,7 @@ export function runGateDemoValidationHook(
     createActionRegistryLayer(mapping, registry),
     createOverlayCoordinationLayer(mapping.frame, hostCapabilities),
     createNavigationLayer(mapping, options.registryOptions),
+    createScrollLayer(mapping, options.registryOptions),
   ];
   const diagnostics = layers.flatMap((layer) => layer.diagnostics);
 
@@ -101,6 +107,72 @@ export function runGateDemoValidationHook(
     ...(mapping.envelopeFrameId === undefined ? {} : { frameId: mapping.envelopeFrameId }),
     layers,
     diagnostics,
+  };
+}
+
+function createScrollLayer(
+  mapping: RuntimeUIResolvedFrameMappingResult,
+  registryOptions: CreateSinanUIActionRefRegistryMockOptions | undefined,
+): GateDemoValidationLayerResult {
+  if (mapping.frame === undefined) {
+    return {
+      layer: "scroll",
+      status: "FAIL",
+      summary: "Scroll skipped because mapping did not produce a frame.",
+      diagnostics: [
+        normalizeUiDiagnostic({
+          code: gateDemoValidationDiagnosticCodes.scrollMapping,
+          severity: "error",
+          message: "Scroll validation requires a ResolvedUiFrame.",
+          path: ["validation-hook", "scroll", "mapping"],
+        }),
+      ],
+    };
+  }
+
+  const scrollOptions = {
+    frame: mapping.frame,
+    ...(mapping.envelopeFrameId === undefined ? {} : { frameId: mapping.envelopeFrameId }),
+    ...(registryOptions === undefined ? {} : { registryOptions }),
+  };
+  const scroll = createGateDemoScrollSequence(scrollOptions);
+  const registryFailures = scroll.registryResults.filter(
+    (entry) => entry.routingResult !== "accepted" && entry.routingResult !== "no-op",
+  );
+
+  if (scroll.rendererTrace.result !== "containers") {
+    return {
+      layer: "scroll",
+      status: "FAIL",
+      summary: "Scroll renderer trace did not expose scroll containers.",
+      diagnostics: [
+        normalizeUiDiagnostic({
+          code: gateDemoValidationDiagnosticCodes.scrollRendererTrace,
+          severity: "error",
+          message: "Scroll validation requires Canvas2D scroll metadata trace containers.",
+          path: ["validation-hook", "scroll", "renderer-trace"],
+          details: {
+            result: scroll.rendererTrace.result,
+          },
+        }),
+      ],
+    };
+  }
+
+  if (registryFailures.length > 0) {
+    return {
+      layer: "scroll",
+      status: "FAIL",
+      summary: "Scroll ActionRefs were rejected by the registry mock.",
+      diagnostics: registryFailures.flatMap((entry) => entry.diagnostics),
+    };
+  }
+
+  return {
+    layer: "scroll",
+    status: "PASS",
+    summary: "Gate Demo scroll sequence maps, traces, and routes ActionRefs.",
+    diagnostics: [],
   };
 }
 

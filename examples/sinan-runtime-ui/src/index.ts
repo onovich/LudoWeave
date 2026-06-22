@@ -81,6 +81,11 @@ export type {
   CreateGateDemoNavigationSequenceOptions,
   GateDemoNavigationSequenceResult,
 } from "./gate-demo-navigation.js";
+export { createGateDemoScrollSequence, gateDemoScrollSequenceVersion } from "./gate-demo-scroll.js";
+export type {
+  CreateGateDemoScrollSequenceOptions,
+  GateDemoScrollSequenceResult,
+} from "./gate-demo-scroll.js";
 export { renderRuntimeUIViewModelFallback } from "./fallback-renderer.js";
 export type {
   FallbackRuntimeUIElement,

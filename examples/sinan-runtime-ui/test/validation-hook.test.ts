@@ -22,6 +22,7 @@ describe("Gate Demo validation hook", () => {
       ["action-registry", "PASS"],
       ["overlay-coordination", "PASS"],
       ["navigation", "PASS"],
+      ["scroll", "PASS"],
     ]);
     expect(result.diagnostics).toEqual([]);
     expect(JSON.parse(JSON.stringify(result))).toEqual(result);
@@ -61,6 +62,7 @@ describe("Gate Demo validation hook", () => {
       ["action-registry", "PASS"],
       ["overlay-coordination", "PASS"],
       ["navigation", "PASS"],
+      ["scroll", "PASS"],
     ]);
     expect(result.diagnostics).toContainEqual(
       expect.objectContaining({
@@ -98,6 +100,24 @@ describe("Gate Demo validation hook", () => {
 
     expect(result.layers.find((layer) => layer.layer === "navigation")).toMatchObject({
       layer: "navigation",
+      status: "FAIL",
+    });
+    expect(
+      result.diagnostics.some(
+        (diagnostic) => diagnostic.code === "LW_EXAMPLE_ACTION_REGISTRY_DISABLED",
+      ),
+    ).toBe(true);
+  });
+
+  it("localizes rejected scroll routes to the scroll layer", () => {
+    const result = runGateDemoValidationHook({
+      registryOptions: {
+        disabledActionTypes: ["runtime.scroll.intent"],
+      },
+    });
+
+    expect(result.layers.find((layer) => layer.layer === "scroll")).toMatchObject({
+      layer: "scroll",
       status: "FAIL",
     });
     expect(
