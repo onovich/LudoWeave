@@ -69,6 +69,18 @@ export type {
   RuntimeUIResolvedFrameMappingOptions,
   RuntimeUIResolvedFrameMappingResult,
 } from "./resolved-frame-adapter.js";
+export {
+  gateDemoValidationDiagnosticCodes,
+  gateDemoValidationHookVersion,
+  runGateDemoValidationHook,
+} from "./validation-hook.js";
+export type {
+  GateDemoValidationHookResult,
+  GateDemoValidationLayer,
+  GateDemoValidationLayerResult,
+  GateDemoValidationStatus,
+  RunGateDemoValidationHookOptions,
+} from "./validation-hook.js";
 export { gateDemoRuntimeUIViewModel, gateDemoRuntimeUIViewModelEnvelope } from "./fixture.js";
 export type {
   RuntimeUIEditableOverlayCandidateElement,
