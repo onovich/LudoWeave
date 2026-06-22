@@ -80,6 +80,7 @@
 - [v0.9 Contract Coverage Matrix](sinan-cooperation/ludoweave-v0.9-contract-coverage-matrix.md)
 - [v0.9 Fixture Manifest](sinan-cooperation/ludoweave-v0.9-fixture-manifest.md)
 - [v0.9 Boundary Checklist](sinan-cooperation/ludoweave-v0.9-boundary-checklist.md)
+- [v0.9 Host Capability Checklist](sinan-cooperation/ludoweave-v0.9-host-capability-checklist.md)
 
 ## Decision Records
 
