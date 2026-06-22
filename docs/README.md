@@ -36,6 +36,8 @@
 - [v0.4 Integration Status](roadmap/ludoweave-v0.4-integration-status.md)
 - [v0.4 Sinan Contract Spike Notes](sinan-cooperation/ludoweave-v0.4-sinan-contract-spike-notes.md)
 - [v0.4 Release Notes Draft](release/ludoweave-v0.4-release-notes-draft.md)
+- [v0.4 Final Report](release/ludoweave-v0.4-final-report.md)
+- [v0.4 Final Validation Log](release/ludoweave-v0.4-final-validation-log.md)
 
 ## Decision Records
 

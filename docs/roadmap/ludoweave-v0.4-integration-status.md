@@ -2,7 +2,7 @@
 
 Date: 2026-06-22
 
-Status: Round 12 integration pass for the v0.4 Sinan Gate Demo Contract Spike.
+Status: Final PASS for the v0.4 Sinan Gate Demo Contract Spike.
 
 Goal guide: [ludoweave-v0.4-goal-mode-execution-guide.md](../goal-mode/ludoweave-v0.4-goal-mode-execution-guide.md)
 
@@ -90,9 +90,9 @@ Use these locations during v0.4:
 | 9 | Canvas2D Gate Demo trace | Completed in `0604053`. |
 | 10 | Fallback renderer policy | Completed in `139e8fa`. |
 | 11 | ActionRef audit export for Sinan review | Completed in `416d9ee`. |
-| 12 | v0.4 integration pass | This document, contract notes, and release draft. |
-| 13-15 | Buffers | Use only for tooling, runtime, contract, or docs fixes. |
-| 16 | Final validation and handoff | Planned. |
+| 12 | v0.4 integration pass | Completed in `d07aa8f`. |
+| 13-15 | Buffers | Not consumed. |
+| 16 | Final validation and handoff | Completed by the final validation log and final report. |
 
 ## Validation Baseline
 
@@ -125,6 +125,28 @@ Round-level validation follows the v0.4 goal guide. The full v0.4 acceptance mat
 | `pnpm test:a11y` | PASS |
 | `pnpm format` | PASS |
 | `git diff --check` | PASS |
+
+## Final Validation Snapshot
+
+Source validation HEAD: `d07aa8f docs(release): draft v0.4 integration notes`.
+
+| Command | Result |
+| --- | --- |
+| `Validate.cmd` | PASS |
+| `Smoke.cmd` | PASS |
+| `pnpm lint` | PASS |
+| `pnpm typecheck` | PASS |
+| `pnpm test` | PASS |
+| `pnpm build` | PASS |
+| `pnpm structure-check` | PASS |
+| `pnpm api-check` | PASS |
+| `pnpm validate` | PASS |
+| `pnpm test:e2e` | PASS |
+| `pnpm test:a11y` | PASS |
+| `pnpm format` | PASS |
+| `git diff --check` | PASS |
+| `git status --short --branch` | PASS |
+| `git ls-remote origin refs/heads/main` | PASS |
 
 ## Round 1 Self-Check
 
