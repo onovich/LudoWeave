@@ -2,7 +2,7 @@
 
 Date: 2026-06-22
 
-Status: Round 1 baseline for the v0.7 Bounded Virtual List Metadata track.
+Status: Round 12 integration pass for the v0.7 Bounded Virtual List Metadata track.
 
 Goal guide: [ludoweave-v0.7-goal-mode-execution-guide.md](../goal-mode/ludoweave-v0.7-goal-mode-execution-guide.md)
 
@@ -35,6 +35,20 @@ The phase should provide verifiable host-owned virtual list coordination contrac
 - Canvas2D virtual window traces for realized item geometry, range metadata, selection markers, and action target ids without input reads, dispatch, or selection/scroll mutation.
 - Sinan-like Gate Demo virtual list fixtures with host-owned list window sequences, registry mock results, fallback policy, validation hook layers, and JSON-only audit export.
 
+## Integrated Scope Through Round 12
+
+- Added virtual window metadata in `@ludoweave/core` with list id, node id, item key namespace, total count snapshot, realized range, overscan range, estimated item size, viewport or scroll reference, selection snapshot, host capability, and JSON-only normalization.
+- Added host-owned collection/window intents for select item, activate item, move selection, request window, and restore selection with `runtime.collection.intent` ActionRef-only output.
+- Added deterministic fixed-size virtual window range calculation for empty, short, overscan, clamped, and out-of-range offset cases using only host-provided numeric metadata.
+- Added stable virtual window diagnostics for duplicate keys, missing item keys, stale selection, removed items, invalid ranges, and missing host capability.
+- Added realized item fixtures proving virtualized list rows are ordinary resolved nodes selected by the host for the current frame.
+- Added shared renderer conformance virtual window sidecar for headless, DOM, and Canvas2D.
+- Added Playground v0.7 virtual list smoke exposing metadata, realized range, selection snapshot, host intents, and diagnostics with e2e/a11y coverage.
+- Added Canvas2D virtual window trace output for realized item geometry, range metadata, selection markers, action target ids, and diagnostics without input reads, dispatch, or mutation.
+- Added Sinan-like Gate Demo virtual list sequence with deterministic registry mock results and a virtual-list validation hook layer.
+- Added virtual-list-specific fallback policy and JSON-only virtual list audit export.
+- Added the runtime UI virtual list metadata contract note.
+
 ## Non-Goals
 
 v0.7 must not:
@@ -66,18 +80,18 @@ Use these locations during v0.7:
 
 | Round | Area | Status |
 | --- | --- | --- |
-| 1 | Contract baseline | In progress. |
-| 2 | Virtual window metadata contract | Pending. |
-| 3 | Host collection intent contract | Pending. |
-| 4 | Deterministic range calculation fixture | Pending. |
-| 5 | Item key and selection diagnostics | Pending. |
-| 6 | Realized item fixture | Pending. |
-| 7 | Renderer conformance frame | Pending. |
-| 8 | DOM playground virtual window smoke | Pending. |
-| 9 | Canvas2D virtual window trace | Pending. |
-| 10 | Sinan-like Gate Demo virtual list fixture | Pending. |
-| 11 | Fallback policy and audit export | Pending. |
-| 12 | v0.7 integration pass and docs | Pending. |
+| 1 | Contract baseline | Completed in `4d95f82`. |
+| 2 | Virtual window metadata contract | Completed in `57487bb`. |
+| 3 | Host collection intent contract | Completed in `f01a5e5`. |
+| 4 | Deterministic range calculation fixture | Completed in `e70bae4`. |
+| 5 | Item key and selection diagnostics | Completed in `14d8ab2`. |
+| 6 | Realized item fixture | Completed in `a5f4fe8`. |
+| 7 | Renderer conformance frame | Completed in `a14cf82`. |
+| 8 | DOM playground virtual window smoke | Completed in `eeaf164`. |
+| 9 | Canvas2D virtual window trace | Completed in `f70b15b`. |
+| 10 | Sinan-like Gate Demo virtual list fixture | Completed in `d945181`. |
+| 11 | Fallback policy and audit export | Completed in `af39453`. |
+| 12 | v0.7 integration pass and docs | This document and release notes draft. |
 | 13-15 | Buffers | Pending. |
 | 16 | Final validation and handoff | Pending. |
 
@@ -106,3 +120,21 @@ Round-level validation follows the v0.7 goal guide. The full v0.7 acceptance mat
 - Debug: this is a documentation-only baseline. Failure should localize to formatting, whitespace, stale docs index links, or an incorrect placement/non-goal policy.
 - Architecture: the baseline keeps collection data, item identity, data loading, selection state, scroll state, route changes, persistence, input policy, and platform policy host-owned.
 - Scope: Round 1 does not implement virtual window metadata types, host collection intents, range helpers, diagnostics, realized item fixtures, renderer conformance, DOM smoke, Canvas2D trace, Gate Demo virtual list fixtures, fallback/audit export, or final release docs.
+
+## Round 12 Validation Snapshot
+
+| Command | Result |
+| --- | --- |
+| `Validate.cmd` | PASS |
+| `Smoke.cmd` | PASS |
+| `pnpm validate` | PASS |
+| `pnpm test:e2e` | PASS after sequential rerun; initial parallel run contended with `pnpm test:a11y` for port 5187. |
+| `pnpm test:a11y` | PASS |
+| `pnpm format` | PASS |
+| `git diff --check` | PASS |
+
+## Round 12 Self-Check
+
+- Debug: integrated scope is covered by core metadata/intent/range/diagnostics tests, realized item fixture tests, renderer conformance tests, Playground e2e/a11y smoke, Canvas2D virtual window trace tests, Sinan-like virtual list sequence tests, validation hook layer tests, fallback policy tests, and virtual list audit export tests.
+- Architecture: host remains source-of-truth for collection data, item identity, data loading, selection state, scroll state, route changes, persistence, input policy, platform policy, native side effects, command routing, save, undo, Director, Timeline, and Event. Core and renderer packages do not read DOM measurement, observers, browser scroll state, native input events, datasource state, or platform input state.
+- Scope: Round 12 updates integration docs and release notes only. It does not implement datasource access, pagination, async loading, cache invalidation, item diffing, infinite scrolling, renderer recycling pools, DOM recycling pools, rich text, real Sinan integration, production Canvas2D, Pixi/WebGPU, or full DevTools.

@@ -59,6 +59,7 @@
 ## v0.7 Drafts
 
 - [v0.7 Integration Status](roadmap/ludoweave-v0.7-integration-status.md)
+- [v0.7 Release Notes Draft](release/ludoweave-v0.7-release-notes-draft.md)
 
 ## Decision Records
 
@@ -72,6 +73,7 @@
 - [Pause Modal Behavior Contract](runtime-ui/pause-modal-behavior-contract.md)
 - [Focus Navigation Contract](runtime-ui/focus-navigation-contract.md)
 - [Scroll Metadata Contract](runtime-ui/scroll-metadata-contract.md)
+- [Virtual List Metadata Contract](runtime-ui/virtual-list-metadata-contract.md)
 - [Canvas2D Renderer Spike](runtime-ui/canvas2d-renderer-spike.md)
 - [DOM Input Overlay Design](runtime-ui/dom-input-overlay-design.md)
 
