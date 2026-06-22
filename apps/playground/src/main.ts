@@ -1,14 +1,20 @@
 import {
   calculateFixedVirtualWindowRange,
+  collectRichTextDiagnostics,
   collectVirtualWindowDiagnostics,
   createActionLog,
   normalizeHostCollectionIntent,
+  normalizeHostRichTextPolicySnapshot,
   normalizeHostScrollIntent,
   normalizeHostInputIntent,
+  normalizeRichTextMetadata,
   normalizeScrollMetadataFrame,
   normalizeScrollOffsetForContainer,
   normalizeVirtualWindowMetadata,
+  resolveRichTextThemeTokenRefs,
   resolveScrollRestoration,
+  reviewRichTextA11yMetadata,
+  runtimeUiThemeTokens,
   type ResolvedActionTarget,
 } from "@ludoweave/core";
 import {
@@ -44,6 +50,8 @@ const scrollSmokeRoot = requireElement("#scroll-smoke");
 const scrollStatus = requireElement("#scroll-status");
 const virtualListSmokeRoot = requireElement("#virtual-list-smoke");
 const virtualListStatus = requireElement("#virtual-list-status");
+const richTextSmokeRoot = requireElement("#rich-text-smoke");
+const richTextStatus = requireElement("#rich-text-status");
 const actionLog = createActionLog();
 
 const renderer = mountDomRenderer({
@@ -73,6 +81,7 @@ renderGateDemoSmoke();
 renderNavigationSmoke();
 renderScrollSmoke();
 renderVirtualListSmoke();
+renderRichTextSmoke();
 window.addEventListener("resize", render);
 window.addEventListener("resize", scaleGateDemoSmoke);
 actionLogFilter.addEventListener("change", renderActionLog);
@@ -421,6 +430,151 @@ function renderVirtualListSmoke(): void {
   );
 }
 
+function renderRichTextSmoke(): void {
+  const richText = normalizeRichTextMetadata({
+    id: "subtitle.rich-text-smoke",
+    nodeId: "runtime.overlay/key:subtitle.primary",
+    localeHint: "en-US",
+    plainTextFallback: "Mira: The north gate is sealed. <unsafe>",
+    spans: [
+      {
+        id: "span.speaker",
+        kind: "speaker",
+        label: "Speaker",
+        rendererHints: ["speaker"],
+        themeTokenRefs: [runtimeUiThemeTokens.subtitle.text],
+      },
+      {
+        id: "span.tone",
+        kind: "tone",
+        label: "Warning",
+        parentSpanId: "span.speaker",
+        rendererHints: ["accent"],
+        themeTokenRefs: [runtimeUiThemeTokens.objective.title],
+      },
+      {
+        id: "span.unsupported",
+        kind: "unsupported",
+        fallbackText: "[sigil]",
+        rendererHints: ["muted"],
+      },
+    ],
+    runs: [
+      {
+        id: "run.speaker",
+        text: "Mira",
+        spanIds: ["span.speaker"],
+        themeTokenRefs: [runtimeUiThemeTokens.subtitle.text],
+        rendererHints: ["speaker"],
+      },
+      {
+        id: "run.body",
+        text: ": The north gate is sealed. ",
+        spanIds: ["span.tone"],
+        themeTokenRefs: [runtimeUiThemeTokens.objective.title],
+        rendererHints: ["accent"],
+      },
+      {
+        id: "run.unsafe",
+        text: "<unsafe>",
+        spanIds: ["span.unsupported"],
+        rendererHints: ["muted"],
+      },
+    ],
+    hostPolicy: {
+      localizedContent: "approved",
+      markupPolicy: "approved",
+      sanitization: "approved",
+      accessibilityReview: "pending",
+    },
+    a11y: {
+      label: "Mira says the north gate is sealed.",
+      description: "Host-reviewed dialogue fallback.",
+      liveRegion: "polite",
+      pronunciationHint: "Mee-rah",
+      reviewStatus: "pending",
+    },
+  });
+  const hostPolicy = normalizeHostRichTextPolicySnapshot({
+    blockId: richText.id,
+    localeHint: richText.localeHint,
+    contentRevision: 1,
+    accessibilityReview: { status: "pending" },
+  });
+  const tokenResolution = resolveRichTextThemeTokenRefs({
+    metadata: richText,
+    knownThemeTokenRefs: [runtimeUiThemeTokens.subtitle.text, runtimeUiThemeTokens.objective.title],
+    context: { focused: true },
+  });
+  const a11yReview = reviewRichTextA11yMetadata({ metadata: richText });
+  const diagnostics = collectRichTextDiagnostics({
+    metadata: {
+      id: "subtitle.rich-text-diagnostic",
+      nodeId: "runtime.overlay/key:subtitle.diagnostic",
+      localeHint: "en-US",
+      plainTextFallback: "",
+      spans: [
+        { id: "span.unsupported", kind: "unsupported" },
+        { id: "span.one", kind: "emphasis" },
+        { id: "span.two", kind: "tone", parentSpanId: "span.one" },
+        { id: "span.three", kind: "speaker", parentSpanId: "span.two" },
+      ],
+      runs: [
+        { id: "run.empty", text: "" },
+        { id: "run.unknown-token", text: "Unknown", themeTokenRefs: ["runtime-ui.unknown.text"] },
+      ],
+      hostPolicy: { sanitization: "missing" },
+      a11y: { label: "Diagnostic rich text.", reviewStatus: "missing" },
+    },
+    knownThemeTokenRefs: [runtimeUiThemeTokens.subtitle.text],
+    hostPolicy,
+    maxNestedSpanDepth: 2,
+  }).map((diagnostic) => diagnostic.code);
+  const policyRows = [
+    `localized:${hostPolicy.localizedContent.status}`,
+    `markup:${hostPolicy.markupPolicy.status}`,
+    `sanitization:${hostPolicy.sanitization.status}`,
+    `a11y:${hostPolicy.accessibilityReview.status}`,
+    `measurement:${hostPolicy.textMeasurement.status}`,
+  ];
+
+  richTextStatus.textContent = "PASS";
+  richTextStatus.dataset.richTextStatus = "pass";
+  richTextSmokeRoot.dataset.richTextBlockId = richText.id;
+  richTextSmokeRoot.dataset.richTextFallback = richText.plainTextFallback;
+  richTextSmokeRoot.dataset.richTextRunCount = String(richText.runs.length);
+  richTextSmokeRoot.dataset.richTextDiagnosticCount = String(diagnostics.length);
+  richTextSmokeRoot.replaceChildren(
+    createRichTextMeta("Block", richText.id),
+    createRichTextMeta("Fallback", richText.plainTextFallback),
+    createRichTextMeta("A11y label", a11yReview.label),
+    createRichTextList(
+      "Runs",
+      richText.runs.map((run) => `${run.id}:${run.text}`),
+      "rich-text-run",
+    ),
+    createRichTextList(
+      "Spans",
+      richText.spans.map((span) => `${span.kind}:${span.id}`),
+      "rich-text-span",
+    ),
+    createRichTextList("Host policy", policyRows, "rich-text-policy"),
+    createRichTextList(
+      "Theme tokens",
+      tokenResolution.usages.map(
+        (usage) => `${usage.ownerKind}:${usage.ownerId}:${usage.tokenRef}:${usage.status}`,
+      ),
+      "rich-text-token",
+    ),
+    createRichTextList(
+      "A11y diagnostics",
+      a11yReview.diagnostics.map((diagnostic) => diagnostic.code),
+      "rich-text-a11y-diagnostic",
+    ),
+    createRichTextList("Diagnostics", diagnostics, "rich-text-diagnostic"),
+  );
+}
+
 function createNavigationMeta(label: string, value: string): HTMLElement {
   const row = document.createElement("p");
   row.className = "navigation-smoke__meta";
@@ -516,6 +670,43 @@ function createVirtualListList(
 ): HTMLElement {
   const group = document.createElement("div");
   group.className = "virtual-list-smoke__group";
+
+  const heading = document.createElement("h3");
+  heading.textContent = label;
+
+  const list = document.createElement("ol");
+  for (const value of values) {
+    const item = document.createElement("li");
+    item.setAttribute(`data-${itemAttribute}`, value);
+    item.textContent = value;
+    list.append(item);
+  }
+
+  group.replaceChildren(heading, list);
+  return group;
+}
+
+function createRichTextMeta(label: string, value: string): HTMLElement {
+  const row = document.createElement("p");
+  row.className = "rich-text-smoke__meta";
+
+  const labelElement = document.createElement("span");
+  labelElement.textContent = label;
+
+  const valueElement = document.createElement("strong");
+  valueElement.textContent = value;
+
+  row.replaceChildren(labelElement, valueElement);
+  return row;
+}
+
+function createRichTextList(
+  label: string,
+  values: readonly string[],
+  itemAttribute: string,
+): HTMLElement {
+  const group = document.createElement("div");
+  group.className = "rich-text-smoke__group";
 
   const heading = document.createElement("h3");
   heading.textContent = label;

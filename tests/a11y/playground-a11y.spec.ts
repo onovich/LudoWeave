@@ -26,6 +26,11 @@ test("has no blocking accessibility violations in the playground", async ({ page
     "data-virtual-list-status",
     "pass",
   );
+  await expect(page.locator("#rich-text-status")).toHaveAttribute("data-rich-text-status", "pass");
+  await expect(page.locator("#rich-text-smoke")).toHaveAttribute(
+    "data-rich-text-block-id",
+    "subtitle.rich-text-smoke",
+  );
 
   const results = await new AxeBuilder({ page })
     .withTags(["wcag2a", "wcag2aa", "best-practice"])

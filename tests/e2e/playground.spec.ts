@@ -154,4 +154,31 @@ test("renders v0.3 runtime UI states in the playground", async ({ page }) => {
   await expect(virtualList).toContainText("select-item:runtime.collection.intent");
   await expect(virtualList).toContainText("restore-selection:runtime.collection.intent");
   await expect(virtualList).toContainText("LW_VIRTUAL_WINDOW_REMOVED_ITEM");
+
+  const richText = page.locator('[aria-label="v0.8 Rich Text"]');
+  await expect(richText.locator("#rich-text-status")).toHaveAttribute(
+    "data-rich-text-status",
+    "pass",
+  );
+  await expect(richText.locator("#rich-text-smoke")).toHaveAttribute(
+    "data-rich-text-block-id",
+    "subtitle.rich-text-smoke",
+  );
+  await expect(richText.locator("#rich-text-smoke")).toHaveAttribute(
+    "data-rich-text-fallback",
+    "Mira: The north gate is sealed. <unsafe>",
+  );
+  await expect(richText.locator("[data-rich-text-run]")).toHaveCount(3);
+  await expect(richText.locator('[data-rich-text-run="run.unsafe:<unsafe>"]')).toHaveText(
+    "run.unsafe:<unsafe>",
+  );
+  await expect(richText.locator("unsafe")).toHaveCount(0);
+  await expect(richText.locator("[data-rich-text-span]")).toHaveCount(3);
+  await expect(richText.locator("[data-rich-text-policy]")).toHaveCount(5);
+  await expect(richText.locator("[data-rich-text-token]")).toHaveCount(4);
+  await expect(richText.locator("[data-rich-text-a11y-diagnostic]")).toHaveCount(1);
+  await expect(richText.locator("[data-rich-text-diagnostic]")).toHaveCount(7);
+  await expect(richText).toContainText("Mira says the north gate is sealed.");
+  await expect(richText).toContainText("LW_RICH_TEXT_HOST_SANITIZATION_MISSING");
+  await expect(richText).toContainText("LW_RICH_TEXT_A11Y_MISSING_HOST_REVIEW");
 });
