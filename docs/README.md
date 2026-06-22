@@ -64,6 +64,10 @@
 - [v0.7 Final Report](release/ludoweave-v0.7-final-report.md)
 - [v0.7 Final Validation Log](release/ludoweave-v0.7-final-validation-log.md)
 
+## v0.8 Drafts
+
+- [v0.8 Integration Status](roadmap/ludoweave-v0.8-integration-status.md)
+
 ## Decision Records
 
 - [ADR-0001: v0.1 只进入 Runtime UI，不替换 Sinan Editor](adr/0001-runtime-ui-only.md)
