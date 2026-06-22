@@ -1,5 +1,7 @@
 import {
+  collectRichTextDiagnostics,
   collectVirtualWindowDiagnostics,
+  normalizeRichTextMetadataFrame,
   normalizeScrollMetadataFrame,
   normalizeScrollOffsetForContainer,
   normalizeTextInputOverlayRequest,
@@ -15,6 +17,9 @@ import type {
   ResolvedActionTarget,
   ResolvedRect,
   ResolvedUiFrame,
+  RichTextInlineRun,
+  RichTextMetadataFrame,
+  RichTextSemanticSpan,
   ScrollMetadataFrame,
   ScrollOffsetSnapshot,
   TextInputOverlayInputMode,
@@ -265,6 +270,81 @@ export type Canvas2DVirtualWindowTrace =
     };
 
 /**
+ * Serializable rich text run data recorded by Canvas2D traces.
+ *
+ * @public
+ */
+export interface Canvas2DRichTextRunTrace {
+  readonly runId: string;
+  readonly text: string;
+  readonly spanIds: readonly string[];
+  readonly themeTokenRefs: readonly string[];
+  readonly rendererHints: readonly string[];
+  readonly box: ResolvedRect;
+}
+
+/**
+ * Serializable rich text span data recorded by Canvas2D traces.
+ *
+ * @public
+ */
+export interface Canvas2DRichTextSpanTrace {
+  readonly spanId: string;
+  readonly kind: string;
+  readonly label?: string;
+  readonly parentSpanId?: string;
+  readonly rendererHints: readonly string[];
+  readonly themeTokenRefs: readonly string[];
+  readonly fallbackText?: string;
+}
+
+/**
+ * Serializable rich text block data recorded by Canvas2D traces.
+ *
+ * @public
+ */
+export interface Canvas2DRichTextBlockTrace {
+  readonly blockId: string;
+  readonly nodeId: string;
+  readonly localeHint: string;
+  readonly plainTextFallback: string;
+  readonly box: ResolvedRect;
+  readonly actionTargetIds: readonly string[];
+  readonly runs: readonly Canvas2DRichTextRunTrace[];
+  readonly spans: readonly Canvas2DRichTextSpanTrace[];
+  readonly diagnostics: readonly UiDiagnostic[];
+}
+
+/**
+ * Options for Canvas2D rich text metadata tracing.
+ *
+ * @public
+ */
+export interface Canvas2DRichTextTraceOptions {
+  readonly knownThemeTokenRefs?: readonly string[];
+  readonly maxNestedSpanDepth?: number;
+}
+
+/**
+ * Deterministic rich text metadata trace for renderer tests and host coordination.
+ *
+ * @public
+ */
+export type Canvas2DRichTextTrace =
+  | {
+      readonly kind: "rich-text-trace";
+      readonly frameId: number;
+      readonly result: "blocks";
+      readonly blocks: readonly Canvas2DRichTextBlockTrace[];
+    }
+  | {
+      readonly kind: "rich-text-trace";
+      readonly frameId: number;
+      readonly result: "no-block";
+      readonly blocks: readonly [];
+    };
+
+/**
  * Options for deriving a host text overlay request from a Canvas2D consumed frame.
  *
  * @public
@@ -345,6 +425,7 @@ export const canvas2DRendererConformancePolicy = Object.freeze({
     "focus-graph.trace",
     "scroll-metadata.trace",
     "virtual-window.trace",
+    "rich-text.trace",
     "text-input-overlay.coordination-trace",
   ],
   unsupported: [
@@ -357,6 +438,7 @@ export const canvas2DRendererConformancePolicy = Object.freeze({
     "collection.dispatch",
     "selection.mutation",
     "rounded-rect.path-fidelity",
+    "text.shaping",
     "text.measurement",
   ],
   fallbackPolicy: [
@@ -545,6 +627,56 @@ export function traceCanvas2DVirtualWindow(
           .map((item) => item.actionTargetId)
           .filter((id): id is string => id !== undefined),
         diagnostics,
+      };
+    }),
+  };
+}
+
+/**
+ * Traces rich text metadata consumed by Canvas2D without shaping text or mutating host state.
+ *
+ * @public
+ */
+export function traceCanvas2DRichTextMetadata(
+  frame: ResolvedUiFrame,
+  richTextMetadata: RichTextMetadataFrame,
+  options: Canvas2DRichTextTraceOptions = {},
+): Canvas2DRichTextTrace {
+  const metadata = normalizeRichTextMetadataFrame(richTextMetadata);
+  if (metadata.blocks.length === 0) {
+    return {
+      kind: "rich-text-trace",
+      frameId: frame.frameId,
+      result: "no-block",
+      blocks: [],
+    };
+  }
+
+  return {
+    kind: "rich-text-trace",
+    frameId: frame.frameId,
+    result: "blocks",
+    blocks: metadata.blocks.map((block) => {
+      const box = findNodeBox(frame, block.nodeId);
+      return {
+        blockId: block.id,
+        nodeId: block.nodeId,
+        localeHint: block.localeHint,
+        plainTextFallback: block.plainTextFallback,
+        box,
+        actionTargetIds: findActionTargetIdsForNodeTree(frame.actions, block.nodeId),
+        runs: block.runs.map((run, index) =>
+          toRichTextRunTrace(run, index, block.runs.length, box),
+        ),
+        spans: block.spans.map(toRichTextSpanTrace),
+        diagnostics: [
+          ...block.diagnostics,
+          ...collectRichTextDiagnostics({
+            metadata: block,
+            knownThemeTokenRefs: options.knownThemeTokenRefs ?? [],
+            maxNestedSpanDepth: options.maxNestedSpanDepth ?? 3,
+          }),
+        ],
       };
     }),
   };
@@ -787,12 +919,54 @@ function findScrollActionTargetIds(
   actions: readonly ResolvedActionTarget[],
   containerNodeId: string,
 ): readonly string[] {
+  return findActionTargetIdsForNodeTree(actions, containerNodeId);
+}
+
+function findActionTargetIdsForNodeTree(
+  actions: readonly ResolvedActionTarget[],
+  nodeId: string,
+): readonly string[] {
   return actions
-    .filter(
-      (target) =>
-        target.nodeId === containerNodeId || target.nodeId.startsWith(`${containerNodeId}/`),
-    )
+    .filter((target) => target.nodeId === nodeId || target.nodeId.startsWith(`${nodeId}/`))
     .map((target) => target.id);
+}
+
+function findNodeBox(frame: ResolvedUiFrame, nodeId: string): ResolvedRect {
+  return frame.nodes.find((node) => node.id === nodeId)?.box ?? { x: 0, y: 0, width: 0, height: 0 };
+}
+
+function toRichTextRunTrace(
+  run: RichTextInlineRun,
+  index: number,
+  count: number,
+  blockBox: ResolvedRect,
+): Canvas2DRichTextRunTrace {
+  const runWidth = count > 0 ? blockBox.width / count : 0;
+  return {
+    runId: run.id,
+    text: run.text,
+    spanIds: run.spanIds,
+    themeTokenRefs: run.themeTokenRefs,
+    rendererHints: run.rendererHints,
+    box: {
+      x: blockBox.x + runWidth * index,
+      y: blockBox.y,
+      width: index === count - 1 ? blockBox.width - runWidth * index : runWidth,
+      height: blockBox.height,
+    },
+  };
+}
+
+function toRichTextSpanTrace(span: RichTextSemanticSpan): Canvas2DRichTextSpanTrace {
+  return {
+    spanId: span.id,
+    kind: span.kind,
+    ...(span.label === undefined ? {} : { label: span.label }),
+    ...(span.parentSpanId === undefined ? {} : { parentSpanId: span.parentSpanId }),
+    rendererHints: span.rendererHints,
+    themeTokenRefs: span.themeTokenRefs,
+    ...(span.fallbackText === undefined ? {} : { fallbackText: span.fallbackText }),
+  };
 }
 
 function findVirtualWindowItems(

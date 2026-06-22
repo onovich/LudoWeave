@@ -10,17 +10,21 @@ import {
   createCanvas2DRenderer,
   traceCanvas2DActionHitTest,
   traceCanvas2DFocusGraph,
+  traceCanvas2DRichTextMetadata,
   traceCanvas2DScrollMetadata,
   traceCanvas2DTextInputOverlayCoordination,
   traceCanvas2DVirtualWindow,
   type Canvas2DContextLike,
+  type Canvas2DRichTextTrace,
   type Canvas2DRenderTrace,
 } from "../src/index.js";
 import {
   createVirtualWindowDiagnostic,
   normalizeFocusGraph,
+  normalizeRichTextMetadataFrame,
   normalizeScrollMetadataFrame,
   normalizeVirtualWindowMetadataFrame,
+  runtimeUiThemeTokens,
 } from "@ludoweave/core";
 
 describe("Canvas2D renderer spike", () => {
@@ -142,6 +146,7 @@ describe("Canvas2D renderer spike", () => {
       "focus-graph.trace",
       "scroll-metadata.trace",
       "virtual-window.trace",
+      "rich-text.trace",
       "text-input-overlay.coordination-trace",
     ]);
     expect(canvas2DRendererConformancePolicy.unsupported).toContain("native.text-input");
@@ -151,6 +156,7 @@ describe("Canvas2D renderer spike", () => {
     expect(canvas2DRendererConformancePolicy.unsupported).toContain("scroll.dispatch");
     expect(canvas2DRendererConformancePolicy.unsupported).toContain("collection.dispatch");
     expect(canvas2DRendererConformancePolicy.unsupported).toContain("selection.mutation");
+    expect(canvas2DRendererConformancePolicy.unsupported).toContain("text.shaping");
     expect(canvas2DRendererConformancePolicy.fallbackPolicy).toContain(
       "Hosts pair Canvas2D paint with a DOM or platform input overlay for focus and actions.",
     );
@@ -536,6 +542,213 @@ describe("Canvas2D renderer spike", () => {
       "LW_VIRTUAL_WINDOW_STALE_SELECTION",
     ]);
     expect(JSON.stringify(diagnosticTrace)).not.toContain("selection.mutation");
+  });
+
+  it("traces rich text fallback, run geometry, spans, tokens, and action targets", () => {
+    const fixture = createRendererConformanceFixture();
+
+    expect(
+      traceCanvas2DRichTextMetadata(
+        fixture.frame,
+        normalizeRichTextMetadataFrame({
+          activeBlockId: "subtitle.rich-text.canvas",
+          blocks: [
+            {
+              id: "subtitle.rich-text.canvas",
+              nodeId: "runtime.overlay/key:subtitle.primary",
+              localeHint: "en-US",
+              plainTextFallback: "Gate hums softly. [sigil]",
+              spans: [
+                {
+                  id: "span.speaker",
+                  kind: "speaker",
+                  label: "Speaker",
+                  rendererHints: ["speaker"],
+                  themeTokenRefs: [runtimeUiThemeTokens.subtitle.text],
+                },
+                {
+                  id: "span.tone",
+                  kind: "tone",
+                  parentSpanId: "span.speaker",
+                  rendererHints: ["emphasis"],
+                },
+                {
+                  id: "span.unsupported",
+                  kind: "unsupported",
+                  fallbackText: "[sigil]",
+                  rendererHints: ["muted"],
+                },
+              ],
+              runs: [
+                {
+                  id: "run.subtitle.speaker",
+                  text: "Gate",
+                  spanIds: ["span.speaker"],
+                  themeTokenRefs: [runtimeUiThemeTokens.subtitle.text],
+                  rendererHints: ["speaker"],
+                },
+                {
+                  id: "run.subtitle.body",
+                  text: " hums softly.",
+                  spanIds: ["span.tone"],
+                  themeTokenRefs: [runtimeUiThemeTokens.subtitle.text],
+                  rendererHints: ["emphasis"],
+                },
+                {
+                  id: "run.subtitle.unsupported",
+                  text: "[sigil]",
+                  spanIds: ["span.unsupported"],
+                  rendererHints: ["muted"],
+                },
+              ],
+              a11y: {
+                label: "Gate hums softly.",
+                reviewStatus: "approved",
+              },
+            },
+          ],
+        }),
+        {
+          knownThemeTokenRefs: [runtimeUiThemeTokens.subtitle.text],
+        },
+      ),
+    ).toEqual<Canvas2DRichTextTrace>({
+      kind: "rich-text-trace",
+      frameId: 3600,
+      result: "blocks",
+      blocks: [
+        {
+          blockId: "subtitle.rich-text.canvas",
+          nodeId: "runtime.overlay/key:subtitle.primary",
+          localeHint: "en-US",
+          plainTextFallback: "Gate hums softly. [sigil]",
+          box: { x: 430, y: 552, width: 420, height: 32 },
+          actionTargetIds: [],
+          runs: [
+            {
+              runId: "run.subtitle.speaker",
+              text: "Gate",
+              spanIds: ["span.speaker"],
+              themeTokenRefs: [runtimeUiThemeTokens.subtitle.text],
+              rendererHints: ["speaker"],
+              box: { x: 430, y: 552, width: 140, height: 32 },
+            },
+            {
+              runId: "run.subtitle.body",
+              text: " hums softly.",
+              spanIds: ["span.tone"],
+              themeTokenRefs: [runtimeUiThemeTokens.subtitle.text],
+              rendererHints: ["emphasis"],
+              box: { x: 570, y: 552, width: 140, height: 32 },
+            },
+            {
+              runId: "run.subtitle.unsupported",
+              text: "[sigil]",
+              spanIds: ["span.unsupported"],
+              themeTokenRefs: [],
+              rendererHints: ["muted"],
+              box: { x: 710, y: 552, width: 140, height: 32 },
+            },
+          ],
+          spans: [
+            {
+              spanId: "span.speaker",
+              kind: "speaker",
+              label: "Speaker",
+              rendererHints: ["speaker"],
+              themeTokenRefs: [runtimeUiThemeTokens.subtitle.text],
+            },
+            {
+              spanId: "span.tone",
+              kind: "tone",
+              parentSpanId: "span.speaker",
+              rendererHints: ["emphasis"],
+              themeTokenRefs: [],
+            },
+            {
+              spanId: "span.unsupported",
+              kind: "unsupported",
+              rendererHints: ["muted"],
+              themeTokenRefs: [],
+              fallbackText: "[sigil]",
+            },
+          ],
+          diagnostics: [
+            {
+              code: "LW_RICH_TEXT_UNSUPPORTED_SPAN",
+              severity: "warning",
+              message: "Rich text span type is unsupported by this bounded contract.",
+              details: {
+                blockId: "subtitle.rich-text.canvas",
+                spanId: "span.unsupported",
+                fallbackText: "[sigil]",
+              },
+            },
+          ],
+        },
+      ],
+    });
+    expect(
+      JSON.stringify(traceCanvas2DRichTextMetadata(fixture.frame, { blocks: [] })),
+    ).not.toContain("dispatch");
+    expect(
+      JSON.stringify(traceCanvas2DRichTextMetadata(fixture.frame, { blocks: [] })),
+    ).not.toContain("selection.mutation");
+    expect(
+      JSON.stringify(traceCanvas2DRichTextMetadata(fixture.frame, { blocks: [] })),
+    ).not.toContain("innerHTML");
+  });
+
+  it("traces rich text diagnostics without parsing markup or measuring text", () => {
+    const fixture = createRendererConformanceFixture();
+    const trace = traceCanvas2DRichTextMetadata(
+      fixture.frame,
+      {
+        blocks: [
+          {
+            id: "subtitle.rich-text.diagnostic",
+            nodeId: "runtime.overlay/key:subtitle.primary",
+            localeHint: "en-US",
+            plainTextFallback: "",
+            spans: [
+              { id: "span.unsupported", kind: "unsupported" },
+              { id: "span.one", kind: "emphasis" },
+              { id: "span.two", kind: "tone", parentSpanId: "span.one" },
+              { id: "span.three", kind: "speaker", parentSpanId: "span.two" },
+            ],
+            runs: [
+              { id: "run.empty", text: "" },
+              {
+                id: "run.unknown-token",
+                text: "<unsafe>",
+                themeTokenRefs: ["runtime-ui.unknown.text"],
+              },
+            ],
+            hostPolicy: { sanitization: "missing" },
+            a11y: { label: "Diagnostic rich text.", reviewStatus: "missing" },
+          },
+        ],
+      },
+      {
+        knownThemeTokenRefs: [runtimeUiThemeTokens.subtitle.text],
+        maxNestedSpanDepth: 2,
+      },
+    );
+
+    expect(trace.result).toBe("blocks");
+    expect(trace.blocks[0]?.diagnostics.map((diagnostic) => diagnostic.code)).toEqual([
+      "LW_RICH_TEXT_UNSUPPORTED_SPAN",
+      "LW_RICH_TEXT_MISSING_FALLBACK_TEXT",
+      "LW_RICH_TEXT_MISSING_FALLBACK_TEXT",
+      "LW_RICH_TEXT_INVALID_TOKEN_REFERENCE",
+      "LW_RICH_TEXT_HOST_SANITIZATION_MISSING",
+      "LW_RICH_TEXT_EMPTY_RUN",
+      "LW_RICH_TEXT_NESTED_SPAN_OVERFLOW",
+    ]);
+    expect(JSON.stringify(trace)).toContain("<unsafe>");
+    expect(JSON.stringify(trace)).not.toContain("measureText");
+    expect(JSON.stringify(trace)).not.toContain("HTMLParser");
+    expect(JSON.stringify(trace)).not.toContain("dispatch");
   });
 
   it("rejects non-finite hit-test points", () => {
