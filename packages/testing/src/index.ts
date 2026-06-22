@@ -26,3 +26,5 @@ export type {
   RuntimeUiThemeResolutionFixture,
   RuntimeUiThemeVisualHints,
 } from "./theme-resolution-fixture.js";
+export { createClippedScrollContentFixture } from "./scroll-metadata-fixture.js";
+export type { ClippedScrollContentFixture } from "./scroll-metadata-fixture.js";
