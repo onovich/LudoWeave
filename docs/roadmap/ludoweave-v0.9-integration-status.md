@@ -2,7 +2,7 @@
 
 Date: 2026-06-23
 
-Status: Round 10 DOM and a11y smoke review pack complete for the v0.9 Bounded Sinan Handoff Checklist track.
+Status: Round 11 Canvas2D trace review pack complete for the v0.9 Bounded Sinan Handoff Checklist track.
 
 Goal guide: [ludoweave-v0.9-goal-mode-execution-guide.md](../goal-mode/ludoweave-v0.9-goal-mode-execution-guide.md)
 
@@ -73,7 +73,7 @@ Use these locations during v0.9:
 | 8 | Fallback policy review pack | Complete. |
 | 9 | Renderer conformance review pack | Complete. |
 | 10 | DOM and a11y smoke review pack | Complete. |
-| 11 | Canvas2D trace review pack | Pending. |
+| 11 | Canvas2D trace review pack | Complete. |
 | 12 | Gap ledger and final handoff docs | Pending. |
 | 13-15 | Buffers | Not used. |
 | 16 | Final validation and planner handoff | Pending. |
