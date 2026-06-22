@@ -20,7 +20,19 @@ describe("headless renderer conformance", () => {
       nodeId: "runtime.overlay/key:pause.dialog",
       offset: { x: 0, y: 84, revision: 2 },
     });
+    expect(fixture.virtualWindow).toMatchObject({
+      id: "quest-log-window",
+      totalCount: 6,
+      realizedRange: { startIndex: 2, endIndex: 4 },
+      overscanRange: { startIndex: 1, endIndex: 5 },
+      selection: { selectedKey: "quest:3", focusedKey: "quest:3", revision: 1 },
+    });
+    expect(fixture.virtualWindowRealizedNodeIds).toEqual([
+      "runtime.overlay/key:quest-log/key:quest:2",
+      "runtime.overlay/key:quest-log/key:quest:3",
+    ]);
     expect(fixture.scrollOffset.diagnostics).toEqual([]);
     expect(result.snapshot).not.toContain("scrollTop");
+    expect(result.snapshot).not.toContain("datasource");
   });
 });

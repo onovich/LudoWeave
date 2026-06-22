@@ -265,6 +265,13 @@ describe("mountDomRenderer", () => {
     });
     expect(fixture.scrollVisibleContentBox).toEqual({ x: 0, y: 84, width: 400, height: 220 });
     expect(fixture.scrollOffset.diagnostics).toEqual([]);
+    expect(fixture.virtualWindow.realizedRange).toEqual({ startIndex: 2, endIndex: 4 });
+    expect(
+      fixture.virtualWindowRealizedNodeIds.every((nodeId) =>
+        root.children.some((child) => child.dataset.ludoweaveNodeId === nodeId),
+      ),
+    ).toBe(true);
+    expect(JSON.stringify(fixture.frame)).not.toContain("datasource");
   });
 });
 

@@ -160,7 +160,17 @@ describe("Canvas2D renderer spike", () => {
       offset: { x: 0, y: 84, revision: 2 },
     });
     expect(fixture.scrollVisibleContentBox).toEqual({ x: 0, y: 84, width: 400, height: 220 });
+    expect(fixture.virtualWindow).toMatchObject({
+      id: "quest-log-window",
+      realizedRange: { startIndex: 2, endIndex: 4 },
+      overscanRange: { startIndex: 1, endIndex: 5 },
+    });
+    expect(fixture.virtualWindowRealizedNodeIds).toEqual([
+      "runtime.overlay/key:quest-log/key:quest:2",
+      "runtime.overlay/key:quest-log/key:quest:3",
+    ]);
     expect(JSON.stringify(result.trace)).not.toContain("scrollTop");
+    expect(JSON.stringify(result.trace)).not.toContain("datasource");
     expect(JSON.stringify(result.trace)).not.toContain("dispatch");
   });
 

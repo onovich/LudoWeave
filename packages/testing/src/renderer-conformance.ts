@@ -9,8 +9,10 @@ import {
   type ScrollMetadataFrame,
   type ScrollOffsetNormalizationResult,
   type SemanticNode,
+  type VirtualWindowMetadata,
   normalizeScrollMetadataFrame,
   normalizeScrollOffsetForContainer,
+  normalizeVirtualWindowMetadata,
 } from "@ludoweave/core";
 
 export interface RendererConformanceFixture {
@@ -19,6 +21,8 @@ export interface RendererConformanceFixture {
   readonly scrollMetadata: ScrollMetadataFrame;
   readonly scrollVisibleContentBox: ResolvedRect;
   readonly scrollOffset: ScrollOffsetNormalizationResult;
+  readonly virtualWindow: VirtualWindowMetadata;
+  readonly virtualWindowRealizedNodeIds: readonly string[];
   readonly expectedDomNodes: readonly RendererConformanceDomNodeExpectation[];
 }
 
@@ -75,7 +79,19 @@ export function createRendererConformanceFixture(): RendererConformanceFixture {
       vertical: "center",
     },
   });
-  const nodes = createNodes({ contentBox, promptBox, subtitleBox, dialogBox });
+  const virtualListBox: ResolvedRect = { x: 80, y: 120, width: 360, height: 96 };
+  const virtualItemBoxes = [
+    { x: 92, y: 128, width: 336, height: 36 },
+    { x: 92, y: 176, width: 336, height: 36 },
+  ] as const;
+  const nodes = createNodes({
+    contentBox,
+    promptBox,
+    subtitleBox,
+    dialogBox,
+    virtualListBox,
+    virtualItemBoxes,
+  });
   const scrollMetadata = normalizeScrollMetadataFrame({
     activeContainerId: "pause-dialog-scroll",
     containers: [
@@ -104,7 +120,7 @@ export function createRendererConformanceFixture(): RendererConformanceFixture {
       nodes,
       paint: createPaint({ promptBox, subtitleBox, dialogBox }),
       semantics: createSemantics(),
-      actions: createActions(promptBox),
+      actions: createActions({ promptBox, virtualItemBoxes }),
       diagnostics: [],
     },
     scrollMetadata,
@@ -115,6 +131,23 @@ export function createRendererConformanceFixture(): RendererConformanceFixture {
       height: dialogBox.height,
     },
     scrollOffset: normalizeScrollOffsetForContainer(scrollContainer),
+    virtualWindow: normalizeVirtualWindowMetadata({
+      id: "quest-log-window",
+      nodeId: "runtime.overlay/key:quest-log",
+      itemKeyNamespace: "quest",
+      totalCount: 6,
+      realizedRange: { startIndex: 2, endIndex: 4 },
+      overscanRange: { startIndex: 1, endIndex: 5 },
+      estimatedItemSize: { width: virtualListBox.width, height: 48 },
+      viewportRect: virtualListBox,
+      scrollContainerId: "pause-dialog-scroll",
+      selection: { selectedKey: "quest:3", focusedKey: "quest:3", revision: 1 },
+      hostCapability: { status: "available" },
+    }),
+    virtualWindowRealizedNodeIds: [
+      "runtime.overlay/key:quest-log/key:quest:2",
+      "runtime.overlay/key:quest-log/key:quest:3",
+    ],
     expectedDomNodes: [
       {
         nodeId: "runtime.overlay",
@@ -147,6 +180,34 @@ export function createRendererConformanceFixture(): RendererConformanceFixture {
         },
         box: dialogBox,
       },
+      {
+        nodeId: "runtime.overlay/key:quest-log",
+        tagName: "div",
+        attributes: {
+          "aria-label": "Quest log",
+        },
+        box: virtualListBox,
+      },
+      {
+        nodeId: "runtime.overlay/key:quest-log/key:quest:2",
+        tagName: "button",
+        textContent: "Restore the gate relays",
+        attributes: {
+          type: "button",
+          "aria-label": "Restore the gate relays",
+        },
+        box: virtualItemBoxes[0],
+      },
+      {
+        nodeId: "runtime.overlay/key:quest-log/key:quest:3",
+        tagName: "button",
+        textContent: "Cross the flooded archive",
+        attributes: {
+          type: "button",
+          "aria-label": "Cross the flooded archive",
+        },
+        box: virtualItemBoxes[1],
+      },
     ],
   };
 }
@@ -156,6 +217,8 @@ function createNodes(boxes: {
   readonly promptBox: ResolvedRect;
   readonly subtitleBox: ResolvedRect;
   readonly dialogBox: ResolvedRect;
+  readonly virtualListBox: ResolvedRect;
+  readonly virtualItemBoxes: readonly [ResolvedRect, ResolvedRect];
 }): readonly ResolvedNode[] {
   return [
     {
@@ -168,6 +231,7 @@ function createNodes(boxes: {
         "runtime.overlay/key:prompt.primary",
         "runtime.overlay/key:subtitle.primary",
         "runtime.overlay/key:pause.dialog",
+        "runtime.overlay/key:quest-log",
       ],
       box: boxes.contentBox,
     },
@@ -212,6 +276,71 @@ function createNodes(boxes: {
       props: {
         title: "Paused",
         modal: true,
+      },
+    },
+    {
+      id: "runtime.overlay/key:quest-log",
+      path: ["runtime.overlay", "key:quest-log"],
+      type: "section",
+      key: "quest-log",
+      parentId: "runtime.overlay",
+      index: 3,
+      children: [
+        "runtime.overlay/key:quest-log/key:quest:2",
+        "runtime.overlay/key:quest-log/key:quest:3",
+      ],
+      box: boxes.virtualListBox,
+      props: {
+        virtualWindowId: "quest-log-window",
+        virtualListContract: "metadata-only",
+      },
+    },
+    {
+      id: "runtime.overlay/key:quest-log/key:quest:2",
+      path: ["runtime.overlay", "key:quest-log", "key:quest:2"],
+      type: "button",
+      key: "quest:2",
+      parentId: "runtime.overlay/key:quest-log",
+      index: 0,
+      box: boxes.virtualItemBoxes[0],
+      props: {
+        label: "Restore the gate relays",
+        itemIndex: 2,
+        itemKey: "quest:2",
+      },
+      action: {
+        type: "runtime.collection.intent",
+        payload: {
+          kind: "activate-item",
+          windowId: "quest-log-window",
+          itemKeyNamespace: "quest",
+          repeat: false,
+          itemKey: "quest:2",
+        },
+      },
+    },
+    {
+      id: "runtime.overlay/key:quest-log/key:quest:3",
+      path: ["runtime.overlay", "key:quest-log", "key:quest:3"],
+      type: "button",
+      key: "quest:3",
+      parentId: "runtime.overlay/key:quest-log",
+      index: 1,
+      box: boxes.virtualItemBoxes[1],
+      props: {
+        label: "Cross the flooded archive",
+        itemIndex: 3,
+        itemKey: "quest:3",
+      },
+      action: {
+        type: "runtime.collection.intent",
+        payload: {
+          kind: "activate-item",
+          windowId: "quest-log-window",
+          itemKeyNamespace: "quest",
+          repeat: false,
+          itemKey: "quest:3",
+        },
       },
     },
   ];
@@ -262,6 +391,7 @@ function createSemantics(): readonly SemanticNode[] {
         "semantics.prompt.primary",
         "semantics.subtitle.primary",
         "semantics.pause.dialog",
+        "semantics.quest-log",
       ],
     },
     {
@@ -285,10 +415,35 @@ function createSemantics(): readonly SemanticNode[] {
       parentId: "semantics.runtime.overlay",
       label: "Paused",
     },
+    {
+      id: "semantics.quest-log",
+      nodeId: "runtime.overlay/key:quest-log",
+      role: "generic",
+      parentId: "semantics.runtime.overlay",
+      label: "Quest log",
+      children: ["semantics.quest:2", "semantics.quest:3"],
+    },
+    {
+      id: "semantics.quest:2",
+      nodeId: "runtime.overlay/key:quest-log/key:quest:2",
+      role: "button",
+      parentId: "semantics.quest-log",
+      label: "Restore the gate relays",
+    },
+    {
+      id: "semantics.quest:3",
+      nodeId: "runtime.overlay/key:quest-log/key:quest:3",
+      role: "button",
+      parentId: "semantics.quest-log",
+      label: "Cross the flooded archive",
+    },
   ];
 }
 
-function createActions(promptBox: ResolvedRect): readonly ResolvedActionTarget[] {
+function createActions(boxes: {
+  readonly promptBox: ResolvedRect;
+  readonly virtualItemBoxes: readonly [ResolvedRect, ResolvedRect];
+}): readonly ResolvedActionTarget[] {
   return [
     {
       id: "action.prompt.primary",
@@ -300,8 +455,42 @@ function createActions(promptBox: ResolvedRect): readonly ResolvedActionTarget[]
           targetId: "switch_a",
         },
       },
-      box: promptBox,
+      box: boxes.promptBox,
       label: "Press E",
+    },
+    {
+      id: "action.quest:2.activate",
+      nodeId: "runtime.overlay/key:quest-log/key:quest:2",
+      path: ["runtime.overlay", "key:quest-log", "key:quest:2"],
+      action: {
+        type: "runtime.collection.intent",
+        payload: {
+          kind: "activate-item",
+          windowId: "quest-log-window",
+          itemKeyNamespace: "quest",
+          repeat: false,
+          itemKey: "quest:2",
+        },
+      },
+      box: boxes.virtualItemBoxes[0],
+      label: "Restore the gate relays",
+    },
+    {
+      id: "action.quest:3.activate",
+      nodeId: "runtime.overlay/key:quest-log/key:quest:3",
+      path: ["runtime.overlay", "key:quest-log", "key:quest:3"],
+      action: {
+        type: "runtime.collection.intent",
+        payload: {
+          kind: "activate-item",
+          windowId: "quest-log-window",
+          itemKeyNamespace: "quest",
+          repeat: false,
+          itemKey: "quest:3",
+        },
+      },
+      box: boxes.virtualItemBoxes[1],
+      label: "Cross the flooded archive",
     },
   ];
 }
