@@ -330,6 +330,95 @@ body {
   line-height: 18px;
 }
 
+.scroll-smoke {
+  width: min(100%, 1040px);
+  display: grid;
+  gap: 10px;
+  padding: 12px 14px;
+  border: 1px solid #1d6070;
+  background: #0b1d22;
+}
+
+.scroll-smoke__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.scroll-smoke h2,
+.scroll-smoke h3,
+.scroll-smoke p,
+.scroll-smoke ol {
+  margin: 0;
+}
+
+.scroll-smoke h2 {
+  color: #67e8f9;
+  font-size: 14px;
+  line-height: 22px;
+}
+
+.scroll-smoke h3 {
+  color: #a5f3fc;
+  font-size: 12px;
+  line-height: 18px;
+}
+
+#scroll-status {
+  color: #cffafe;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0;
+}
+
+#scroll-smoke {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.scroll-smoke__meta,
+.scroll-smoke__group {
+  min-width: 0;
+  padding: 8px;
+  border: 1px solid #155e75;
+  background: #071519;
+}
+
+.scroll-smoke__meta {
+  display: grid;
+  gap: 4px;
+}
+
+.scroll-smoke__meta span {
+  color: #a5f3fc;
+  font-size: 11px;
+  line-height: 16px;
+  text-transform: uppercase;
+}
+
+.scroll-smoke__meta strong {
+  overflow: hidden;
+  color: #f8fafc;
+  font-size: 13px;
+  line-height: 18px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.scroll-smoke__group {
+  display: grid;
+  gap: 6px;
+}
+
+.scroll-smoke ol {
+  padding-left: 18px;
+  color: #e5e7eb;
+  font-size: 12px;
+  line-height: 18px;
+}
+
 .action-log {
   width: min(100%, 1040px);
   display: grid;
@@ -512,6 +601,10 @@ body {
   }
 
   #navigation-smoke {
+    grid-template-columns: 1fr;
+  }
+
+  #scroll-smoke {
     grid-template-columns: 1fr;
   }
 }

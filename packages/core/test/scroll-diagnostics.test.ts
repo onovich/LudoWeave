@@ -1,9 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import {
-  createScrollDiagnostic,
-  scrollDiagnosticCodes,
-} from "../src/scroll-diagnostics.js";
+import { createScrollDiagnostic, scrollDiagnosticCodes } from "../src/scroll-diagnostics.js";
 
 describe("scroll diagnostics", () => {
   it("uses stable diagnostic codes for scroll metadata failures", () => {

@@ -116,4 +116,18 @@ test("renders v0.3 runtime UI states in the playground", async ({ page }) => {
   await expect(navigation.locator("[data-navigation-action]")).toHaveCount(2);
   await expect(navigation).toContainText("navigate:down");
   await expect(navigation).toContainText("runtime.ui.cancel");
+
+  const scroll = page.locator('[aria-label="v0.6 Scroll"]');
+  await expect(scroll.locator("#scroll-status")).toHaveAttribute("data-scroll-status", "pass");
+  await expect(scroll.locator("#scroll-smoke")).toHaveAttribute(
+    "data-scroll-container-id",
+    "quest-log-scroll",
+  );
+  await expect(scroll.locator("#scroll-smoke")).toHaveAttribute("data-scroll-offset-y", "180");
+  await expect(scroll.locator("[data-scroll-metadata]")).toHaveCount(3);
+  await expect(scroll.locator("[data-scroll-intent]")).toHaveCount(4);
+  await expect(scroll.locator("[data-scroll-diagnostic]")).toHaveCount(6);
+  await expect(scroll).toContainText("line:runtime.scroll.intent");
+  await expect(scroll).toContainText("restore:runtime.scroll.intent");
+  await expect(scroll).toContainText("LW_SCROLL_REMOVED_CONTAINER");
 });

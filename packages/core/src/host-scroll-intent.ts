@@ -112,7 +112,9 @@ export function normalizeHostScrollIntent(input: HostScrollIntentInput): HostScr
  *
  * @public
  */
-export function createHostScrollIntentActionRef(intent: Omit<HostScrollIntent, "action">): ActionRef {
+export function createHostScrollIntentActionRef(
+  intent: Omit<HostScrollIntent, "action">,
+): ActionRef {
   const payload: Record<string, JsonValue> = {
     kind: intent.kind,
     containerId: intent.containerId,
@@ -248,7 +250,9 @@ function normalizeFiniteNumber(value: unknown, label: string): number {
 
 function normalizeRevision(value: unknown): number {
   if (typeof value !== "number" || !Number.isInteger(value) || value < 0) {
-    throw new TypeError("Host scroll intent restoreOffset.revision must be a non-negative integer.");
+    throw new TypeError(
+      "Host scroll intent restoreOffset.revision must be a non-negative integer.",
+    );
   }
 
   return value;

@@ -74,7 +74,10 @@ export function resolveScrollRestoration(
   requestedOffsetInput?: Partial<ScrollOffsetSnapshot>,
 ): ScrollRestorationResult {
   const frame = normalizeScrollMetadataFrame(frameInput);
-  const normalizedContainerId = normalizeNonEmptyString(containerId, "Scroll restoration containerId");
+  const normalizedContainerId = normalizeNonEmptyString(
+    containerId,
+    "Scroll restoration containerId",
+  );
   const container = frame.containers.find((candidate) => candidate.id === normalizedContainerId);
 
   if (container === undefined) {
@@ -164,14 +167,8 @@ function clampOffsetForAxis(
   maxOffset: ScrollOffsetSnapshot,
 ): ScrollOffsetSnapshot {
   const normalized: MutableScrollOffsetSnapshot = {
-    x:
-      container.axis === "y"
-        ? 0
-        : clamp(requestedOffset.x, 0, maxOffset.x),
-    y:
-      container.axis === "x"
-        ? 0
-        : clamp(requestedOffset.y, 0, maxOffset.y),
+    x: container.axis === "y" ? 0 : clamp(requestedOffset.x, 0, maxOffset.x),
+    y: container.axis === "x" ? 0 : clamp(requestedOffset.y, 0, maxOffset.y),
   };
 
   if (requestedOffset.revision !== undefined) {

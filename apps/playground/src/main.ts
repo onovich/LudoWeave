@@ -1,6 +1,10 @@
 import {
   createActionLog,
+  normalizeHostScrollIntent,
   normalizeHostInputIntent,
+  normalizeScrollMetadataFrame,
+  normalizeScrollOffsetForContainer,
+  resolveScrollRestoration,
   type ResolvedActionTarget,
 } from "@ludoweave/core";
 import {
@@ -32,6 +36,8 @@ const gateDemoRuntimeRoot = requireElement("#gate-demo-runtime-root");
 const gateDemoStatus = requireElement("#gate-demo-status");
 const navigationSmokeRoot = requireElement("#navigation-smoke");
 const navigationStatus = requireElement("#navigation-status");
+const scrollSmokeRoot = requireElement("#scroll-smoke");
+const scrollStatus = requireElement("#scroll-status");
 const actionLog = createActionLog();
 
 const renderer = mountDomRenderer({
@@ -59,6 +65,7 @@ renderThemeResolutionPanel(themeResolutionRoot);
 render();
 renderGateDemoSmoke();
 renderNavigationSmoke();
+renderScrollSmoke();
 window.addEventListener("resize", render);
 window.addEventListener("resize", scaleGateDemoSmoke);
 actionLogFilter.addEventListener("change", renderActionLog);
@@ -202,6 +209,102 @@ function renderNavigationSmoke(): void {
   );
 }
 
+function renderScrollSmoke(): void {
+  const scrollMetadata = normalizeScrollMetadataFrame({
+    activeContainerId: "quest-log-scroll",
+    containers: [
+      {
+        id: "quest-log-scroll",
+        nodeId: "runtime.overlay/key:quest-log",
+        contentRect: { x: 80, y: 120, width: 360, height: 640 },
+        viewportRect: { x: 80, y: 120, width: 360, height: 220 },
+        axis: "y",
+        offset: { x: 0, y: 180, revision: 3 },
+        extent: { width: 360, height: 640 },
+        hostCapability: { status: "available" },
+      },
+    ],
+  });
+  const scrollContainer = scrollMetadata.containers[0];
+  if (scrollContainer === undefined) {
+    throw new Error("Scroll smoke expected one scroll container.");
+  }
+
+  const offset = normalizeScrollOffsetForContainer(scrollContainer);
+  const hostIntents = [
+    normalizeHostScrollIntent({
+      kind: "line",
+      containerId: scrollContainer.id,
+      direction: "down",
+    }),
+    normalizeHostScrollIntent({
+      kind: "page",
+      containerId: scrollContainer.id,
+      direction: "down",
+    }),
+    normalizeHostScrollIntent({
+      kind: "edge",
+      containerId: scrollContainer.id,
+      edge: "end",
+    }),
+    normalizeHostScrollIntent({
+      kind: "restore",
+      containerId: scrollContainer.id,
+      restoreOffset: offset.normalizedOffset,
+    }),
+  ];
+  const diagnosticsSource = normalizeScrollOffsetForContainer(
+    {
+      id: "stale-empty-scroll",
+      contentRect: { x: 0, y: 0, width: 0, height: 0 },
+      viewportRect: { x: 0, y: 0, width: 320, height: 160 },
+      offset: { y: 24 },
+      extent: { width: 0, height: 0 },
+      hostCapability: { status: "missing", reason: "stale" },
+      disabledReason: "stale",
+    },
+    { y: 24 },
+  );
+  const removedRestoration = resolveScrollRestoration(
+    {
+      containers: [scrollContainer],
+    },
+    "removed-scroll",
+    { y: 120 },
+  );
+  const diagnostics = [
+    ...diagnosticsSource.diagnostics.map((diagnostic) => diagnostic.code),
+    ...removedRestoration.diagnostics.map((diagnostic) => diagnostic.code),
+  ];
+
+  scrollStatus.textContent = "PASS";
+  scrollStatus.dataset.scrollStatus = "pass";
+  scrollSmokeRoot.dataset.scrollContainerId = scrollContainer.id;
+  scrollSmokeRoot.dataset.scrollOffsetY = String(offset.normalizedOffset.y);
+  scrollSmokeRoot.dataset.scrollIntentCount = String(hostIntents.length);
+  scrollSmokeRoot.dataset.scrollDiagnosticCount = String(diagnostics.length);
+  scrollSmokeRoot.replaceChildren(
+    createScrollMeta("Container", scrollContainer.id),
+    createScrollMeta("Visible box", `0,${offset.normalizedOffset.y},360,220`),
+    createScrollMeta("Offset", `x:${offset.normalizedOffset.x} y:${offset.normalizedOffset.y}`),
+    createScrollList(
+      "Metadata",
+      [
+        `axis:${scrollContainer.axis}`,
+        `extent:${scrollContainer.extent.width}x${scrollContainer.extent.height}`,
+        `host:${scrollContainer.hostCapability.status}`,
+      ],
+      "scroll-metadata",
+    ),
+    createScrollList(
+      "Host intents",
+      hostIntents.map((intent) => `${intent.kind}:${intent.action.type}`),
+      "scroll-intent",
+    ),
+    createScrollList("Diagnostics", diagnostics, "scroll-diagnostic"),
+  );
+}
+
 function createNavigationMeta(label: string, value: string): HTMLElement {
   const row = document.createElement("p");
   row.className = "navigation-smoke__meta";
@@ -223,6 +326,43 @@ function createNavigationList(
 ): HTMLElement {
   const group = document.createElement("div");
   group.className = "navigation-smoke__group";
+
+  const heading = document.createElement("h3");
+  heading.textContent = label;
+
+  const list = document.createElement("ol");
+  for (const value of values) {
+    const item = document.createElement("li");
+    item.setAttribute(`data-${itemAttribute}`, value);
+    item.textContent = value;
+    list.append(item);
+  }
+
+  group.replaceChildren(heading, list);
+  return group;
+}
+
+function createScrollMeta(label: string, value: string): HTMLElement {
+  const row = document.createElement("p");
+  row.className = "scroll-smoke__meta";
+
+  const labelElement = document.createElement("span");
+  labelElement.textContent = label;
+
+  const valueElement = document.createElement("strong");
+  valueElement.textContent = value;
+
+  row.replaceChildren(labelElement, valueElement);
+  return row;
+}
+
+function createScrollList(
+  label: string,
+  values: readonly string[],
+  itemAttribute: string,
+): HTMLElement {
+  const group = document.createElement("div");
+  group.className = "scroll-smoke__group";
 
   const heading = document.createElement("h3");
   heading.textContent = label;
