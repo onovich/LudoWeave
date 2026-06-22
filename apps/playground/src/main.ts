@@ -1,13 +1,14 @@
 import { createActionLog, type ResolvedActionTarget } from "@ludoweave/core";
 import { mountDomRenderer } from "@ludoweave/renderer-dom";
 
-import { renderActionLogInspector } from "./action-log-inspector.js";
+import { renderActionLogInspector, type ActionLogInspectorFilter } from "./action-log-inspector.js";
 import { createPlaygroundFrame } from "./frame.js";
 import { renderThemeResolutionPanel } from "./theme-resolution-panel.js";
 import "./styles.css";
 
 const runtimeRoot = requireElement("#runtime-root");
 const actionLogRoot = requireElement("#action-log");
+const actionLogFilter = requireElement<HTMLSelectElement>("#action-log-filter");
 const themeResolutionRoot = requireElement("#theme-resolution");
 const actionLog = createActionLog();
 
@@ -31,6 +32,7 @@ renderActionLog();
 renderThemeResolutionPanel(themeResolutionRoot);
 render();
 window.addEventListener("resize", render);
+actionLogFilter.addEventListener("change", renderActionLog);
 
 function wireActionTargets(actions: readonly ResolvedActionTarget[]): void {
   const elements = runtimeRoot.querySelectorAll<HTMLElement>("[data-ludoweave-node-id]");
@@ -71,11 +73,26 @@ function recordAction(action: ResolvedActionTarget): void {
 }
 
 function renderActionLog(): void {
-  renderActionLogInspector(actionLogRoot, actionLog.snapshot());
+  renderActionLogInspector(actionLogRoot, actionLog.snapshot(), {
+    filter: parseActionLogFilter(actionLogFilter.value),
+  });
 }
 
-function requireElement(selector: string): HTMLElement {
-  const element = document.querySelector<HTMLElement>(selector);
+function parseActionLogFilter(value: string): ActionLogInspectorFilter {
+  const [kind, query] = value.split(":", 2);
+  if (kind === "namespace" && query !== undefined && query.length > 0) {
+    return { kind: "namespace", namespace: query };
+  }
+
+  if (kind === "type" && query !== undefined && query.length > 0) {
+    return { kind: "action-type", actionType: query };
+  }
+
+  return { kind: "all" };
+}
+
+function requireElement<TElement extends HTMLElement = HTMLElement>(selector: string): TElement {
+  const element = document.querySelector<TElement>(selector);
   if (element === null) {
     throw new Error(`Missing ${selector}.`);
   }

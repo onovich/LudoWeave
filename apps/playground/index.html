@@ -15,7 +15,20 @@
         <div id="runtime-root"></div>
       </section>
       <section class="action-log" aria-label="ActionRef log">
-        <h2>ActionRef log</h2>
+        <div class="action-log__header">
+          <h2>ActionRef log</h2>
+          <label class="action-log__filter">
+            <span>Filter</span>
+            <select id="action-log-filter" aria-label="ActionRef filter">
+              <option value="all">All actions</option>
+              <option value="namespace:runtime.gameplay">runtime.gameplay</option>
+              <option value="namespace:runtime.objective">runtime.objective</option>
+              <option value="namespace:runtime.pause">runtime.pause</option>
+              <option value="namespace:runtime.dialogue">runtime.dialogue</option>
+              <option value="type:runtime.objective.inspect">runtime.objective.inspect</option>
+            </select>
+          </label>
+        </div>
         <ol id="action-log" aria-live="polite"></ol>
       </section>
       <section

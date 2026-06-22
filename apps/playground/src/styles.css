@@ -144,12 +144,18 @@ body {
 .action-log {
   width: min(100%, 1040px);
   display: grid;
-  grid-template-columns: auto 1fr;
-  gap: 12px;
-  align-items: start;
+  gap: 10px;
   padding: 12px 14px;
   border: 1px solid #3f3f46;
   background: #18181b;
+}
+
+.action-log__header {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
 }
 
 .action-log h2 {
@@ -157,6 +163,24 @@ body {
   color: #fde68a;
   font-size: 14px;
   line-height: 22px;
+}
+
+.action-log__filter {
+  display: inline-flex;
+  gap: 8px;
+  align-items: center;
+  color: #d4d4d8;
+  font-size: 12px;
+  line-height: 22px;
+}
+
+.action-log__filter select {
+  max-width: 240px;
+  min-height: 28px;
+  border: 1px solid #52525b;
+  background: #09090b;
+  color: #f4f4f5;
+  font: inherit;
 }
 
 .action-log ol {
@@ -265,11 +289,6 @@ body {
   [data-ludoweave-node-type="dialog"] {
     font-size: 16px;
   }
-
-  .action-log {
-    grid-template-columns: 1fr;
-  }
-
   .theme-resolution__grid {
     grid-template-columns: 1fr;
   }

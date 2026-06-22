@@ -45,6 +45,18 @@ test("renders v0.3 runtime UI states in the playground", async ({ page }) => {
   await expect(actionLog).toContainText("runtime.objective.inspect");
   await expect(actionLog).toContainText("runtime.pause.resume");
 
+  const actionFilter = page.locator("#action-log-filter");
+  await actionFilter.selectOption("namespace:runtime.pause");
+  await expect(actionLog.locator("[data-action-type]")).toHaveCount(1);
+  await expect(actionLog).toContainText("runtime.pause.resume");
+  await actionFilter.selectOption("type:runtime.objective.inspect");
+  await expect(actionLog.locator("[data-action-type]")).toHaveCount(1);
+  await expect(actionLog).toContainText("runtime.objective.inspect");
+  await actionFilter.selectOption("namespace:runtime.dialogue");
+  await expect(actionLog).toContainText("No matching ActionRef");
+  await actionFilter.selectOption("all");
+  await expect(actionLog.locator("[data-action-type]")).toHaveCount(3);
+
   const themeResolution = page.locator("#theme-resolution");
   await expect(themeResolution).toContainText("Theme resolution");
   await expect(themeResolution.locator('[data-theme-state="default"]')).toHaveCount(4);
