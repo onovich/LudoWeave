@@ -2,7 +2,7 @@
 
 Date: 2026-06-22
 
-Status: Round 1 contract baseline for the host bridge and renderer coordination phase.
+Status: Round 12 integration pass for the v0.3 host bridge and renderer coordination phase.
 
 Goal guide: [ludoweave-v0.3-goal-mode-execution-guide.md](../goal-mode/ludoweave-v0.3-goal-mode-execution-guide.md)
 
@@ -15,9 +15,21 @@ v0.3 starts after the accepted v0.1 and v0.2 milestones. The current baseline al
 - ActionRef as the only runtime UI interaction output; arbitrary callbacks are not allowed in core contracts.
 - DOM renderer consumption of core layout boxes without becoming a second layout source of truth.
 - Canvas2D as an experimental renderer spike that consumes `ResolvedUiFrame` paint commands only.
-- DOM input overlay as a v0.2 design note, not yet a typed host bridge contract.
+- DOM input overlay as a v0.2 design note; v0.3 now adds the typed host bridge draft and fixtures.
 
 No new ADR is required for Round 1. ADR-0001 through ADR-0004 remain accepted and unchanged; this document records how v0.3 applies them.
+
+## Integrated Scope Through Round 12
+
+- Added typed text input overlay bridge data in `@ludoweave/core`, including request, selection, input mode, commit/cancel ActionRefs, lifecycle reason, capability status, and snapshot normalization.
+- Added text input overlay bridge fixtures in `@ludoweave/testing`, covering open, update, focus, snapshot, close, missing capability, stale node, removed node, and disabled editable target states.
+- Added Canvas2D action hit-test tracing derived from `ResolvedUiFrame.actions`; the trace reports target, disabled target, no target, and outside viewport without dispatch.
+- Added Canvas2D text input overlay coordination tracing that hands resolved box, semantic label, theme token, and commit/cancel ActionRefs to the host bridge request.
+- Added a concrete runtime UI theme resolution fixture for default and high-contrast states without adding a schema runtime dependency to core.
+- Updated Playground to show v0.3 theme resolution states while preserving Prompt, Subtitle, Dialog, Objective, e2e, and a11y coverage.
+- Hardened the lightweight ActionRef inspector with namespace/type filtering, no-match behavior, JSON export, and clear-history workflow.
+- Added bounded v0.4+ planning docs for scroll, virtual list, rich text, and richer gamepad navigation.
+- Added a Sinan host integration readiness plan covering RuntimeUIViewModel versioning, UIActionRef registry, host bridge capability, editable text overlay support, and Gate Demo validation hooks.
 
 ## v0.3 Scope
 
@@ -137,16 +149,16 @@ The repository must not import Sinan editor internals, read or modify Sinan proj
 | Round | Area | Expected Status |
 | --- | --- | --- |
 | 1 | Contract baseline | Create this status doc and confirm ADR inheritance. |
-| 2 | Typed text overlay host bridge | Add serializable bridge draft types. |
-| 3 | Overlay bridge fixtures | Cover lifecycle, snapshot, and failure states. |
-| 4 | Canvas2D hit-test trace | Trace targets without dispatch. |
-| 5 | Canvas2D overlay coordination | Hand overlay candidates to the host bridge. |
-| 6 | Theme resolution fixture | Resolve token metadata into stable hints. |
-| 7 | Playground theme state | Demonstrate v0.3 runtime UI state. |
-| 8 | Inspector filtering | Filter action history. |
-| 9 | Inspector export | Export and clear serializable history. |
-| 10 | Future tracks | Plan scroll, virtual list, rich text, and richer gamepad nav. |
-| 11 | Sinan readiness | Document integration requirements without integration. |
+| 2 | Typed text overlay host bridge | Completed in `c26e4c0`. |
+| 3 | Overlay bridge fixtures | Completed in `0cea2b9`. |
+| 4 | Canvas2D hit-test trace | Completed in `5575391`. |
+| 5 | Canvas2D overlay coordination | Completed in `3751a3d`. |
+| 6 | Theme resolution fixture | Completed in `45614fa`. |
+| 7 | Playground theme state | Completed in `353c6e7`. |
+| 8 | Inspector filtering | Completed in `76071c8`. |
+| 9 | Inspector export | Completed in `1ce5514`. |
+| 10 | Future tracks | Completed in `443401f`. |
+| 11 | Sinan readiness | Completed in `44c62f4`. |
 | 12 | Integration pass | Update release drafts and verify the combined scope. |
 | 13-15 | Buffers | Fix tooling, runtime, renderer, or docs drift if needed. |
 | 16 | Final handoff | Run full validation and publish final report/log. |
@@ -176,3 +188,23 @@ Round-level validation follows the goal guide. The full v0.3 acceptance matrix m
 - Debug: this is a documentation-only baseline. Failure should localize to formatting, whitespace, or stale docs index links.
 - Architecture: the baseline inherits accepted ADRs and does not introduce new runtime ownership or dependencies.
 - Scope: no typed bridge implementation, Canvas2D behavior, theme resolver, inspector workflow, or Sinan integration is added in Round 1.
+
+## Commit Range Through Round 11
+
+- `0368d30 docs(roadmap): establish v0.3 baseline`
+- `c26e4c0 feat(core): add text input overlay bridge draft`
+- `0cea2b9 test(testing): add text input overlay bridge fixtures`
+- `5575391 feat(renderer-canvas2d): trace action hit tests`
+- `3751a3d feat(renderer-canvas2d): coordinate text input overlays`
+- `45614fa test(testing): add theme resolution fixture`
+- `353c6e7 feat(playground): show theme resolution states`
+- `76071c8 feat(playground): filter action log inspector`
+- `1ce5514 feat(playground): export and clear action logs`
+- `443401f docs(roadmap): bound future runtime ui tracks`
+- `44c62f4 docs(sinan): plan host integration readiness`
+
+## Round 12 Self-Check
+
+- Debug: integrated scope is covered by typed normalizers, fixture tests, renderer tests, Playground e2e/a11y smoke, docs checks, and wrapper validation.
+- Architecture: host and Sinan remain source-of-truth; core remains renderer/Sinan-free; Canvas2D traces targets and overlay requests but does not own focus, input, a11y, or dispatch.
+- Scope: v0.3 integration pass updates docs and release notes only; it does not implement scroll, virtual list, rich text, richer gamepad navigation, Pixi/WebGPU, or real Sinan integration.
