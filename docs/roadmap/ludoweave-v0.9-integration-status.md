@@ -2,7 +2,7 @@
 
 Date: 2026-06-23
 
-Status: Round 7 ActionRef registry review pack complete for the v0.9 Bounded Sinan Handoff Checklist track.
+Status: Round 8 fallback policy review pack complete for the v0.9 Bounded Sinan Handoff Checklist track.
 
 Goal guide: [ludoweave-v0.9-goal-mode-execution-guide.md](../goal-mode/ludoweave-v0.9-goal-mode-execution-guide.md)
 
@@ -70,7 +70,7 @@ Use these locations during v0.9:
 | 5 | Boundary checklist | Complete. |
 | 6 | Host capability checklist | Complete. |
 | 7 | ActionRef registry review pack | Complete. |
-| 8 | Fallback policy review pack | Pending. |
+| 8 | Fallback policy review pack | Complete. |
 | 9 | Renderer conformance review pack | Pending. |
 | 10 | DOM and a11y smoke review pack | Pending. |
 | 11 | Canvas2D trace review pack | Pending. |
