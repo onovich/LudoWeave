@@ -1,5 +1,16 @@
 export { createSinanActionRefBridge } from "./action-bridge.js";
 export type { SinanActionRefBridge, SinanRuntimeUICommand } from "./action-bridge.js";
+export {
+  createGateDemoActionAuditExportPayload,
+  createSinanActionAuditExportJson,
+  createSinanActionAuditExportPayload,
+  sinanActionAuditExportVersion,
+} from "./action-audit-export.js";
+export type {
+  SinanActionAuditExportEntry,
+  SinanActionAuditExportPayload,
+  SinanActionAuditExportSource,
+} from "./action-audit-export.js";
 export { mapRuntimeUIObjectiveAction, mapRuntimeUIPromptAction } from "./action-mapping.js";
 export {
   createSinanUIActionRefRegistryMock,
