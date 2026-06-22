@@ -1,4 +1,9 @@
-import { normalizeTextInputOverlayRequest, normalizeUiDiagnostic } from "@ludoweave/core";
+import {
+  normalizeScrollMetadataFrame,
+  normalizeScrollOffsetForContainer,
+  normalizeTextInputOverlayRequest,
+  normalizeUiDiagnostic,
+} from "@ludoweave/core";
 import type {
   ActionRef,
   ActionRefInput,
@@ -8,6 +13,8 @@ import type {
   ResolvedActionTarget,
   ResolvedRect,
   ResolvedUiFrame,
+  ScrollMetadataFrame,
+  ScrollOffsetSnapshot,
   TextInputOverlayInputMode,
   TextInputOverlayRequest,
   TextInputOverlaySelection,
@@ -166,6 +173,42 @@ export type Canvas2DFocusGraphTrace =
     };
 
 /**
+ * Serializable scroll container data recorded by Canvas2D scroll metadata traces.
+ *
+ * @public
+ */
+export interface Canvas2DScrollContainerTrace {
+  readonly containerId: string;
+  readonly nodeId: string;
+  readonly contentRect: ResolvedRect;
+  readonly viewportRect: ResolvedRect;
+  readonly visibleContentBox: ResolvedRect;
+  readonly offset: ScrollOffsetSnapshot;
+  readonly maxOffset: ScrollOffsetSnapshot;
+  readonly actionTargetIds: readonly string[];
+  readonly diagnostics: readonly UiDiagnostic[];
+}
+
+/**
+ * Deterministic scroll metadata trace for renderer tests and host coordination.
+ *
+ * @public
+ */
+export type Canvas2DScrollMetadataTrace =
+  | {
+      readonly kind: "scroll-metadata-trace";
+      readonly frameId: number;
+      readonly result: "containers";
+      readonly containers: readonly Canvas2DScrollContainerTrace[];
+    }
+  | {
+      readonly kind: "scroll-metadata-trace";
+      readonly frameId: number;
+      readonly result: "no-container";
+      readonly containers: readonly [];
+    };
+
+/**
  * Options for deriving a host text overlay request from a Canvas2D consumed frame.
  *
  * @public
@@ -244,13 +287,16 @@ export const canvas2DRendererConformancePolicy = Object.freeze({
     "resolved-frame.consume",
     "action.hit-test.trace",
     "focus-graph.trace",
+    "scroll-metadata.trace",
     "text-input-overlay.coordination-trace",
   ],
   unsupported: [
     "dom.semantics",
     "native.focus",
+    "native.scroll-state",
     "native.text-input",
     "action.dispatch",
+    "scroll.dispatch",
     "rounded-rect.path-fidelity",
     "text.measurement",
   ],
@@ -344,6 +390,51 @@ export function traceCanvas2DFocusGraph(
     scopeId: focusGraph.scopeId,
     result: "targets",
     targets,
+  };
+}
+
+/**
+ * Traces scroll metadata consumed by Canvas2D without reading native scroll or dispatching actions.
+ *
+ * @public
+ */
+export function traceCanvas2DScrollMetadata(
+  frame: ResolvedUiFrame,
+  scrollMetadata: ScrollMetadataFrame,
+): Canvas2DScrollMetadataTrace {
+  const metadata = normalizeScrollMetadataFrame(scrollMetadata);
+  if (metadata.containers.length === 0) {
+    return {
+      kind: "scroll-metadata-trace",
+      frameId: frame.frameId,
+      result: "no-container",
+      containers: [],
+    };
+  }
+
+  return {
+    kind: "scroll-metadata-trace",
+    frameId: frame.frameId,
+    result: "containers",
+    containers: metadata.containers.map((container) => {
+      const offset = normalizeScrollOffsetForContainer(container);
+      return {
+        containerId: container.id,
+        nodeId: container.nodeId,
+        contentRect: container.contentRect,
+        viewportRect: container.viewportRect,
+        visibleContentBox: {
+          x: offset.normalizedOffset.x,
+          y: offset.normalizedOffset.y,
+          width: container.viewportRect.width,
+          height: container.viewportRect.height,
+        },
+        offset: offset.normalizedOffset,
+        maxOffset: offset.maxOffset,
+        actionTargetIds: findScrollActionTargetIds(frame.actions, container.nodeId),
+        diagnostics: offset.diagnostics,
+      };
+    }),
   };
 }
 
@@ -574,6 +665,18 @@ function findTopmostActionTarget(
   }
 
   return undefined;
+}
+
+function findScrollActionTargetIds(
+  actions: readonly ResolvedActionTarget[],
+  containerNodeId: string,
+): readonly string[] {
+  return actions
+    .filter(
+      (target) =>
+        target.nodeId === containerNodeId || target.nodeId.startsWith(`${containerNodeId}/`),
+    )
+    .map((target) => target.id);
 }
 
 function toHitTestTargetTrace(target: ResolvedActionTarget): Canvas2DHitTestTargetTrace {

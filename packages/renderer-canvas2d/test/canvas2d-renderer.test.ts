@@ -1,4 +1,7 @@
-import { createRendererConformanceFixture } from "@ludoweave/testing";
+import {
+  createClippedScrollContentFixture,
+  createRendererConformanceFixture,
+} from "@ludoweave/testing";
 import { describe, expect, it } from "vitest";
 
 import {
@@ -6,11 +9,12 @@ import {
   createCanvas2DRenderer,
   traceCanvas2DActionHitTest,
   traceCanvas2DFocusGraph,
+  traceCanvas2DScrollMetadata,
   traceCanvas2DTextInputOverlayCoordination,
   type Canvas2DContextLike,
   type Canvas2DRenderTrace,
 } from "../src/index.js";
-import { normalizeFocusGraph } from "@ludoweave/core";
+import { normalizeFocusGraph, normalizeScrollMetadataFrame } from "@ludoweave/core";
 
 describe("Canvas2D renderer spike", () => {
   it("consumes resolved frames and draws clear, box, and text commands", () => {
@@ -129,11 +133,14 @@ describe("Canvas2D renderer spike", () => {
       "resolved-frame.consume",
       "action.hit-test.trace",
       "focus-graph.trace",
+      "scroll-metadata.trace",
       "text-input-overlay.coordination-trace",
     ]);
     expect(canvas2DRendererConformancePolicy.unsupported).toContain("native.text-input");
     expect(canvas2DRendererConformancePolicy.unsupported).toContain("native.focus");
+    expect(canvas2DRendererConformancePolicy.unsupported).toContain("native.scroll-state");
     expect(canvas2DRendererConformancePolicy.unsupported).toContain("action.dispatch");
+    expect(canvas2DRendererConformancePolicy.unsupported).toContain("scroll.dispatch");
     expect(canvas2DRendererConformancePolicy.fallbackPolicy).toContain(
       "Hosts pair Canvas2D paint with a DOM or platform input overlay for focus and actions.",
     );
@@ -325,6 +332,78 @@ describe("Canvas2D renderer spike", () => {
       result: "no-target",
       targets: [],
     });
+  });
+
+  it("traces scroll geometry, visible content, offsets, and action target ids", () => {
+    const fixture = createClippedScrollContentFixture();
+
+    expect(traceCanvas2DScrollMetadata(fixture.frame, fixture.scrollMetadata)).toEqual({
+      kind: "scroll-metadata-trace",
+      frameId: 4600,
+      result: "containers",
+      containers: [
+        {
+          containerId: "quest-log-scroll",
+          nodeId: "runtime.overlay/key:quest-log",
+          contentRect: { x: 80, y: 120, width: 360, height: 640 },
+          viewportRect: { x: 80, y: 120, width: 360, height: 220 },
+          visibleContentBox: { x: 0, y: 180, width: 360, height: 220 },
+          offset: { x: 0, y: 180, revision: 3 },
+          maxOffset: { x: 0, y: 420 },
+          actionTargetIds: ["action.quest.track-final-conduit"],
+          diagnostics: [],
+        },
+      ],
+    });
+    expect(
+      JSON.stringify(traceCanvas2DScrollMetadata(fixture.frame, fixture.scrollMetadata)),
+    ).not.toContain("dispatch");
+    expect(
+      JSON.stringify(traceCanvas2DScrollMetadata(fixture.frame, fixture.scrollMetadata)),
+    ).not.toContain("scrollTop");
+  });
+
+  it("reports no scroll containers without reading platform scroll state", () => {
+    const fixture = createRendererConformanceFixture();
+
+    expect(
+      traceCanvas2DScrollMetadata(fixture.frame, normalizeScrollMetadataFrame({ containers: [] })),
+    ).toEqual({
+      kind: "scroll-metadata-trace",
+      frameId: 3600,
+      result: "no-container",
+      containers: [],
+    });
+  });
+
+  it("traces disabled, stale, missing capability, and empty scroll diagnostics", () => {
+    const fixture = createRendererConformanceFixture();
+    const trace = traceCanvas2DScrollMetadata(
+      fixture.frame,
+      normalizeScrollMetadataFrame({
+        containers: [
+          {
+            id: "stale-empty-scroll",
+            nodeId: "runtime.overlay/key:pause.dialog",
+            contentRect: { x: 0, y: 0, width: 0, height: 0 },
+            viewportRect: { x: 0, y: 0, width: 320, height: 160 },
+            offset: { y: 24 },
+            extent: { width: 0, height: 0 },
+            hostCapability: { status: "missing", reason: "stale" },
+            disabledReason: "stale",
+          },
+        ],
+      }),
+    );
+
+    expect(trace.result).toBe("containers");
+    expect(trace.containers[0]?.diagnostics.map((diagnostic) => diagnostic.code)).toEqual([
+      "LW_SCROLL_MISSING_HOST_CAPABILITY",
+      "LW_SCROLL_STALE_CONTAINER",
+      "LW_SCROLL_DISABLED",
+      "LW_SCROLL_EMPTY_CONTAINER",
+      "LW_SCROLL_OUT_OF_RANGE_OFFSET",
+    ]);
   });
 
   it("rejects non-finite hit-test points", () => {
