@@ -27,7 +27,9 @@ last_executor_report_commit: 76b64f4
 last_executor_report_status: PASS
 last_executor_report_at: 2026-06-22
 last_executor_report_guide: docs/goal-mode/ludoweave-v0.8-goal-mode-execution-guide.md
-last_executor_report_notification: pending
+last_executor_report_notification: sent
+last_executor_report_thread: 019ee4c2-4a41-7530-86fe-5de7de2e3150
+last_executor_report_final_commit: fd97f0d
 
 routing_notes:
   check_failed: planner -> executor repair request
