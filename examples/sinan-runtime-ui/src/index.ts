@@ -73,6 +73,14 @@ export type {
   RuntimeUITextInputOverlayHostCapability,
   RuntimeUITextMeasurementSnapshot,
 } from "./host-capabilities.js";
+export {
+  createGateDemoNavigationSequence,
+  gateDemoNavigationSequenceVersion,
+} from "./gate-demo-navigation.js";
+export type {
+  CreateGateDemoNavigationSequenceOptions,
+  GateDemoNavigationSequenceResult,
+} from "./gate-demo-navigation.js";
 export { renderRuntimeUIViewModelFallback } from "./fallback-renderer.js";
 export type {
   FallbackRuntimeUIElement,

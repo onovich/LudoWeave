@@ -21,6 +21,7 @@ describe("Gate Demo validation hook", () => {
       ["host-capability", "PASS"],
       ["action-registry", "PASS"],
       ["overlay-coordination", "PASS"],
+      ["navigation", "PASS"],
     ]);
     expect(result.diagnostics).toEqual([]);
     expect(JSON.parse(JSON.stringify(result))).toEqual(result);
@@ -59,6 +60,7 @@ describe("Gate Demo validation hook", () => {
       ["host-capability", "FAIL"],
       ["action-registry", "PASS"],
       ["overlay-coordination", "PASS"],
+      ["navigation", "PASS"],
     ]);
     expect(result.diagnostics).toContainEqual(
       expect.objectContaining({
@@ -83,6 +85,24 @@ describe("Gate Demo validation hook", () => {
     expect(
       result.diagnostics.some(
         (diagnostic) => diagnostic.code === "LW_EXAMPLE_ACTION_REGISTRY_UNKNOWN",
+      ),
+    ).toBe(true);
+  });
+
+  it("localizes rejected navigation routes to the navigation layer", () => {
+    const result = runGateDemoValidationHook({
+      registryOptions: {
+        disabledActionTypes: ["runtime.pause.close"],
+      },
+    });
+
+    expect(result.layers.find((layer) => layer.layer === "navigation")).toMatchObject({
+      layer: "navigation",
+      status: "FAIL",
+    });
+    expect(
+      result.diagnostics.some(
+        (diagnostic) => diagnostic.code === "LW_EXAMPLE_ACTION_REGISTRY_DISABLED",
       ),
     ).toBe(true);
   });

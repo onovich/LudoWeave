@@ -16,6 +16,7 @@ import {
   createGateDemoHostCapabilitySnapshot,
   type RuntimeUIHostCapabilitySnapshot,
 } from "./host-capabilities.js";
+import { createGateDemoNavigationSequence } from "./gate-demo-navigation.js";
 import {
   mapRuntimeUIViewModelEnvelopeToResolvedFrame,
   runtimeUIAdapterDiagnosticCodes,
@@ -29,7 +30,8 @@ export type GateDemoValidationLayer =
   | "renderer"
   | "host-capability"
   | "action-registry"
-  | "overlay-coordination";
+  | "overlay-coordination"
+  | "navigation";
 
 export type GateDemoValidationStatus = "PASS" | "FAIL";
 
@@ -62,6 +64,9 @@ export const gateDemoValidationDiagnosticCodes = Object.freeze({
   actionRegistryRoute: "LW_EXAMPLE_VALIDATION_ACTION_REGISTRY_ROUTE",
   overlayCandidateMissing: "LW_EXAMPLE_VALIDATION_OVERLAY_CANDIDATE_MISSING",
   overlayFallbackMissing: "LW_EXAMPLE_VALIDATION_OVERLAY_FALLBACK_MISSING",
+  navigationMapping: "LW_EXAMPLE_VALIDATION_NAVIGATION_MAPPING",
+  navigationRegistryRoute: "LW_EXAMPLE_VALIDATION_NAVIGATION_REGISTRY_ROUTE",
+  navigationRendererTrace: "LW_EXAMPLE_VALIDATION_NAVIGATION_RENDERER_TRACE",
 });
 
 const mappingDiagnosticCodes = new Set<string>([
@@ -86,6 +91,7 @@ export function runGateDemoValidationHook(
     createHostCapabilityLayer(hostCapabilities),
     createActionRegistryLayer(mapping, registry),
     createOverlayCoordinationLayer(mapping.frame, hostCapabilities),
+    createNavigationLayer(mapping, options.registryOptions),
   ];
   const diagnostics = layers.flatMap((layer) => layer.diagnostics);
 
@@ -95,6 +101,72 @@ export function runGateDemoValidationHook(
     ...(mapping.envelopeFrameId === undefined ? {} : { frameId: mapping.envelopeFrameId }),
     layers,
     diagnostics,
+  };
+}
+
+function createNavigationLayer(
+  mapping: RuntimeUIResolvedFrameMappingResult,
+  registryOptions: CreateSinanUIActionRefRegistryMockOptions | undefined,
+): GateDemoValidationLayerResult {
+  if (mapping.frame === undefined) {
+    return {
+      layer: "navigation",
+      status: "FAIL",
+      summary: "Navigation skipped because mapping did not produce a frame.",
+      diagnostics: [
+        normalizeUiDiagnostic({
+          code: gateDemoValidationDiagnosticCodes.navigationMapping,
+          severity: "error",
+          message: "Navigation validation requires a ResolvedUiFrame.",
+          path: ["validation-hook", "navigation", "mapping"],
+        }),
+      ],
+    };
+  }
+
+  const navigationOptions = {
+    frame: mapping.frame,
+    ...(mapping.envelopeFrameId === undefined ? {} : { frameId: mapping.envelopeFrameId }),
+    ...(registryOptions === undefined ? {} : { registryOptions }),
+  };
+  const navigation = createGateDemoNavigationSequence(navigationOptions);
+  const registryFailures = navigation.registryResults.filter(
+    (entry) => entry.routingResult !== "accepted" && entry.routingResult !== "no-op",
+  );
+
+  if (navigation.rendererTrace.result !== "targets") {
+    return {
+      layer: "navigation",
+      status: "FAIL",
+      summary: "Navigation renderer trace did not expose focus targets.",
+      diagnostics: [
+        normalizeUiDiagnostic({
+          code: gateDemoValidationDiagnosticCodes.navigationRendererTrace,
+          severity: "error",
+          message: "Navigation validation requires Canvas2D focus trace targets.",
+          path: ["validation-hook", "navigation", "renderer-trace"],
+          details: {
+            result: navigation.rendererTrace.result,
+          },
+        }),
+      ],
+    };
+  }
+
+  if (registryFailures.length > 0) {
+    return {
+      layer: "navigation",
+      status: "FAIL",
+      summary: "Navigation ActionRefs were rejected by the registry mock.",
+      diagnostics: registryFailures.flatMap((entry) => entry.diagnostics),
+    };
+  }
+
+  return {
+    layer: "navigation",
+    status: "PASS",
+    summary: "Gate Demo navigation sequence maps, traces, and routes ActionRefs.",
+    diagnostics: [],
   };
 }
 
