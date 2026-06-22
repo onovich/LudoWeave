@@ -33,3 +33,8 @@ export type {
   RealizedVirtualListFixture,
   RealizedVirtualListItem,
 } from "./virtual-list-fixture.js";
+export {
+  createRichTextInlineRunFixture,
+  flattenRichTextRunSpanIds,
+} from "./rich-text-inline-run-fixture.js";
+export type { RichTextInlineRunFixture } from "./rich-text-inline-run-fixture.js";
