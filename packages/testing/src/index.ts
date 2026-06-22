@@ -38,3 +38,9 @@ export {
   flattenRichTextRunSpanIds,
 } from "./rich-text-inline-run-fixture.js";
 export type { RichTextInlineRunFixture } from "./rich-text-inline-run-fixture.js";
+export { createRichTextPlainFallbackFixture } from "./rich-text-fallback-fixture.js";
+export type {
+  RichTextFallbackCase,
+  RichTextFallbackCaseKind,
+  RichTextPlainFallbackFixture,
+} from "./rich-text-fallback-fixture.js";
