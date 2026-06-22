@@ -2,7 +2,7 @@
 
 Date: 2026-06-22
 
-Status: Round 1 contract baseline for the v0.4 Sinan Gate Demo Contract Spike.
+Status: Round 12 integration pass for the v0.4 Sinan Gate Demo Contract Spike.
 
 Goal guide: [ludoweave-v0.4-goal-mode-execution-guide.md](../goal-mode/ludoweave-v0.4-goal-mode-execution-guide.md)
 
@@ -35,6 +35,20 @@ The phase should provide verifiable Sinan-like fixtures and validation surfaces 
 - Layer-specific validation hook output for mapping, renderer, host capability, action registry, and overlay coordination.
 - DOM smoke, Canvas2D trace, fallback renderer policy, and JSON-only ActionRef audit export paths.
 
+## Integrated Scope Through Round 12
+
+- Added a versioned `RuntimeUIViewModel` envelope fixture with supported version, `frameId`, `surface`, `capabilities`, `fallbackPolicy`, unsupported-version diagnostics, unknown-field diagnostics, and missing-field diagnostics.
+- Added a Gate Demo host capability snapshot covering DOM, Canvas2D trace, fallback renderer, text input overlay, action registry, validation hook, viewport, safe area, DPR, and fixture text measurement.
+- Added a Sinan-like UIActionRef registry mock with accepted, rejected, stale, unavailable, disabled, unknown, and no-op routing results plus deterministic audit logs.
+- Expanded the Gate Demo fixture to include Prompt, Subtitle, Objective, Pause, and one editable overlay candidate with commit/cancel/fallback ActionRefs.
+- Added an adapter from the versioned envelope to LudoWeave component props, `UiNode` values, and a deterministic `ResolvedUiFrame`.
+- Added mapping, renderer, host capability, action registry, and overlay coordination diagnostics for version, schema, capability, unsupported element, registry, and fallback failures.
+- Added a machine-readable Gate Demo validation hook with per-layer PASS/FAIL output.
+- Added a Playground DOM Gate Demo smoke section rendered from the v0.4 adapter path and covered by e2e and a11y smoke tests.
+- Added Canvas2D Gate Demo action hit-test and editable overlay coordination trace tests without adding ActionRef dispatch to Canvas2D.
+- Added a Sinan-owned fallback policy that selects a fallback snapshot for missing capability or unsupported renderer routes.
+- Added a JSON-only ActionRef audit export payload for Sinan review, compatible with the existing inspector export path.
+
 ## Non-Goals
 
 v0.4 must not:
@@ -63,20 +77,20 @@ Use these locations during v0.4:
 
 ## Round Ledger
 
-| Round | Area | Expected Status |
+| Round | Area | Status |
 | --- | --- | --- |
-| 1 | Contract baseline | Create this status doc, confirm v0.4 is a contract spike, and define placement policy. |
-| 2 | Versioned RuntimeUIViewModel envelope | Planned. |
-| 3 | Host capability snapshot | Planned. |
-| 4 | UIActionRef registry mock | Planned. |
-| 5 | Gate Demo fixture | Planned. |
-| 6 | Adapter mapping to `ResolvedUiFrame` | Planned. |
-| 7 | Validation hook and layer reporter | Planned. |
-| 8 | DOM Gate Demo smoke | Planned. |
-| 9 | Canvas2D Gate Demo trace | Planned. |
-| 10 | Fallback renderer policy | Planned. |
-| 11 | ActionRef audit export for Sinan review | Planned. |
-| 12 | v0.4 integration pass | Planned. |
+| 1 | Contract baseline | Completed in `8bc83c5`. |
+| 2 | Versioned RuntimeUIViewModel envelope | Completed in `1cd3113`. |
+| 3 | Host capability snapshot | Completed in `d95f197`. |
+| 4 | UIActionRef registry mock | Completed in `bb405fe`. |
+| 5 | Gate Demo fixture | Completed in `c15ad70`. |
+| 6 | Adapter mapping to `ResolvedUiFrame` | Completed in `a4911c6`. |
+| 7 | Validation hook and layer reporter | Completed in `18a41ab`. |
+| 8 | DOM Gate Demo smoke | Completed in `d0223ee`. |
+| 9 | Canvas2D Gate Demo trace | Completed in `0604053`. |
+| 10 | Fallback renderer policy | Completed in `139e8fa`. |
+| 11 | ActionRef audit export for Sinan review | Completed in `416d9ee`. |
+| 12 | v0.4 integration pass | This document, contract notes, and release draft. |
 | 13-15 | Buffers | Use only for tooling, runtime, contract, or docs fixes. |
 | 16 | Final validation and handoff | Planned. |
 
@@ -100,8 +114,26 @@ Round-level validation follows the v0.4 goal guide. The full v0.4 acceptance mat
 - `git status --short --branch`
 - `git ls-remote origin refs/heads/main`
 
+## Round 12 Validation Snapshot
+
+| Command | Result |
+| --- | --- |
+| `Validate.cmd` | PASS |
+| `Smoke.cmd` | PASS |
+| `pnpm validate` | PASS |
+| `pnpm test:e2e` | PASS |
+| `pnpm test:a11y` | PASS |
+| `pnpm format` | PASS |
+| `git diff --check` | PASS |
+
 ## Round 1 Self-Check
 
 - Debug: this is a documentation-only baseline. Failure should localize to formatting, whitespace, stale docs index links, or an incorrect placement policy.
 - Architecture: the baseline keeps Sinan-like contracts in example/fixture scope, keeps host and Sinan as source-of-truth, and does not add runtime dependencies or implementation code.
 - Scope: Round 1 does not implement envelope parsing, capability snapshots, registry routing, Gate Demo rendering, validation hooks, fallback policy, DOM smoke, Canvas2D traces, or ActionRef audit export.
+
+## Round 12 Self-Check
+
+- Debug: integrated scope is covered by envelope, capability, registry, adapter, validation hook, DOM smoke, Canvas2D trace, fallback policy, and audit export tests. Failures should localize by validation hook layer or package test target.
+- Architecture: Sinan-like contracts remain in `examples/sinan-runtime-ui`; `@ludoweave/core` remains renderer-free and Sinan-free; Canvas2D traces but does not dispatch; DOM consumes `ResolvedUiFrame` boxes.
+- Scope: Round 12 updates integration docs and release notes only. It does not add real Sinan imports, project JSON mutation, React editor replacement, production Canvas2D, Pixi/WebGPU, scroll, virtual list, rich text, or full DevTools.
