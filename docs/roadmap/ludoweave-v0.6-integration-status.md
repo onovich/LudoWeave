@@ -2,7 +2,7 @@
 
 Date: 2026-06-22
 
-Status: Round 1 baseline for the v0.6 Bounded Scroll Metadata track.
+Status: Round 12 integration pass for the v0.6 Bounded Scroll Metadata track.
 
 Goal guide: [ludoweave-v0.6-goal-mode-execution-guide.md](../goal-mode/ludoweave-v0.6-goal-mode-execution-guide.md)
 
@@ -60,22 +60,35 @@ Use these locations during v0.6:
 | Sinan-like Gate Demo scroll fixtures and validation hook extensions | `examples/sinan-runtime-ui/src/` and `examples/sinan-runtime-ui/test/` | Keep Sinan-like contracts in example/fixture scope. |
 | Goal, roadmap, runtime UI contract note, release notes, validation logs, and final reports | `docs/goal-mode/`, `docs/roadmap/`, `docs/runtime-ui/`, and `docs/release/` | Keep docs linked from `docs/README.md`. |
 
+## Integrated Scope Through Round 12
+
+- Added scroll container metadata in `@ludoweave/core` with container id, node id, content rect, viewport rect, axis, offset snapshot, extent, disabled reason, host capability status, and JSON-only normalization.
+- Added host-owned scroll intents for line, page, edge, and restore operations with `runtime.scroll.intent` ActionRef-only output.
+- Added deterministic offset normalization, restore lookup, and stable diagnostics for missing host capability, stale container, removed container, out-of-range offset, disabled scroll, and empty container cases.
+- Added clipped content / visible content fixtures without implementing CSS overflow, browser scroll state, or virtual list behavior.
+- Added renderer conformance sidecar metadata proving headless, DOM, and Canvas2D consume the same `ResolvedUiFrame` plus scroll metadata.
+- Added Playground v0.6 scroll coordination smoke exposing metadata, host offset snapshot, intents, and diagnostics with e2e/a11y coverage.
+- Added Canvas2D scroll metadata traces for container geometry, visible content, normalized offset, max offset, diagnostics, and action target ids without input reads, dispatch, or mutation.
+- Added Sinan-like Gate Demo scroll sequence with deterministic registry mock results and a scroll validation hook layer.
+- Added scroll-specific fallback policy and JSON-only scroll audit export.
+- Added the runtime UI scroll metadata contract note.
+
 ## Round Ledger
 
 | Round | Area | Status |
 | --- | --- | --- |
-| 1 | Contract baseline | In progress. |
-| 2 | Scroll metadata contract | Planned. |
-| 3 | Host scroll intent contract | Planned. |
-| 4 | Offset normalization and diagnostics | Planned. |
-| 5 | Clipped content fixture | Planned. |
-| 6 | Renderer conformance frame | Planned. |
-| 7 | DOM playground scroll coordination smoke | Planned. |
-| 8 | Canvas2D scroll trace | Planned. |
-| 9 | Sinan-like Gate Demo scroll fixture | Planned. |
-| 10 | Fallback policy and audit export | Planned. |
-| 11 | Scroll metadata contract docs | Planned. |
-| 12 | v0.6 integration pass | Planned. |
+| 1 | Contract baseline | Completed in `7f08339`. |
+| 2 | Scroll metadata contract | Completed in `816a105`. |
+| 3 | Host scroll intent contract | Completed in `5f2313b`. |
+| 4 | Offset normalization and diagnostics | Completed in `3b8327c`. |
+| 5 | Clipped content fixture | Completed in `dad415e`. |
+| 6 | Renderer conformance frame | Completed in `5905baa`. |
+| 7 | DOM playground scroll coordination smoke | Completed in `e21853c`. |
+| 8 | Canvas2D scroll trace | Completed in `409ad31`. |
+| 9 | Sinan-like Gate Demo scroll fixture | Completed in `513306a`. |
+| 10 | Fallback policy and audit export | Completed in `4cc68a1`. |
+| 11 | Scroll metadata contract docs | Completed in `67dee15`. |
+| 12 | v0.6 integration pass | This document and release notes draft. |
 | 13-15 | Buffers | Reserved for fixes only. |
 | 16 | Final validation and handoff | Planned. |
 
@@ -104,3 +117,21 @@ Round-level validation follows the v0.6 goal guide. The full v0.6 acceptance mat
 - Debug: this is a documentation-only baseline. Failure should localize to formatting, whitespace, stale docs index links, or an incorrect placement/non-goal policy.
 - Architecture: the baseline keeps scroll intent, route changes, persistence, input policy, restoration, physical input, native scroll side effects, and runtime source-of-truth state host-owned.
 - Scope: Round 1 does not implement scroll metadata types, host scroll intent, offset normalization, clipped content fixtures, renderer conformance, DOM smoke, Canvas2D trace, Gate Demo scroll fixtures, fallback/audit export, or final release docs.
+
+## Round 12 Validation Snapshot
+
+| Command | Result |
+| --- | --- |
+| `Validate.cmd` | PASS |
+| `Smoke.cmd` | PASS |
+| `pnpm validate` | PASS |
+| `pnpm test:e2e` | PASS |
+| `pnpm test:a11y` | PASS |
+| `pnpm format` | PASS |
+| `git diff --check` | PASS |
+
+## Round 12 Self-Check
+
+- Debug: integrated scope is covered by core metadata/intent/diagnostics tests, clipped fixture tests, renderer conformance tests, Playground e2e/a11y smoke, Canvas2D scroll trace tests, Sinan-like scroll sequence tests, validation hook layer tests, fallback policy tests, and scroll audit export tests.
+- Architecture: host remains source-of-truth for scroll intent, route changes, persistence, input policy, restoration, physical input, native scroll side effects, and runtime state. Core and renderer packages do not read browser scroll state, DOM `scrollTop` / `scrollLeft`, wheel/touch/keyboard/gamepad/native input events, or platform input state.
+- Scope: Round 12 updates integration docs and release notes only. It does not implement CSS overflow, nested scroll physics, momentum/inertial scrolling, touch gestures, core scrollbars, virtual list, rich text, real Sinan integration, production Canvas2D, Pixi/WebGPU, or full DevTools.
