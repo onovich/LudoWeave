@@ -2,7 +2,7 @@
 
 Date: 2026-06-22
 
-Status: Round 12 integration pass for the v0.6 Bounded Scroll Metadata track.
+Status: Final PASS for the v0.6 Bounded Scroll Metadata track.
 
 Goal guide: [ludoweave-v0.6-goal-mode-execution-guide.md](../goal-mode/ludoweave-v0.6-goal-mode-execution-guide.md)
 
@@ -89,8 +89,8 @@ Use these locations during v0.6:
 | 10 | Fallback policy and audit export | Completed in `4cc68a1`. |
 | 11 | Scroll metadata contract docs | Completed in `67dee15`. |
 | 12 | v0.6 integration pass | This document and release notes draft. |
-| 13-15 | Buffers | Reserved for fixes only. |
-| 16 | Final validation and handoff | Planned. |
+| 13-15 | Buffers | Not consumed. |
+| 16 | Final validation and handoff | Completed by the final validation log and final report. |
 
 ## Validation Baseline
 
@@ -135,3 +135,25 @@ Round-level validation follows the v0.6 goal guide. The full v0.6 acceptance mat
 - Debug: integrated scope is covered by core metadata/intent/diagnostics tests, clipped fixture tests, renderer conformance tests, Playground e2e/a11y smoke, Canvas2D scroll trace tests, Sinan-like scroll sequence tests, validation hook layer tests, fallback policy tests, and scroll audit export tests.
 - Architecture: host remains source-of-truth for scroll intent, route changes, persistence, input policy, restoration, physical input, native scroll side effects, and runtime state. Core and renderer packages do not read browser scroll state, DOM `scrollTop` / `scrollLeft`, wheel/touch/keyboard/gamepad/native input events, or platform input state.
 - Scope: Round 12 updates integration docs and release notes only. It does not implement CSS overflow, nested scroll physics, momentum/inertial scrolling, touch gestures, core scrollbars, virtual list, rich text, real Sinan integration, production Canvas2D, Pixi/WebGPU, or full DevTools.
+
+## Final Validation Snapshot
+
+Source validation HEAD: `06256d0 docs(release): draft v0.6 integration notes`.
+
+| Command | Result |
+| --- | --- |
+| `Validate.cmd` | PASS |
+| `Smoke.cmd` | PASS |
+| `pnpm lint` | PASS |
+| `pnpm typecheck` | PASS |
+| `pnpm test` | PASS |
+| `pnpm build` | PASS |
+| `pnpm structure-check` | PASS |
+| `pnpm api-check` | PASS |
+| `pnpm validate` | PASS |
+| `pnpm test:e2e` | PASS |
+| `pnpm test:a11y` | PASS |
+| `pnpm format` | PASS |
+| `git diff --check` | PASS |
+| `git status --short --branch` | PASS |
+| `git ls-remote origin refs/heads/main` | PASS |
