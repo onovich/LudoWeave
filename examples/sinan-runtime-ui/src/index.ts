@@ -21,6 +21,22 @@ export type {
   RuntimeUIViewModelEnvelopeVersion,
   RuntimeUIViewModelFallbackPolicy,
 } from "./envelope.js";
+export {
+  createGateDemoHostCapabilitySnapshot,
+  createHostCapabilitySnapshotDiagnostics,
+  hostCapabilityDiagnosticCodes,
+} from "./host-capabilities.js";
+export type {
+  RuntimeUIHostCapability,
+  RuntimeUIHostCapabilityId,
+  RuntimeUIHostCapabilitySnapshot,
+  RuntimeUIHostCapabilityStatus,
+  RuntimeUIHostDevicePixelRatioSnapshot,
+  RuntimeUIHostSafeAreaSnapshot,
+  RuntimeUIHostViewportSnapshot,
+  RuntimeUITextInputOverlayHostCapability,
+  RuntimeUITextMeasurementSnapshot,
+} from "./host-capabilities.js";
 export { renderRuntimeUIViewModelFallback } from "./fallback-renderer.js";
 export type {
   FallbackRuntimeUIElement,

@@ -79,7 +79,11 @@ describe("Sinan-like RuntimeUIViewModel envelope", () => {
   });
 
   it("reports missing required envelope fields as errors", () => {
-    const { frameId: _frameId, ...envelopeWithoutFrameId } = gateDemoRuntimeUIViewModelEnvelope;
+    const envelopeWithoutFrameId = { ...gateDemoRuntimeUIViewModelEnvelope } as Record<
+      string,
+      unknown
+    >;
+    delete envelopeWithoutFrameId.frameId;
 
     expect(validateRuntimeUIViewModelEnvelope(envelopeWithoutFrameId)).toEqual({
       valid: false,
