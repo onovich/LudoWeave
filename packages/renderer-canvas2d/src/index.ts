@@ -1,9 +1,16 @@
+import { normalizeTextInputOverlayRequest, normalizeUiDiagnostic } from "@ludoweave/core";
 import type {
   ActionRef,
+  ActionRefInput,
+  JsonValue,
   RenderCommand,
   ResolvedActionTarget,
   ResolvedRect,
   ResolvedUiFrame,
+  TextInputOverlayInputMode,
+  TextInputOverlayRequest,
+  TextInputOverlaySelection,
+  UiDiagnostic,
 } from "@ludoweave/core";
 
 /**
@@ -123,6 +130,48 @@ export type Canvas2DActionHitTestTrace =
     };
 
 /**
+ * Options for deriving a host text overlay request from a Canvas2D consumed frame.
+ *
+ * @public
+ */
+export interface Canvas2DTextInputOverlayCoordinationOptions {
+  readonly overlayId: string;
+  readonly nodeId: string;
+  readonly value: string;
+  readonly selection?: TextInputOverlaySelection;
+  readonly placeholder?: string;
+  readonly inputMode?: TextInputOverlayInputMode;
+  readonly multiline?: boolean;
+}
+
+/**
+ * Deterministic coordination trace for handing editable text to a host overlay bridge.
+ *
+ * @public
+ */
+export type Canvas2DTextInputOverlayCoordinationTrace =
+  | {
+      readonly kind: "text-input-overlay-coordination";
+      readonly frameId: number;
+      readonly nodeId: string;
+      readonly result: "request";
+      readonly request: TextInputOverlayRequest;
+      readonly diagnostics: readonly UiDiagnostic[];
+    }
+  | {
+      readonly kind: "text-input-overlay-coordination";
+      readonly frameId: number;
+      readonly nodeId: string;
+      readonly result:
+        | "missing-node"
+        | "disabled-target"
+        | "missing-semantic-label"
+        | "missing-actions"
+        | "invalid-request";
+      readonly diagnostics: readonly UiDiagnostic[];
+    };
+
+/**
  * Result returned after rendering one frame into a Canvas2D-like context.
  *
  * @public
@@ -158,6 +207,7 @@ export const canvas2DRendererConformancePolicy = Object.freeze({
     "paint.text.fill",
     "resolved-frame.consume",
     "action.hit-test.trace",
+    "text-input-overlay.coordination-trace",
   ],
   unsupported: [
     "dom.semantics",
@@ -216,6 +266,103 @@ export function traceCanvas2DActionHitTest(
 }
 
 /**
+ * Derives a serializable host text overlay request from frame data consumed by Canvas2D.
+ *
+ * This helper coordinates data only. The host remains responsible for opening,
+ * focusing, snapshotting, closing, and dispatching text input actions.
+ *
+ * @public
+ */
+export function traceCanvas2DTextInputOverlayCoordination(
+  frame: ResolvedUiFrame,
+  options: Canvas2DTextInputOverlayCoordinationOptions,
+): Canvas2DTextInputOverlayCoordinationTrace {
+  const node = frame.nodes.find((candidate) => candidate.id === options.nodeId);
+  if (node === undefined) {
+    return createTextInputOverlayDiagnosticTrace({
+      frame,
+      nodeId: options.nodeId,
+      result: "missing-node",
+      code: canvas2DTextInputOverlayDiagnosticCodes.missingNode,
+      message: "Canvas2D could not find the editable overlay node in the resolved frame.",
+    });
+  }
+
+  if (node.props?.disabled === true) {
+    return createTextInputOverlayDiagnosticTrace({
+      frame,
+      nodeId: options.nodeId,
+      result: "disabled-target",
+      code: canvas2DTextInputOverlayDiagnosticCodes.disabledTarget,
+      message: "Canvas2D did not create an overlay request for a disabled editable target.",
+    });
+  }
+
+  const semanticLabel = frame.semantics.find(
+    (semantic) => semantic.nodeId === options.nodeId,
+  )?.label;
+  if (semanticLabel === undefined || semanticLabel.trim().length === 0) {
+    return createTextInputOverlayDiagnosticTrace({
+      frame,
+      nodeId: options.nodeId,
+      result: "missing-semantic-label",
+      code: canvas2DTextInputOverlayDiagnosticCodes.missingSemanticLabel,
+      message: "Canvas2D overlay coordination requires a semantic label for host accessibility.",
+    });
+  }
+
+  const commitAction = readActionInput(node.props?.commitAction);
+  const cancelAction = readActionInput(node.props?.cancelAction);
+  if (commitAction === undefined || cancelAction === undefined) {
+    return createTextInputOverlayDiagnosticTrace({
+      frame,
+      nodeId: options.nodeId,
+      result: "missing-actions",
+      code: canvas2DTextInputOverlayDiagnosticCodes.missingActions,
+      message: "Canvas2D overlay coordination requires commit and cancel ActionRefs.",
+    });
+  }
+
+  try {
+    const placeholder = options.placeholder ?? readOptionalString(node.props?.placeholder);
+    const inputMode = options.inputMode ?? readOptionalInputMode(node.props?.inputMode);
+    const themeToken = readOptionalThemeToken(node.style?.themeToken);
+    const request = normalizeTextInputOverlayRequest({
+      overlayId: options.overlayId,
+      nodeId: options.nodeId,
+      box: node.box,
+      value: options.value,
+      multiline: options.multiline ?? readOptionalBoolean(node.props?.multiline) ?? false,
+      ariaLabel: semanticLabel,
+      commitAction,
+      cancelAction,
+      diagnosticPath: ["frame", "nodes", options.nodeId],
+      ...(options.selection === undefined ? {} : { selection: options.selection }),
+      ...(placeholder === undefined ? {} : { placeholder }),
+      ...(inputMode === undefined ? {} : { inputMode }),
+      ...(themeToken === undefined ? {} : { themeToken }),
+    });
+
+    return {
+      kind: "text-input-overlay-coordination",
+      frameId: frame.frameId,
+      nodeId: options.nodeId,
+      result: "request",
+      request,
+      diagnostics: [],
+    };
+  } catch (error) {
+    return createTextInputOverlayDiagnosticTrace({
+      frame,
+      nodeId: options.nodeId,
+      result: "invalid-request",
+      code: canvas2DTextInputOverlayDiagnosticCodes.invalidRequest,
+      message: error instanceof Error ? error.message : "Invalid text input overlay request.",
+    });
+  }
+}
+
+/**
  * Creates a minimal Canvas2D renderer spike that consumes resolved frames.
  *
  * @public
@@ -256,11 +403,81 @@ export function createCanvas2DRenderer(options: Canvas2DRendererOptions): Canvas
   };
 }
 
+const canvas2DTextInputOverlayDiagnosticCodes = {
+  missingNode: "LW_CANVAS2D_TEXT_INPUT_OVERLAY_MISSING_NODE",
+  disabledTarget: "LW_CANVAS2D_TEXT_INPUT_OVERLAY_DISABLED_TARGET",
+  missingSemanticLabel: "LW_CANVAS2D_TEXT_INPUT_OVERLAY_MISSING_SEMANTIC_LABEL",
+  missingActions: "LW_CANVAS2D_TEXT_INPUT_OVERLAY_MISSING_ACTIONS",
+  invalidRequest: "LW_CANVAS2D_TEXT_INPUT_OVERLAY_INVALID_REQUEST",
+} as const;
+
+function createTextInputOverlayDiagnosticTrace(options: {
+  readonly frame: ResolvedUiFrame;
+  readonly nodeId: string;
+  readonly result: Exclude<Canvas2DTextInputOverlayCoordinationTrace["result"], "request">;
+  readonly code: string;
+  readonly message: string;
+}): Canvas2DTextInputOverlayCoordinationTrace {
+  return {
+    kind: "text-input-overlay-coordination",
+    frameId: options.frame.frameId,
+    nodeId: options.nodeId,
+    result: options.result,
+    diagnostics: [
+      normalizeUiDiagnostic({
+        code: options.code,
+        severity: "warning",
+        message: options.message,
+        path: ["renderer-canvas2d", "text-input-overlay", options.nodeId],
+        details: {
+          frameId: options.frame.frameId,
+          nodeId: options.nodeId,
+          result: options.result,
+        },
+      }),
+    ],
+  };
+}
+
 function normalizeHitTestPoint(point: Canvas2DHitTestPoint): Canvas2DHitTestPoint {
   return {
     x: normalizeFiniteNumber(point.x, "point.x"),
     y: normalizeFiniteNumber(point.y, "point.y"),
   };
+}
+
+function readActionInput(value: JsonValue | undefined): ActionRefInput | undefined {
+  if (value === undefined || typeof value === "string") {
+    return value;
+  }
+
+  if (isJsonObject(value) && typeof value.type === "string") {
+    return value as unknown as ActionRefInput;
+  }
+
+  return undefined;
+}
+
+function readOptionalString(value: JsonValue | undefined): string | undefined {
+  return typeof value === "string" ? value : undefined;
+}
+
+function readOptionalBoolean(value: JsonValue | undefined): boolean | undefined {
+  return typeof value === "boolean" ? value : undefined;
+}
+
+function readOptionalInputMode(
+  value: JsonValue | undefined,
+): TextInputOverlayInputMode | undefined {
+  return typeof value === "string" ? (value as TextInputOverlayInputMode) : undefined;
+}
+
+function readOptionalThemeToken(value: JsonValue | undefined): string | undefined {
+  return typeof value === "string" ? value : undefined;
+}
+
+function isJsonObject(value: JsonValue): value is Readonly<Record<string, JsonValue>> {
+  return typeof value === "object" && value !== null && !Array.isArray(value);
 }
 
 function findTopmostActionTarget(

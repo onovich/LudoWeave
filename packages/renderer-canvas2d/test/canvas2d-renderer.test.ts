@@ -5,6 +5,7 @@ import {
   canvas2DRendererConformancePolicy,
   createCanvas2DRenderer,
   traceCanvas2DActionHitTest,
+  traceCanvas2DTextInputOverlayCoordination,
   type Canvas2DContextLike,
   type Canvas2DRenderTrace,
 } from "../src/index.js";
@@ -125,6 +126,7 @@ describe("Canvas2D renderer spike", () => {
       "paint.text.fill",
       "resolved-frame.consume",
       "action.hit-test.trace",
+      "text-input-overlay.coordination-trace",
     ]);
     expect(canvas2DRendererConformancePolicy.unsupported).toContain("native.text-input");
     expect(canvas2DRendererConformancePolicy.unsupported).toContain("native.focus");
@@ -251,7 +253,147 @@ describe("Canvas2D renderer spike", () => {
       /point\.x must be a finite number/,
     );
   });
+
+  it("coordinates editable overlay data from frame nodes to the host bridge request", () => {
+    const frame = createEditableTextOverlayFrame();
+
+    expect(
+      traceCanvas2DTextInputOverlayCoordination(frame, {
+        overlayId: "overlay.pause-player-name",
+        nodeId: "runtime.overlay/key:pause.player-name",
+        value: "Ada",
+        selection: { start: 3, end: 3, direction: "none" },
+      }),
+    ).toEqual({
+      kind: "text-input-overlay-coordination",
+      frameId: 4200,
+      nodeId: "runtime.overlay/key:pause.player-name",
+      result: "request",
+      request: {
+        overlayId: "overlay.pause-player-name",
+        nodeId: "runtime.overlay/key:pause.player-name",
+        box: { x: 440, y: 314, width: 400, height: 48 },
+        value: "Ada",
+        selection: { start: 3, end: 3, direction: "none" },
+        placeholder: "Player name",
+        inputMode: "text",
+        multiline: false,
+        ariaLabel: "Player name",
+        themeToken: "runtime-ui.dialog.controls",
+        commitAction: {
+          type: "runtime.input.commit",
+          payload: { field: "player-name" },
+        },
+        cancelAction: {
+          type: "runtime.input.cancel",
+          payload: { field: "player-name" },
+        },
+        diagnosticPath: ["frame", "nodes", "runtime.overlay/key:pause.player-name"],
+      },
+      diagnostics: [],
+    });
+  });
+
+  it("keeps Canvas2D overlay coordination out of host input lifecycle ownership", () => {
+    const frame = createEditableTextOverlayFrame();
+    const trace = traceCanvas2DTextInputOverlayCoordination(frame, {
+      overlayId: "overlay.pause-player-name",
+      nodeId: "runtime.overlay/key:pause.player-name",
+      value: "Ada",
+    });
+
+    expect(trace.kind).toBe("text-input-overlay-coordination");
+    expect(Object.keys(trace)).not.toContain("events");
+    expect(JSON.stringify(trace)).not.toContain('"kind":"open"');
+    expect(JSON.stringify(trace)).not.toContain('"kind":"focus"');
+    expect(JSON.stringify(trace)).not.toContain('"kind":"close"');
+  });
+
+  it("diagnoses missing and disabled editable overlay targets", () => {
+    const frame = createEditableTextOverlayFrame();
+
+    expect(
+      traceCanvas2DTextInputOverlayCoordination(frame, {
+        overlayId: "overlay.missing",
+        nodeId: "runtime.overlay/key:missing",
+        value: "",
+      }),
+    ).toMatchObject({
+      result: "missing-node",
+      diagnostics: [
+        {
+          code: "LW_CANVAS2D_TEXT_INPUT_OVERLAY_MISSING_NODE",
+          path: ["renderer-canvas2d", "text-input-overlay", "runtime.overlay/key:missing"],
+        },
+      ],
+    });
+
+    expect(
+      traceCanvas2DTextInputOverlayCoordination(
+        createEditableTextOverlayFrame({ disabled: true }),
+        {
+          overlayId: "overlay.pause-player-name",
+          nodeId: "runtime.overlay/key:pause.player-name",
+          value: "",
+        },
+      ),
+    ).toMatchObject({
+      result: "disabled-target",
+      diagnostics: [
+        {
+          code: "LW_CANVAS2D_TEXT_INPUT_OVERLAY_DISABLED_TARGET",
+        },
+      ],
+    });
+  });
 });
+
+function createEditableTextOverlayFrame(options: { readonly disabled?: boolean } = {}) {
+  const fixture = createRendererConformanceFixture();
+  const editableNode = {
+    id: "runtime.overlay/key:pause.player-name",
+    path: ["runtime.overlay", "key:pause.player-name"],
+    type: "text-input",
+    key: "pause.player-name",
+    parentId: "runtime.overlay",
+    index: 3,
+    box: { x: 440, y: 314, width: 400, height: 48 },
+    props: {
+      placeholder: "Player name",
+      inputMode: "text",
+      multiline: false,
+      ...(options.disabled === true ? { disabled: true } : {}),
+      commitAction: {
+        type: "runtime.input.commit",
+        payload: { field: "player-name" },
+      },
+      cancelAction: {
+        type: "runtime.input.cancel",
+        payload: { field: "player-name" },
+      },
+    },
+    style: {
+      themeToken: "runtime-ui.dialog.controls",
+    },
+  };
+
+  return {
+    ...fixture.frame,
+    frameId: 4200,
+    nodes: [...fixture.frame.nodes, editableNode],
+    semantics: [
+      ...fixture.frame.semantics,
+      {
+        id: "semantics.pause.player-name",
+        nodeId: editableNode.id,
+        role: "text",
+        parentId: "semantics.pause.dialog",
+        label: "Player name",
+        disabled: options.disabled,
+      },
+    ],
+  };
+}
 
 class FakeCanvas2DContext implements Canvas2DContextLike {
   readonly calls: string[] = [];
