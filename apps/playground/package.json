@@ -12,7 +12,8 @@
   "dependencies": {
     "@ludoweave/components": "workspace:*",
     "@ludoweave/core": "workspace:*",
-    "@ludoweave/renderer-dom": "workspace:*"
+    "@ludoweave/renderer-dom": "workspace:*",
+    "@ludoweave/testing": "workspace:*"
   },
   "devDependencies": {
     "vite": "^8.0.16"

@@ -12,6 +12,7 @@ test("has no blocking accessibility violations in the playground", async ({ page
     "role",
     "dialog",
   );
+  await expect(page.locator("#theme-resolution")).toContainText("Theme resolution");
 
   const results = await new AxeBuilder({ page })
     .withTags(["wcag2a", "wcag2aa", "best-practice"])

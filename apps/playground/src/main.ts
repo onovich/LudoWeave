@@ -3,10 +3,12 @@ import { mountDomRenderer } from "@ludoweave/renderer-dom";
 
 import { renderActionLogInspector } from "./action-log-inspector.js";
 import { createPlaygroundFrame } from "./frame.js";
+import { renderThemeResolutionPanel } from "./theme-resolution-panel.js";
 import "./styles.css";
 
 const runtimeRoot = requireElement("#runtime-root");
 const actionLogRoot = requireElement("#action-log");
+const themeResolutionRoot = requireElement("#theme-resolution");
 const actionLog = createActionLog();
 
 const renderer = mountDomRenderer({
@@ -26,6 +28,7 @@ function render(): void {
 }
 
 renderActionLog();
+renderThemeResolutionPanel(themeResolutionRoot);
 render();
 window.addEventListener("resize", render);
 

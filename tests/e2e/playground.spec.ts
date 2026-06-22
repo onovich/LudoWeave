@@ -1,6 +1,6 @@
 import { expect, test } from "@playwright/test";
 
-test("renders v0.2 runtime UI states in the playground", async ({ page }) => {
+test("renders v0.3 runtime UI states in the playground", async ({ page }) => {
   await page.goto("/");
 
   const prompt = page.locator('[data-ludoweave-node-id="root/key:prompt"]');
@@ -44,4 +44,19 @@ test("renders v0.2 runtime UI states in the playground", async ({ page }) => {
   await expect(actionLog).toContainText("runtime.gameplay.interact");
   await expect(actionLog).toContainText("runtime.objective.inspect");
   await expect(actionLog).toContainText("runtime.pause.resume");
+
+  const themeResolution = page.locator("#theme-resolution");
+  await expect(themeResolution).toContainText("Theme resolution");
+  await expect(themeResolution.locator('[data-theme-state="default"]')).toHaveCount(4);
+  await expect(themeResolution.locator('[data-theme-state="high-contrast"]')).toHaveCount(4);
+  await expect(
+    themeResolution.locator(
+      '[data-theme-state="default"][data-theme-token="runtime-ui.prompt.root"]',
+    ),
+  ).toContainText("#1f2937 / #fef3c7 / #fbbf24");
+  await expect(
+    themeResolution.locator(
+      '[data-theme-state="high-contrast"][data-theme-token="runtime-ui.dialog.controls"]',
+    ),
+  ).toContainText("#ffffff / #000000 / #dc2626");
 });

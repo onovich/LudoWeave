@@ -50,6 +50,9 @@ importers:
       '@ludoweave/renderer-dom':
         specifier: workspace:*
         version: link:../../packages/renderer-dom
+      '@ludoweave/testing':
+        specifier: workspace:*
+        version: link:../../packages/testing
     devDependencies:
       vite:
         specifier: ^8.0.16
