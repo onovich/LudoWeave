@@ -148,6 +148,16 @@ export {
   normalizeVirtualWindowMetadataFrame,
 } from "./virtual-window-metadata.js";
 export type {
+  VirtualWindowDiagnosticReason,
+  VirtualWindowDiagnosticsInput,
+  VirtualWindowItemIdentitySnapshot,
+} from "./virtual-window-diagnostics.js";
+export {
+  collectVirtualWindowDiagnostics,
+  createVirtualWindowDiagnostic,
+  virtualWindowDiagnosticCodes,
+} from "./virtual-window-diagnostics.js";
+export type {
   FixedVirtualWindowRangeInput,
   FixedVirtualWindowRangeResult,
   VirtualWindowOverscan,

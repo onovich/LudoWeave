@@ -43,6 +43,9 @@ export interface BoxRenderCommand extends RenderCommandBase {
 export function calculateFixedVirtualWindowRange(input: FixedVirtualWindowRangeInput): FixedVirtualWindowRangeResult;
 
 // @public
+export function collectVirtualWindowDiagnostics(input: VirtualWindowDiagnosticsInput): readonly UiDiagnostic[];
+
+// @public
 export const coreDiagnosticCodes: {
     readonly invalidAction: "LW_CORE_INVALID_ACTION";
     readonly invalidJson: "LW_CORE_INVALID_JSON";
@@ -88,6 +91,9 @@ export function createScrollDiagnostic(reason: ScrollDiagnosticReason, details?:
 
 // @public
 export function createThemeTokenStyle(defaultThemeToken: UiThemeTokenName, style?: UiStyle): UiStyle;
+
+// @public
+export function createVirtualWindowDiagnostic(reason: VirtualWindowDiagnosticReason, details?: Readonly<Record<string, JsonValue>>): UiDiagnostic;
 
 // @public
 export interface DiagnosticSink {
@@ -1309,6 +1315,29 @@ export interface VirtualSelectionSnapshot {
 }
 
 // @public
+export const virtualWindowDiagnosticCodes: {
+    readonly duplicateKey: "LW_VIRTUAL_WINDOW_DUPLICATE_KEY";
+    readonly invalidRange: "LW_VIRTUAL_WINDOW_INVALID_RANGE";
+    readonly missingHostCapability: "LW_VIRTUAL_WINDOW_MISSING_HOST_CAPABILITY";
+    readonly missingItemKey: "LW_VIRTUAL_WINDOW_MISSING_ITEM_KEY";
+    readonly removedItem: "LW_VIRTUAL_WINDOW_REMOVED_ITEM";
+    readonly staleSelection: "LW_VIRTUAL_WINDOW_STALE_SELECTION";
+};
+
+// @public
+export type VirtualWindowDiagnosticReason = keyof typeof virtualWindowDiagnosticCodes;
+
+// @public
+export interface VirtualWindowDiagnosticsInput {
+    // (undocumented)
+    readonly knownItemKeys?: readonly string[];
+    // (undocumented)
+    readonly realizedItems?: readonly VirtualWindowItemIdentitySnapshot[];
+    // (undocumented)
+    readonly window: VirtualWindowMetadata | VirtualWindowMetadataInput;
+}
+
+// @public
 export type VirtualWindowDisabledReason = "empty-list" | "host-disabled" | "missing-capability" | "stale" | "unsupported";
 
 // @public
@@ -1321,6 +1350,14 @@ export interface VirtualWindowHostCapability {
 
 // @public
 export type VirtualWindowHostCapabilityStatus = "available" | "disabled" | "missing" | "unsupported";
+
+// @public
+export interface VirtualWindowItemIdentitySnapshot {
+    // (undocumented)
+    readonly index: number;
+    // (undocumented)
+    readonly key?: string;
+}
 
 // @public
 export interface VirtualWindowMetadata {
