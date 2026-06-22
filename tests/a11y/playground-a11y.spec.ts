@@ -22,6 +22,10 @@ test("has no blocking accessibility violations in the playground", async ({ page
     "pass",
   );
   await expect(page.locator("#scroll-status")).toHaveAttribute("data-scroll-status", "pass");
+  await expect(page.locator("#virtual-list-status")).toHaveAttribute(
+    "data-virtual-list-status",
+    "pass",
+  );
 
   const results = await new AxeBuilder({ page })
     .withTags(["wcag2a", "wcag2aa", "best-practice"])

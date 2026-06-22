@@ -1,9 +1,13 @@
 import {
+  calculateFixedVirtualWindowRange,
+  collectVirtualWindowDiagnostics,
   createActionLog,
+  normalizeHostCollectionIntent,
   normalizeHostScrollIntent,
   normalizeHostInputIntent,
   normalizeScrollMetadataFrame,
   normalizeScrollOffsetForContainer,
+  normalizeVirtualWindowMetadata,
   resolveScrollRestoration,
   type ResolvedActionTarget,
 } from "@ludoweave/core";
@@ -38,6 +42,8 @@ const navigationSmokeRoot = requireElement("#navigation-smoke");
 const navigationStatus = requireElement("#navigation-status");
 const scrollSmokeRoot = requireElement("#scroll-smoke");
 const scrollStatus = requireElement("#scroll-status");
+const virtualListSmokeRoot = requireElement("#virtual-list-smoke");
+const virtualListStatus = requireElement("#virtual-list-status");
 const actionLog = createActionLog();
 
 const renderer = mountDomRenderer({
@@ -66,6 +72,7 @@ render();
 renderGateDemoSmoke();
 renderNavigationSmoke();
 renderScrollSmoke();
+renderVirtualListSmoke();
 window.addEventListener("resize", render);
 window.addEventListener("resize", scaleGateDemoSmoke);
 actionLogFilter.addEventListener("change", renderActionLog);
@@ -305,6 +312,115 @@ function renderScrollSmoke(): void {
   );
 }
 
+function renderVirtualListSmoke(): void {
+  const range = calculateFixedVirtualWindowRange({
+    totalCount: 12,
+    itemExtent: 48,
+    viewportExtent: 144,
+    scrollOffset: 192,
+    overscan: { before: 1, after: 2 },
+  });
+  const virtualWindow = normalizeVirtualWindowMetadata({
+    id: "quest-log-window",
+    nodeId: "runtime.overlay/key:quest-log",
+    itemKeyNamespace: "quest",
+    totalCount: range.totalCount,
+    realizedRange: range.realizedRange,
+    overscanRange: range.overscanRange,
+    estimatedItemSize: { width: 420, height: range.itemExtent },
+    viewportRect: { x: 80, y: 120, width: 420, height: 144 },
+    scrollContainerId: "quest-log-scroll",
+    selection: { selectedKey: "quest:5", focusedKey: "quest:5", revision: 2 },
+    hostCapability: { status: "available" },
+  });
+  const hostIntents = [
+    normalizeHostCollectionIntent({
+      kind: "select-item",
+      windowId: virtualWindow.id,
+      itemKeyNamespace: virtualWindow.itemKeyNamespace,
+      itemKey: "quest:5",
+    }),
+    normalizeHostCollectionIntent({
+      kind: "activate-item",
+      windowId: virtualWindow.id,
+      itemKeyNamespace: virtualWindow.itemKeyNamespace,
+      itemKey: "quest:5",
+    }),
+    normalizeHostCollectionIntent({
+      kind: "move-selection",
+      windowId: virtualWindow.id,
+      itemKeyNamespace: virtualWindow.itemKeyNamespace,
+      direction: "next",
+      repeat: true,
+    }),
+    normalizeHostCollectionIntent({
+      kind: "request-window",
+      windowId: virtualWindow.id,
+      itemKeyNamespace: virtualWindow.itemKeyNamespace,
+      requestedRange: { startIndex: 6, endIndex: 9 },
+    }),
+    normalizeHostCollectionIntent({
+      kind: "restore-selection",
+      windowId: virtualWindow.id,
+      itemKeyNamespace: virtualWindow.itemKeyNamespace,
+      restoreSelection: virtualWindow.selection,
+    }),
+  ];
+  const diagnostics = collectVirtualWindowDiagnostics({
+    window: {
+      id: "stale-quest-window",
+      itemKeyNamespace: "quest",
+      totalCount: 10,
+      realizedRange: { startIndex: 2, endIndex: 6 },
+      estimatedItemSize: { width: 420, height: 48 },
+      hostCapability: { status: "missing", reason: "missing-capability" },
+      selection: {
+        selectedKey: "quest:removed",
+        focusedKey: "quest:9",
+        anchorKey: "quest:2",
+      },
+    },
+    realizedItems: [
+      { index: 2, key: "quest:2" },
+      { index: 3 },
+      { index: 4, key: "quest:4" },
+      { index: 5, key: "quest:4" },
+    ],
+    knownItemKeys: ["quest:2", "quest:3", "quest:4", "quest:9"],
+  }).map((diagnostic) => diagnostic.code);
+
+  virtualListStatus.textContent = "PASS";
+  virtualListStatus.dataset.virtualListStatus = "pass";
+  virtualListSmokeRoot.dataset.virtualListWindowId = virtualWindow.id;
+  virtualListSmokeRoot.dataset.virtualListRealizedRange = `${virtualWindow.realizedRange.startIndex}:${virtualWindow.realizedRange.endIndex}`;
+  virtualListSmokeRoot.dataset.virtualListSelection = virtualWindow.selection.selectedKey ?? "";
+  virtualListSmokeRoot.dataset.virtualListIntentCount = String(hostIntents.length);
+  virtualListSmokeRoot.dataset.virtualListDiagnosticCount = String(diagnostics.length);
+  virtualListSmokeRoot.replaceChildren(
+    createVirtualListMeta("Window", virtualWindow.id),
+    createVirtualListMeta(
+      "Realized range",
+      `${virtualWindow.realizedRange.startIndex}-${virtualWindow.realizedRange.endIndex}`,
+    ),
+    createVirtualListMeta("Selection", virtualWindow.selection.selectedKey ?? "none"),
+    createVirtualListList(
+      "Metadata",
+      [
+        `total:${virtualWindow.totalCount}`,
+        `overscan:${virtualWindow.overscanRange.startIndex}-${virtualWindow.overscanRange.endIndex}`,
+        `host:${virtualWindow.hostCapability.status}`,
+      ],
+      "virtual-list-metadata",
+    ),
+    createVirtualListList(
+      "Host intents",
+      hostIntents.map((intent) => `${intent.kind}:${intent.action.type}`),
+      "virtual-list-intent",
+    ),
+    createVirtualListList("Diagnostics", diagnostics, "virtual-list-diagnostic"),
+  );
+}
+
 function createNavigationMeta(label: string, value: string): HTMLElement {
   const row = document.createElement("p");
   row.className = "navigation-smoke__meta";
@@ -363,6 +479,43 @@ function createScrollList(
 ): HTMLElement {
   const group = document.createElement("div");
   group.className = "scroll-smoke__group";
+
+  const heading = document.createElement("h3");
+  heading.textContent = label;
+
+  const list = document.createElement("ol");
+  for (const value of values) {
+    const item = document.createElement("li");
+    item.setAttribute(`data-${itemAttribute}`, value);
+    item.textContent = value;
+    list.append(item);
+  }
+
+  group.replaceChildren(heading, list);
+  return group;
+}
+
+function createVirtualListMeta(label: string, value: string): HTMLElement {
+  const row = document.createElement("p");
+  row.className = "virtual-list-smoke__meta";
+
+  const labelElement = document.createElement("span");
+  labelElement.textContent = label;
+
+  const valueElement = document.createElement("strong");
+  valueElement.textContent = value;
+
+  row.replaceChildren(labelElement, valueElement);
+  return row;
+}
+
+function createVirtualListList(
+  label: string,
+  values: readonly string[],
+  itemAttribute: string,
+): HTMLElement {
+  const group = document.createElement("div");
+  group.className = "virtual-list-smoke__group";
 
   const heading = document.createElement("h3");
   heading.textContent = label;

@@ -419,6 +419,95 @@ body {
   line-height: 18px;
 }
 
+.virtual-list-smoke {
+  width: min(100%, 1040px);
+  display: grid;
+  gap: 10px;
+  padding: 12px 14px;
+  border: 1px solid #6d5f1f;
+  background: #1d1b0b;
+}
+
+.virtual-list-smoke__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.virtual-list-smoke h2,
+.virtual-list-smoke h3,
+.virtual-list-smoke p,
+.virtual-list-smoke ol {
+  margin: 0;
+}
+
+.virtual-list-smoke h2 {
+  color: #fde047;
+  font-size: 14px;
+  line-height: 22px;
+}
+
+.virtual-list-smoke h3 {
+  color: #fef08a;
+  font-size: 12px;
+  line-height: 18px;
+}
+
+#virtual-list-status {
+  color: #fef9c3;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0;
+}
+
+#virtual-list-smoke {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.virtual-list-smoke__meta,
+.virtual-list-smoke__group {
+  min-width: 0;
+  padding: 8px;
+  border: 1px solid #716516;
+  background: #111006;
+}
+
+.virtual-list-smoke__meta {
+  display: grid;
+  gap: 4px;
+}
+
+.virtual-list-smoke__meta span {
+  color: #fef08a;
+  font-size: 11px;
+  line-height: 16px;
+  text-transform: uppercase;
+}
+
+.virtual-list-smoke__meta strong {
+  overflow: hidden;
+  color: #f8fafc;
+  font-size: 13px;
+  line-height: 18px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.virtual-list-smoke__group {
+  display: grid;
+  gap: 6px;
+}
+
+.virtual-list-smoke ol {
+  padding-left: 18px;
+  color: #e5e7eb;
+  font-size: 12px;
+  line-height: 18px;
+}
+
 .action-log {
   width: min(100%, 1040px);
   display: grid;
@@ -605,6 +694,10 @@ body {
   }
 
   #scroll-smoke {
+    grid-template-columns: 1fr;
+  }
+
+  #virtual-list-smoke {
     grid-template-columns: 1fr;
   }
 }

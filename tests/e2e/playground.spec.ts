@@ -130,4 +130,28 @@ test("renders v0.3 runtime UI states in the playground", async ({ page }) => {
   await expect(scroll).toContainText("line:runtime.scroll.intent");
   await expect(scroll).toContainText("restore:runtime.scroll.intent");
   await expect(scroll).toContainText("LW_SCROLL_REMOVED_CONTAINER");
+
+  const virtualList = page.locator('[aria-label="v0.7 Virtual List"]');
+  await expect(virtualList.locator("#virtual-list-status")).toHaveAttribute(
+    "data-virtual-list-status",
+    "pass",
+  );
+  await expect(virtualList.locator("#virtual-list-smoke")).toHaveAttribute(
+    "data-virtual-list-window-id",
+    "quest-log-window",
+  );
+  await expect(virtualList.locator("#virtual-list-smoke")).toHaveAttribute(
+    "data-virtual-list-realized-range",
+    "4:7",
+  );
+  await expect(virtualList.locator("#virtual-list-smoke")).toHaveAttribute(
+    "data-virtual-list-selection",
+    "quest:5",
+  );
+  await expect(virtualList.locator("[data-virtual-list-metadata]")).toHaveCount(3);
+  await expect(virtualList.locator("[data-virtual-list-intent]")).toHaveCount(5);
+  await expect(virtualList.locator("[data-virtual-list-diagnostic]")).toHaveCount(5);
+  await expect(virtualList).toContainText("select-item:runtime.collection.intent");
+  await expect(virtualList).toContainText("restore-selection:runtime.collection.intent");
+  await expect(virtualList).toContainText("LW_VIRTUAL_WINDOW_REMOVED_ITEM");
 });
