@@ -468,6 +468,12 @@ export function normalizeHostInputIntent(input: HostInputIntentInput): HostInput
 export function normalizeHostScrollIntent(input: HostScrollIntentInput): HostScrollIntent;
 
 // @public
+export function normalizeRichTextMetadata(input: RichTextMetadataInput): RichTextMetadata;
+
+// @public
+export function normalizeRichTextMetadataFrame(input: RichTextMetadataFrameInput): RichTextMetadataFrame;
+
+// @public
 export function normalizeRuntimeUiThemeTokenContract(input: unknown): RuntimeUiThemeTokenContract;
 
 // @public
@@ -682,6 +688,191 @@ export interface ResolveTextMeasureOptions {
     // (undocumented)
     readonly text: string;
 }
+
+// @public
+export interface RichTextA11yMetadata {
+    // (undocumented)
+    readonly description?: string;
+    // (undocumented)
+    readonly label: string;
+    // (undocumented)
+    readonly liveRegion?: "assertive" | "off" | "polite";
+    // (undocumented)
+    readonly pronunciationHint?: string;
+    // (undocumented)
+    readonly reviewStatus: RichTextReviewStatus;
+}
+
+// @public
+export interface RichTextA11yMetadataInput {
+    // (undocumented)
+    readonly description?: string;
+    // (undocumented)
+    readonly label: string;
+    // (undocumented)
+    readonly liveRegion?: "assertive" | "off" | "polite";
+    // (undocumented)
+    readonly pronunciationHint?: string;
+    // (undocumented)
+    readonly reviewStatus?: RichTextReviewStatus;
+}
+
+// @public
+export interface RichTextHostPolicyFlags {
+    // (undocumented)
+    readonly accessibilityReview: RichTextReviewStatus;
+    // (undocumented)
+    readonly localizedContent: RichTextReviewStatus;
+    // (undocumented)
+    readonly markupPolicy: RichTextReviewStatus;
+    // (undocumented)
+    readonly sanitization: RichTextReviewStatus;
+}
+
+// @public
+export interface RichTextInlineRun {
+    // (undocumented)
+    readonly id: string;
+    // (undocumented)
+    readonly metadata: Readonly<Record<string, JsonValue>>;
+    // (undocumented)
+    readonly rendererHints: readonly RichTextRendererHint[];
+    // (undocumented)
+    readonly spanIds: readonly string[];
+    // (undocumented)
+    readonly text: string;
+    // (undocumented)
+    readonly themeTokenRefs: readonly string[];
+}
+
+// @public
+export interface RichTextInlineRunInput {
+    // (undocumented)
+    readonly id: string;
+    // (undocumented)
+    readonly metadata?: Record<string, unknown>;
+    // (undocumented)
+    readonly rendererHints?: readonly RichTextRendererHint[];
+    // (undocumented)
+    readonly spanIds?: readonly string[];
+    // (undocumented)
+    readonly text: string;
+    // (undocumented)
+    readonly themeTokenRefs?: readonly string[];
+}
+
+// @public
+export interface RichTextMetadata {
+    // (undocumented)
+    readonly a11y: RichTextA11yMetadata;
+    // (undocumented)
+    readonly diagnostics: readonly UiDiagnostic[];
+    // (undocumented)
+    readonly hostPolicy: RichTextHostPolicyFlags;
+    // (undocumented)
+    readonly id: string;
+    // (undocumented)
+    readonly localeHint: string;
+    // (undocumented)
+    readonly nodeId: string;
+    // (undocumented)
+    readonly plainTextFallback: string;
+    // (undocumented)
+    readonly runs: readonly RichTextInlineRun[];
+    // (undocumented)
+    readonly spans: readonly RichTextSemanticSpan[];
+}
+
+// @public
+export interface RichTextMetadataFrame {
+    // (undocumented)
+    readonly activeBlockId?: string;
+    // (undocumented)
+    readonly blocks: readonly RichTextMetadata[];
+    // (undocumented)
+    readonly reviewBlockId?: string;
+}
+
+// @public
+export interface RichTextMetadataFrameInput {
+    // (undocumented)
+    readonly activeBlockId?: string;
+    // (undocumented)
+    readonly blocks: readonly RichTextMetadataInput[];
+    // (undocumented)
+    readonly reviewBlockId?: string;
+}
+
+// @public
+export interface RichTextMetadataInput {
+    // (undocumented)
+    readonly a11y: RichTextA11yMetadataInput;
+    // (undocumented)
+    readonly diagnostics?: readonly UiDiagnosticInput[];
+    // (undocumented)
+    readonly hostPolicy?: Partial<RichTextHostPolicyFlags>;
+    // (undocumented)
+    readonly id: string;
+    // (undocumented)
+    readonly localeHint?: string;
+    // (undocumented)
+    readonly nodeId?: string;
+    // (undocumented)
+    readonly plainTextFallback: string;
+    // (undocumented)
+    readonly runs: readonly RichTextInlineRunInput[];
+    // (undocumented)
+    readonly spans?: readonly RichTextSemanticSpanInput[];
+}
+
+// @public
+export type RichTextRendererHint = "accent" | "choice" | "disabled" | "emphasis" | "muted" | "speaker";
+
+// @public
+export type RichTextReviewStatus = "approved" | "missing" | "pending" | "rejected";
+
+// @public
+export interface RichTextSemanticSpan {
+    // (undocumented)
+    readonly fallbackText?: string;
+    // (undocumented)
+    readonly id: string;
+    // (undocumented)
+    readonly kind: RichTextSpanKind;
+    // (undocumented)
+    readonly label?: string;
+    // (undocumented)
+    readonly metadata: Readonly<Record<string, JsonValue>>;
+    // (undocumented)
+    readonly parentSpanId?: string;
+    // (undocumented)
+    readonly rendererHints: readonly RichTextRendererHint[];
+    // (undocumented)
+    readonly themeTokenRefs: readonly string[];
+}
+
+// @public
+export interface RichTextSemanticSpanInput {
+    // (undocumented)
+    readonly fallbackText?: string;
+    // (undocumented)
+    readonly id: string;
+    // (undocumented)
+    readonly kind: RichTextSpanKind;
+    // (undocumented)
+    readonly label?: string;
+    // (undocumented)
+    readonly metadata?: Record<string, unknown>;
+    // (undocumented)
+    readonly parentSpanId?: string;
+    // (undocumented)
+    readonly rendererHints?: readonly RichTextRendererHint[];
+    // (undocumented)
+    readonly themeTokenRefs?: readonly string[];
+}
+
+// @public
+export type RichTextSpanKind = "choice-hint" | "disabled-reason" | "emphasis" | "locked-reason" | "speaker" | "tone" | "unsupported";
 
 // @public
 export interface RuntimeUiDialogThemeTokens {

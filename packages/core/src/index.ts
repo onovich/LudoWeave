@@ -106,6 +106,23 @@ export type {
   TextRenderCommand,
 } from "./resolved-frame.js";
 export type {
+  RichTextA11yMetadata,
+  RichTextA11yMetadataInput,
+  RichTextHostPolicyFlags,
+  RichTextInlineRun,
+  RichTextInlineRunInput,
+  RichTextMetadata,
+  RichTextMetadataFrame,
+  RichTextMetadataFrameInput,
+  RichTextMetadataInput,
+  RichTextRendererHint,
+  RichTextReviewStatus,
+  RichTextSemanticSpan,
+  RichTextSemanticSpanInput,
+  RichTextSpanKind,
+} from "./rich-text-metadata.js";
+export { normalizeRichTextMetadata, normalizeRichTextMetadataFrame } from "./rich-text-metadata.js";
+export type {
   ScrollAxis,
   ScrollContainerMetadata,
   ScrollContainerMetadataInput,
