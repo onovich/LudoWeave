@@ -12,6 +12,8 @@ import {
 
 export const gateDemoFallbackPolicyVersion = "ludoweave.sinan-gate-demo.fallback.v0.4";
 export const gateDemoScrollFallbackPolicyVersion = "ludoweave.sinan-gate-demo.scroll-fallback.v0.6";
+export const gateDemoVirtualListFallbackPolicyVersion =
+  "ludoweave.sinan-gate-demo.virtual-list-fallback.v0.7";
 
 export type GateDemoRequestedRenderer = "dom" | "canvas2d" | "fallback" | "pixi" | "webgpu";
 export type GateDemoFallbackOwner = "ludoweave" | "sinan";
@@ -25,6 +27,12 @@ export type GateDemoScrollFallbackReason =
   | "none"
   | "disabled-scroll"
   | "missing-host-scroll-capability"
+  | "unsupported-renderer";
+export type GateDemoVirtualListFallbackReason =
+  | "none"
+  | "missing-host-collection-capability"
+  | "removed-item"
+  | "stale-selection"
   | "unsupported-renderer";
 
 export interface ResolveGateDemoFallbackPolicyOptions {
@@ -59,10 +67,29 @@ export interface GateDemoScrollFallbackPolicyResult {
   readonly diagnostics: readonly UiDiagnostic[];
 }
 
+export interface ResolveGateDemoVirtualListFallbackPolicyOptions {
+  readonly requestedRenderer?: GateDemoRequestedRenderer;
+  readonly hostCollectionCapability?: "available" | "disabled" | "missing" | "unsupported";
+  readonly selectionState?: "current" | "stale" | "removed";
+}
+
+export interface GateDemoVirtualListFallbackPolicyResult {
+  readonly version: typeof gateDemoVirtualListFallbackPolicyVersion;
+  readonly status: "PASS" | "FAIL";
+  readonly owner: GateDemoFallbackOwner;
+  readonly route: GateDemoFallbackRoute;
+  readonly reason: GateDemoVirtualListFallbackReason;
+  readonly requestedRenderer: GateDemoRequestedRenderer;
+  readonly hostCollectionCapability: "available" | "disabled" | "missing" | "unsupported";
+  readonly selectionState: "current" | "stale" | "removed";
+  readonly diagnostics: readonly UiDiagnostic[];
+}
+
 export const gateDemoFallbackPolicyDiagnosticCodes = Object.freeze({
   selected: "LW_EXAMPLE_FALLBACK_POLICY_SELECTED",
   unavailable: "LW_EXAMPLE_FALLBACK_POLICY_UNAVAILABLE",
   scrollSelected: "LW_EXAMPLE_SCROLL_FALLBACK_POLICY_SELECTED",
+  virtualListSelected: "LW_EXAMPLE_VIRTUAL_LIST_FALLBACK_POLICY_SELECTED",
 });
 
 export function resolveGateDemoFallbackPolicy(
@@ -175,6 +202,58 @@ export function resolveGateDemoScrollFallbackPolicy(
   };
 }
 
+export function resolveGateDemoVirtualListFallbackPolicy(
+  options: ResolveGateDemoVirtualListFallbackPolicyOptions = {},
+): GateDemoVirtualListFallbackPolicyResult {
+  const requestedRenderer = options.requestedRenderer ?? "dom";
+  const hostCollectionCapability = options.hostCollectionCapability ?? "available";
+  const selectionState = options.selectionState ?? "current";
+  const reason = resolveVirtualListFallbackReason(
+    requestedRenderer,
+    hostCollectionCapability,
+    selectionState,
+  );
+
+  if (reason === "none") {
+    return {
+      version: gateDemoVirtualListFallbackPolicyVersion,
+      status: "PASS",
+      owner: "ludoweave",
+      route: "ludoweave-renderer",
+      reason,
+      requestedRenderer,
+      hostCollectionCapability,
+      selectionState,
+      diagnostics: [],
+    };
+  }
+
+  return {
+    version: gateDemoVirtualListFallbackPolicyVersion,
+    status: "PASS",
+    owner: "sinan",
+    route: "sinan-fallback-renderer",
+    reason,
+    requestedRenderer,
+    hostCollectionCapability,
+    selectionState,
+    diagnostics: [
+      normalizeUiDiagnostic({
+        code: gateDemoFallbackPolicyDiagnosticCodes.virtualListSelected,
+        severity: "info",
+        message: "Sinan-owned virtual list fallback route selected for Gate Demo.",
+        path: ["fallback-policy", "virtual-list", reason],
+        details: {
+          requestedRenderer,
+          hostCollectionCapability,
+          selectionState,
+          reason,
+        },
+      }),
+    ],
+  };
+}
+
 function resolveFallbackReason(
   requestedRenderer: GateDemoRequestedRenderer,
   hostCapabilities: RuntimeUIHostCapabilitySnapshot,
@@ -208,6 +287,30 @@ function resolveScrollFallbackReason(
 
   if (hostScrollCapability === "disabled") {
     return "disabled-scroll";
+  }
+
+  return "none";
+}
+
+function resolveVirtualListFallbackReason(
+  requestedRenderer: GateDemoRequestedRenderer,
+  hostCollectionCapability: "available" | "disabled" | "missing" | "unsupported",
+  selectionState: "current" | "stale" | "removed",
+): GateDemoVirtualListFallbackReason {
+  if (requestedRenderer === "pixi" || requestedRenderer === "webgpu") {
+    return "unsupported-renderer";
+  }
+
+  if (hostCollectionCapability !== "available") {
+    return "missing-host-collection-capability";
+  }
+
+  if (selectionState === "removed") {
+    return "removed-item";
+  }
+
+  if (selectionState === "stale") {
+    return "stale-selection";
   }
 
   return "none";

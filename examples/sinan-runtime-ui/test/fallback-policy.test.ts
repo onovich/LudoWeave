@@ -6,8 +6,10 @@ import {
   gateDemoFallbackPolicyDiagnosticCodes,
   gateDemoFallbackPolicyVersion,
   gateDemoScrollFallbackPolicyVersion,
+  gateDemoVirtualListFallbackPolicyVersion,
   resolveGateDemoFallbackPolicy,
   resolveGateDemoScrollFallbackPolicy,
+  resolveGateDemoVirtualListFallbackPolicy,
 } from "../src/index.js";
 
 describe("Gate Demo fallback renderer policy", () => {
@@ -153,6 +155,71 @@ describe("Gate Demo fallback renderer policy", () => {
       owner: "sinan",
       reason: "disabled-scroll",
       hostScrollCapability: "disabled",
+    });
+  });
+
+  it("keeps LudoWeave selected for virtual list when renderer, capability, and selection are current", () => {
+    expect(resolveGateDemoVirtualListFallbackPolicy()).toEqual({
+      version: gateDemoVirtualListFallbackPolicyVersion,
+      status: "PASS",
+      owner: "ludoweave",
+      route: "ludoweave-renderer",
+      reason: "none",
+      requestedRenderer: "dom",
+      hostCollectionCapability: "available",
+      selectionState: "current",
+      diagnostics: [],
+    });
+  });
+
+  it("selects Sinan-owned virtual list fallback for unsupported renderer and host collection gaps", () => {
+    expect(resolveGateDemoVirtualListFallbackPolicy({ requestedRenderer: "webgpu" })).toMatchObject(
+      {
+        version: gateDemoVirtualListFallbackPolicyVersion,
+        status: "PASS",
+        owner: "sinan",
+        route: "sinan-fallback-renderer",
+        reason: "unsupported-renderer",
+        requestedRenderer: "webgpu",
+        diagnostics: [
+          {
+            code: gateDemoFallbackPolicyDiagnosticCodes.virtualListSelected,
+            severity: "info",
+          },
+        ],
+      },
+    );
+
+    expect(
+      resolveGateDemoVirtualListFallbackPolicy({
+        hostCollectionCapability: "missing",
+      }),
+    ).toMatchObject({
+      owner: "sinan",
+      reason: "missing-host-collection-capability",
+      hostCollectionCapability: "missing",
+    });
+  });
+
+  it("selects Sinan-owned virtual list fallback for stale selection and removed items", () => {
+    expect(
+      resolveGateDemoVirtualListFallbackPolicy({
+        selectionState: "stale",
+      }),
+    ).toMatchObject({
+      owner: "sinan",
+      reason: "stale-selection",
+      selectionState: "stale",
+    });
+
+    expect(
+      resolveGateDemoVirtualListFallbackPolicy({
+        selectionState: "removed",
+      }),
+    ).toMatchObject({
+      owner: "sinan",
+      reason: "removed-item",
+      selectionState: "removed",
     });
   });
 });

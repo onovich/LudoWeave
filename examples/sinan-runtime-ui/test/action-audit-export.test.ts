@@ -9,11 +9,13 @@ import { createActionLogInspectorExportPayload } from "../../../apps/playground/
 import {
   createGateDemoActionAuditExportPayload,
   createGateDemoScrollAuditExportPayload,
+  createGateDemoVirtualListAuditExportPayload,
   createSinanActionAuditExportJson,
   createSinanActionAuditExportPayload,
   createSinanUIActionRefRegistryMock,
   sinanActionAuditExportVersion,
   sinanScrollAuditExportVersion,
+  sinanVirtualListAuditExportVersion,
   sinanUIActionRegistryDiagnosticCodes,
 } from "../src/index.js";
 
@@ -184,6 +186,50 @@ describe("Sinan ActionRef audit export", () => {
     });
     expect(JSON.stringify(payload)).not.toContain("WheelEvent");
     expect(JSON.stringify(payload)).not.toContain("scrollTop");
+    expect(JSON.parse(JSON.stringify(payload))).toEqual(payload);
+  });
+
+  it("exports Gate Demo virtual list window, selection, registry, and diagnostics review payloads", () => {
+    const payload = createGateDemoVirtualListAuditExportPayload();
+
+    expect(payload.version).toBe(sinanVirtualListAuditExportVersion);
+    expect(payload.entries.map((entry) => entry.intentKind)).toEqual([
+      "select-item",
+      "activate-item",
+      "move-selection",
+      "request-window",
+      "restore-selection",
+    ]);
+    expect(payload.entries.every((entry) => entry.actionType === "runtime.collection.intent")).toBe(
+      true,
+    );
+    expect(payload.entries.every((entry) => entry.windowId === "gate-demo-quest-window")).toBe(
+      true,
+    );
+    expect(payload.entries.every((entry) => entry.routingResult === "accepted")).toBe(true);
+    expect(payload.entries[0]).toMatchObject({
+      sequence: 1,
+      frameId: "gate-demo:1024",
+      intentKind: "select-item",
+      windowId: "gate-demo-quest-window",
+      itemKey: "quest:3",
+      actionType: "runtime.collection.intent",
+      payload: {
+        kind: "select-item",
+        windowId: "gate-demo-quest-window",
+        itemKeyNamespace: "quest",
+        repeat: false,
+        itemKey: "quest:3",
+      },
+      source: {
+        nodeId: "runtime.main/key:quest-log",
+        label: "Gate Demo virtual list intent",
+      },
+      diagnostics: [],
+    });
+    expect(JSON.stringify(payload)).not.toContain("Promise");
+    expect(JSON.stringify(payload)).not.toContain("datasource");
+    expect(JSON.stringify(payload)).not.toContain("HTMLElement");
     expect(JSON.parse(JSON.stringify(payload))).toEqual(payload);
   });
 });

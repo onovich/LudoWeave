@@ -2,11 +2,13 @@ export { createSinanActionRefBridge } from "./action-bridge.js";
 export type { SinanActionRefBridge, SinanRuntimeUICommand } from "./action-bridge.js";
 export {
   createGateDemoScrollAuditExportPayload,
+  createGateDemoVirtualListAuditExportPayload,
   createGateDemoActionAuditExportPayload,
   createSinanActionAuditExportJson,
   createSinanActionAuditExportPayload,
   sinanActionAuditExportVersion,
   sinanScrollAuditExportVersion,
+  sinanVirtualListAuditExportVersion,
 } from "./action-audit-export.js";
 export type {
   SinanActionAuditExportEntry,
@@ -14,6 +16,8 @@ export type {
   SinanActionAuditExportSource,
   SinanScrollAuditExportEntry,
   SinanScrollAuditExportPayload,
+  SinanVirtualListAuditExportEntry,
+  SinanVirtualListAuditExportPayload,
 } from "./action-audit-export.js";
 export { mapRuntimeUIObjectiveAction, mapRuntimeUIPromptAction } from "./action-mapping.js";
 export {
@@ -51,8 +55,10 @@ export {
   gateDemoFallbackPolicyDiagnosticCodes,
   gateDemoFallbackPolicyVersion,
   gateDemoScrollFallbackPolicyVersion,
+  gateDemoVirtualListFallbackPolicyVersion,
   resolveGateDemoFallbackPolicy,
   resolveGateDemoScrollFallbackPolicy,
+  resolveGateDemoVirtualListFallbackPolicy,
 } from "./fallback-policy.js";
 export type {
   GateDemoFallbackOwner,
@@ -62,8 +68,11 @@ export type {
   GateDemoRequestedRenderer,
   GateDemoScrollFallbackPolicyResult,
   GateDemoScrollFallbackReason,
+  GateDemoVirtualListFallbackPolicyResult,
+  GateDemoVirtualListFallbackReason,
   ResolveGateDemoFallbackPolicyOptions,
   ResolveGateDemoScrollFallbackPolicyOptions,
+  ResolveGateDemoVirtualListFallbackPolicyOptions,
 } from "./fallback-policy.js";
 export {
   createGateDemoHostCapabilitySnapshot,
