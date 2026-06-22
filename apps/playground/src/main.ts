@@ -1,4 +1,12 @@
-import { createActionLog, type ResolvedActionTarget } from "@ludoweave/core";
+import {
+  createActionLog,
+  normalizeHostInputIntent,
+  type ResolvedActionTarget,
+} from "@ludoweave/core";
+import {
+  createModalFocusNavigationDraft,
+  createModalFocusNavigationSequence,
+} from "@ludoweave/components";
 import { mountDomRenderer } from "@ludoweave/renderer-dom";
 
 import { gateDemoRuntimeUIViewModelEnvelope } from "../../../examples/sinan-runtime-ui/src/fixture.js";
@@ -22,6 +30,8 @@ const themeResolutionRoot = requireElement("#theme-resolution");
 const gateDemoStage = requireElement("#gate-demo-stage");
 const gateDemoRuntimeRoot = requireElement("#gate-demo-runtime-root");
 const gateDemoStatus = requireElement("#gate-demo-status");
+const navigationSmokeRoot = requireElement("#navigation-smoke");
+const navigationStatus = requireElement("#navigation-status");
 const actionLog = createActionLog();
 
 const renderer = mountDomRenderer({
@@ -48,6 +58,7 @@ renderActionLog();
 renderThemeResolutionPanel(themeResolutionRoot);
 render();
 renderGateDemoSmoke();
+renderNavigationSmoke();
 window.addEventListener("resize", render);
 window.addEventListener("resize", scaleGateDemoSmoke);
 actionLogFilter.addEventListener("change", renderActionLog);
@@ -135,6 +146,97 @@ function scaleGateDemoSmoke(): void {
   gateDemoRuntimeRoot.style.width = "1280px";
   gateDemoRuntimeRoot.style.height = "720px";
   gateDemoRuntimeRoot.style.transform = `scale(${scale})`;
+}
+
+function renderNavigationSmoke(): void {
+  const draft = createModalFocusNavigationDraft({
+    scopeId: "pause.dialog",
+    initialFocusId: "resume",
+    restoreFocusKey: "hud.pause-button",
+    controls: [
+      {
+        id: "resume",
+        rect: { x: 440, y: 320, width: 240, height: 44 },
+        action: "runtime.pause.resume",
+      },
+      {
+        id: "cancel",
+        rect: { x: 440, y: 376, width: 240, height: 44 },
+        action: "runtime.ui.cancel",
+      },
+    ],
+  });
+  const intents = [
+    normalizeHostInputIntent({ kind: "navigate", direction: "down", focusId: "resume" }),
+    normalizeHostInputIntent({ kind: "confirm", focusId: "cancel" }),
+    normalizeHostInputIntent({ kind: "cancel" }),
+  ];
+  const sequence = createModalFocusNavigationSequence(draft, intents);
+
+  navigationStatus.textContent = "PASS";
+  navigationStatus.dataset.navigationStatus = "pass";
+  navigationSmokeRoot.dataset.navigationCurrentFocus = draft.focusGraph.currentFocusId ?? "";
+  navigationSmokeRoot.dataset.navigationIntentCount = String(intents.length);
+  navigationSmokeRoot.dataset.navigationActionCount = String(sequence.actionLog.length);
+  navigationSmokeRoot.replaceChildren(
+    createNavigationMeta("Scope", draft.scope.scopeId),
+    createNavigationMeta("Current focus", draft.focusGraph.currentFocusId ?? "none"),
+    createNavigationMeta("Restore focus", draft.scope.restoreFocusKey ?? "none"),
+    createNavigationList(
+      "Focus graph",
+      draft.focusGraph.nodes.map((node) => `${node.id}:${node.scopeId}`),
+      "navigation-focus-node",
+    ),
+    createNavigationList(
+      "Host intents",
+      intents.map((intent) =>
+        intent.kind === "navigate" ? `${intent.kind}:${intent.direction}` : intent.kind,
+      ),
+      "navigation-intent",
+    ),
+    createNavigationList(
+      "ActionRef outputs",
+      sequence.actionLog.map((entry) => entry.action.type),
+      "navigation-action",
+    ),
+  );
+}
+
+function createNavigationMeta(label: string, value: string): HTMLElement {
+  const row = document.createElement("p");
+  row.className = "navigation-smoke__meta";
+
+  const labelElement = document.createElement("span");
+  labelElement.textContent = label;
+
+  const valueElement = document.createElement("strong");
+  valueElement.textContent = value;
+
+  row.replaceChildren(labelElement, valueElement);
+  return row;
+}
+
+function createNavigationList(
+  label: string,
+  values: readonly string[],
+  itemAttribute: string,
+): HTMLElement {
+  const group = document.createElement("div");
+  group.className = "navigation-smoke__group";
+
+  const heading = document.createElement("h3");
+  heading.textContent = label;
+
+  const list = document.createElement("ol");
+  for (const value of values) {
+    const item = document.createElement("li");
+    item.setAttribute(`data-${itemAttribute}`, value);
+    item.textContent = value;
+    list.append(item);
+  }
+
+  group.replaceChildren(heading, list);
+  return group;
 }
 
 function parseActionLogFilter(value: string): ActionLogInspectorFilter {

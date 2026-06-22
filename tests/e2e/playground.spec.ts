@@ -101,4 +101,19 @@ test("renders v0.3 runtime UI states in the playground", async ({ page }) => {
   await expect(
     gateDemo.locator('[data-ludoweave-node-id="runtime.main/key:editable.gate-code"]'),
   ).toHaveText("Gate access code");
+
+  const navigation = page.locator('[aria-label="v0.5 Navigation"]');
+  await expect(navigation.locator("#navigation-status")).toHaveAttribute(
+    "data-navigation-status",
+    "pass",
+  );
+  await expect(navigation.locator("#navigation-smoke")).toHaveAttribute(
+    "data-navigation-current-focus",
+    "resume",
+  );
+  await expect(navigation.locator("[data-navigation-focus-node]")).toHaveCount(2);
+  await expect(navigation.locator("[data-navigation-intent]")).toHaveCount(3);
+  await expect(navigation.locator("[data-navigation-action]")).toHaveCount(2);
+  await expect(navigation).toContainText("navigate:down");
+  await expect(navigation).toContainText("runtime.ui.cancel");
 });

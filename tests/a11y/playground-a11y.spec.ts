@@ -17,6 +17,10 @@ test("has no blocking accessibility violations in the playground", async ({ page
   await expect(
     page.locator('[data-ludoweave-node-id="runtime.main/key:editable.gate-code"]'),
   ).toHaveAccessibleName("Gate access code");
+  await expect(page.locator("#navigation-status")).toHaveAttribute(
+    "data-navigation-status",
+    "pass",
+  );
 
   const results = await new AxeBuilder({ page })
     .withTags(["wcag2a", "wcag2aa", "best-practice"])
