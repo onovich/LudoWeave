@@ -60,6 +60,15 @@ export type {
   FallbackRuntimeUISnapshot,
   FallbackRuntimeUISubtitleElement,
 } from "./fallback-renderer.js";
+export {
+  mapRuntimeUIViewModelEnvelopeToResolvedFrame,
+  runtimeUIAdapterDiagnosticCodes,
+} from "./resolved-frame-adapter.js";
+export type {
+  RuntimeUIAdapterDiagnosticLayer,
+  RuntimeUIResolvedFrameMappingOptions,
+  RuntimeUIResolvedFrameMappingResult,
+} from "./resolved-frame-adapter.js";
 export { gateDemoRuntimeUIViewModel, gateDemoRuntimeUIViewModelEnvelope } from "./fixture.js";
 export type {
   RuntimeUIEditableOverlayCandidateElement,
